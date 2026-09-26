@@ -71,6 +71,8 @@ func Load(dir string) (Resolved, string, error) {
 	if path == "" {
 		return cfg, "", nil
 	}
+	// #nosec G304 — path always comes from Find(), which only
+	// returns our three known filenames (.gitagger.yml/.yaml/.gitagger).
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		return cfg, path, err

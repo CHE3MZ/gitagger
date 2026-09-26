@@ -337,7 +337,8 @@ func cmdInit(args []string) error {
 		return fmt.Errorf("config already exists at %s (use --force to overwrite)", existing)
 	}
 	path := dir + string(os.PathSeparator) + ".gitagger.yml"
-	if err := os.WriteFile(path, []byte(config.DefaultFileContent()), 0o644); err != nil {
+	// Owner-only perms: gosec-clean and no reason for group/others to read it.
+	if err := os.WriteFile(path, []byte(config.DefaultFileContent()), 0o600); err != nil {
 		return err
 	}
 	fmt.Printf("%s %s\n", style.Green("wrote"), style.White(".gitagger.yml"))

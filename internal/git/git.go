@@ -34,6 +34,8 @@ func run(dir string, timeout time.Duration, args ...string) (string, error) {
 		full = append(full, "-C", dir)
 	}
 	full = append(full, args...)
+	// #nosec G204 — binary is fixed to the user's git from PATH
+	// (see EnsureAvailable) and args are built internally, never a shell.
 	cmd := exec.CommandContext(ctx, lookName, full...)
 	out, err := cmd.CombinedOutput()
 	if ctx.Err() == context.DeadlineExceeded {
