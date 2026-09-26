@@ -12,17 +12,17 @@ import (
 
 func TestClassify(t *testing.T) {
 	cases := map[string]detect.Format{
-		"v1.2.3":             detect.Triple,
-		"1.2.3":              detect.Triple,
-		"v1.2.3-rc":          detect.Triple,
-		"v1.2":               detect.Double,
-		"v1":                 detect.Single,
-		"v2026.09.26":        detect.Date,
-		"v2026.09.26.1":      detect.Date,
-		"master-2f88688":     detect.SHA,
+		"v1.2.3":              detect.Triple,
+		"1.2.3":               detect.Triple,
+		"v1.2.3-rc":           detect.Triple,
+		"v1.2":                detect.Double,
+		"v1":                  detect.Single,
+		"v2026.09.26":         detect.Date,
+		"v2026.09.26.1":       detect.Date,
+		"master-2f88688":      detect.SHA,
 		"master-1234-2f88688": detect.SHANum,
-		"hello":              detect.Unknown,
-		"":                   detect.Unknown,
+		"hello":               detect.Unknown,
+		"":                    detect.Unknown,
 	}
 	for tag, want := range cases {
 		if got := detect.Classify(tag); got != want {
@@ -75,7 +75,7 @@ func TestTripleBumps(t *testing.T) {
 		{"v1.2.3", "major", "stable", "v2.0.0", true},
 		{"1.2.3", "patch", "stable", "1.2.4", false},
 		{"v1.2.3", "patch", "rc", "v1.2.4-rc", true},
-		{"v1.2.4-rc", "patch", "stable", "v1.2.4", true}, // promote
+		{"v1.2.4-rc", "patch", "stable", "v1.2.4", true},    // promote
 		{"v1.2.4-rc", "patch", "beta", "v1.2.4-beta", true}, // pre swap, no bump
 	}
 	for _, c := range cases {

@@ -11,14 +11,14 @@ import (
 type Format string
 
 const (
-	Auto   Format = "auto"
-	Triple Format = "triple"
-	Double Format = "double"
-	Single Format = "single"
-	Date   Format = "date"
-	SHA    Format = "sha"
-	SHANum Format = "sha-num"
-	Custom Format = "custom"
+	Auto    Format = "auto"
+	Triple  Format = "triple"
+	Double  Format = "double"
+	Single  Format = "single"
+	Date    Format = "date"
+	SHA     Format = "sha"
+	SHANum  Format = "sha-num"
+	Custom  Format = "custom"
 	Unknown Format = "unknown"
 )
 

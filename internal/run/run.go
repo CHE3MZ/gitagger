@@ -128,7 +128,7 @@ func ComputePlan(o Options) (Plan, error) {
 
 // PushOutcome is the §8 remote safety sequence result.
 type PushOutcome struct {
-	Pushed bool
+	Pushed  bool
 	Skipped string // human reason when not pushed
 }
 

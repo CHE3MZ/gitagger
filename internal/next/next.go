@@ -14,15 +14,15 @@ import (
 
 // Request describes how to bump.
 type Request struct {
-	Prev     string            // previous tag, e.g. "v1.2.3" (empty when no tags)
-	Scale    string            // major|minor|patch
-	Pre      string            // stable|rc|beta|build|nightly
-	Format   detect.Format     // concrete format (never auto)
-	VPrefix  bool              // keep leading "v"
-	Now      time.Time         // used for date format
-	Existing map[string]bool   // known tags, for date collision counter
-	SHA      string            // short SHA, for sha formats
-	Count    string            // rev-list count, for sha-num
+	Prev     string          // previous tag, e.g. "v1.2.3" (empty when no tags)
+	Scale    string          // major|minor|patch
+	Pre      string          // stable|rc|beta|build|nightly
+	Format   detect.Format   // concrete format (never auto)
+	VPrefix  bool            // keep leading "v"
+	Now      time.Time       // used for date format
+	Existing map[string]bool // known tags, for date collision counter
+	SHA      string          // short SHA, for sha formats
+	Count    string          // rev-list count, for sha-num
 }
 
 // InitialTag is the fallback for repos with no tags.

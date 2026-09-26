@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: build + vet + test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: build
+        run: go build ./...
+      - name: vet
+        run: go vet ./...
+      - name: test (logs kept)
+        run: |
+          mkdir -p logs
+          go test ./... -v 2>&1 | tee logs/go-test.txt
+      - name: upload test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: go-test-logs
+          path: logs/go-test.txt
+
+  ops-lint:
+    name: ops scripts (bugcheck + seccheck)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: install lint tools
+        run: |
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+          go install github.com/kisielk/errcheck@latest
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
+          go install golang.org/x/tools/gopls@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+      - name: bugcheck
+        run: bash scripts/ops/go-bugcheck.sh
+      - name: seccheck
+        run: bash scripts/ops/go-seccheck.sh
+      - name: upload ops logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ops-logs
+          path: logs/
