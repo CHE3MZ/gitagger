@@ -61,7 +61,6 @@ func runCLI(args []string) error {
 
 // optsFrom parses tag flags. Keeps it simple: no external CLI lib.
 type flagSet struct {
-	scale        string
 	pre          string
 	format       string
 	custom       string
