@@ -59,7 +59,6 @@ var commands = []commandRow{
 	{"init", "       [--flags]       Generates a .gitagger.yml file"},
 	{"check", "      [--flags]       Checks if your .gitagger.yml config is valid"},
 	{"list", "       [--flags]       Shows all tags"},
-	{"ls", "         [--flags]       Shows all tags"},
 	{"help", "       [--flags]       Print this help text"},
 	{"doctor", "     [--flags]       Audit local vs remote tag health status"},
 	{"remote", "     [--flags]       View the remote URL for this git project"},
@@ -124,7 +123,6 @@ var commandHelp = map[string]cmdHelp{
 		"init [-f]",
 		[]string{
 			"-f --force   Overwrite the config file if it exists.",
-			"-v --verbose   Also show the full path.",
 			"-h --help    Print the help text for a command.",
 		},
 	},
@@ -168,9 +166,7 @@ var commandHelp = map[string]cmdHelp{
 	"version": {
 		"Show the build version.",
 		"version",
-		[]string{
-			"-h --help    Print the help text for a command.",
-		},
+		nil,
 	},
 	"patch": {"New tag addition by    0.0.X.", "patch [--flags]", tagFlags},
 	"minor": {"New tag rounding to    0.X.0.", "minor [--flags]", tagFlags},
