@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/CHE3MZ/gitagger/internal/next"
 )
 
 // Resolved is config with defaults applied.
@@ -14,6 +16,7 @@ type Resolved struct {
 	Scale        string
 	Pre          string
 	Format       string
+	Custom       string
 	Remote       string
 	Push         bool
 	Force        bool
@@ -73,6 +76,9 @@ func Load(dir string) (Resolved, string, error) {
 	}
 	if v, ok := m["format"]; ok && v != "" {
 		cfg.Format = strings.ToLower(v)
+	}
+	if v, ok := m["custom"]; ok {
+		cfg.Custom = v
 	}
 	if v, ok := m["remote"]; ok && v != "" {
 		cfg.Remote = v
@@ -134,9 +140,16 @@ func Validate(c Resolved) error {
 		return fmt.Errorf("bad pre %q (want stable|rc|beta|build|nightly)", c.Pre)
 	}
 	switch c.Format {
-	case "auto", "triple", "double", "single", "date", "sha", "sha-num":
+	case "auto", "triple", "double", "single", "date", "sha", "sha-num", "custom":
 	default:
-		return fmt.Errorf("bad format %q (want auto|triple|double|single|date|sha|sha-num)", c.Format)
+		return fmt.Errorf("bad format %q (want auto|triple|double|single|date|sha|sha-num|custom)", c.Format)
+	}
+	if c.Format == "custom" {
+		if err := next.ValidateTemplate(c.Custom); err != nil {
+			return err
+		}
+	} else if strings.TrimSpace(c.Custom) != "" {
+		return fmt.Errorf("custom template is set but format is not custom")
 	}
 	if strings.TrimSpace(c.Remote) == "" {
 		return fmt.Errorf("remote must not be empty")
@@ -161,6 +174,10 @@ pre: stable
 # Tag style. auto follows your tag history.
 # auto | triple | double | single | date | sha | sha-num
 format: auto
+
+# Custom tag template. Only used when format is custom above.
+# API: MAJOR MINOR PATCH YEAR MONTH DAY DATE SHA FULLSHA COUNT PRE NUMBER TAG — ex: "build-<SHA>-v<MAJOR>.<MINOR>.<PATCH>-<DATE><PRE>"
+custom: ""
 
 # Push target. Must exist for auto-push to happen.
 remote: origin

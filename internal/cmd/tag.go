@@ -128,7 +128,8 @@ func mapPlanError(err error) error {
 		strings.Contains(lower, "remote must not"),
 		strings.Contains(lower, "custom template is empty"),
 		strings.Contains(lower, "no custom template"),
-		strings.Contains(lower, "format is custom"):
+		strings.Contains(lower, "format is custom"),
+		strings.Contains(lower, "custom template"):
 		return BadArgs("%s", msg)
 	default:
 		return GenericErr(err)

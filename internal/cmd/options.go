@@ -23,10 +23,11 @@ func BuildOptions(dir string, cfg config.Resolved, scale string, f TagFlags) (ru
 	if f.Format != "" {
 		ff, ok := detect.ParseFormat(f.Format)
 		if !ok {
-			return o, BadArgs("bad --format %q (want auto|triple|double|single|date|sha|sha-num)", f.Format)
+			return o, BadArgs("bad --format %q (want auto|triple|double|single|date|sha|sha-num — custom lives in .gitagger.yml)", f.Format)
 		}
 		o.Format = ff
 	}
+	o.Custom = cfg.Custom
 	o.Push = cfg.Push
 	if f.NoPush {
 		o.Push = false

@@ -23,6 +23,8 @@ type Request struct {
 	Existing map[string]bool // known tags, for date collision counter
 	SHA      string          // short SHA, for sha formats
 	Count    string          // rev-list count, for sha-num
+	Custom   string          // template, for custom format (config-only)
+	FullSHA  string          // full SHA, for custom FULLSHA
 }
 
 // InitialTag is the fallback for repos with no tags.
@@ -65,7 +67,7 @@ func Compute(req Request) (string, error) {
 		return "", fmt.Errorf("format is still auto — detect it first")
 	}
 	if req.Format == detect.Custom {
-		return "", fmt.Errorf("custom format is planned for v2")
+		return custom(req, scale, pre)
 	}
 	if req.Prev == "" {
 		// Fresh repo: date/sha still derive from now/sha, semver starts over.

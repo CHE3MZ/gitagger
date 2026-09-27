@@ -19,6 +19,7 @@ type Options struct {
 	Scale        string
 	Pre          string
 	Format       detect.Format
+	Custom       string
 	Remote       string
 	Push         bool
 	Force        bool
@@ -39,8 +40,15 @@ func FromConfig(dir string, cfg config.Resolved, o Options) Options {
 		o.Pre = cfg.Pre
 	}
 	if o.Format == "" {
-		f, _ := detect.ParseFormat(cfg.Format)
-		o.Format = f
+		// Custom stays out of --format parsing (config-only): map it here.
+		if strings.ToLower(strings.TrimSpace(cfg.Format)) == "custom" {
+			o.Format = detect.Custom
+		} else if f, ok := detect.ParseFormat(cfg.Format); ok {
+			o.Format = f
+		}
+	}
+	if o.Custom == "" {
+		o.Custom = cfg.Custom
 	}
 	if o.Remote == "" {
 		o.Remote = cfg.Remote
@@ -107,16 +115,19 @@ func ComputePlan(o Options) (Plan, error) {
 	if len(tags) > 0 {
 		prev = tags[len(tags)-1] // oldest -> newest
 	}
-	// Gather sha info lazily for sha formats only.
-	var sha, count string
-	if format == detect.SHA || format == detect.SHANum {
+	// Gather sha info lazily for sha/custom formats only.
+	var sha, fullSHA, count string
+	if format == detect.SHA || format == detect.SHANum || format == detect.Custom {
 		sha, _ = git.ShortSHA(o.Dir)
 		count, _ = git.Count(o.Dir)
+	}
+	if format == detect.Custom {
+		fullSHA, _ = git.FullSHA(o.Dir)
 	}
 	nextTag, err := next.Compute(next.Request{
 		Prev: prev, Scale: o.Scale, Pre: o.Pre, Format: format,
 		VPrefix: vPrefix, Now: time.Now(), Existing: existing,
-		SHA: sha, Count: count,
+		SHA: sha, Count: count, Custom: o.Custom, FullSHA: fullSHA,
 	})
 	if err != nil {
 		return Plan{}, err

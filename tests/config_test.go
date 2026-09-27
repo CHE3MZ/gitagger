@@ -51,7 +51,7 @@ func TestFlagsBeatConfigForceVerbose(t *testing.T) {
 
 func TestLegacyKeysIgnored(t *testing.T) {
 	dir := t.TempDir()
-	writeConfig(t, dir, "version: 1\nconfirm: true\ncustom: \"x\"\nformat: auto\n")
+	writeConfig(t, dir, "version: 1\nconfirm: true\nformat: auto\n")
 	cfg, _, err := config.Load(dir)
 	if err != nil {
 		t.Fatalf("legacy keys should be ignored, got: %v", err)
@@ -61,14 +61,34 @@ func TestLegacyKeysIgnored(t *testing.T) {
 	}
 }
 
-func TestCustomFormatRejected(t *testing.T) {
+func TestCustomFormatLoads(t *testing.T) {
 	dir := t.TempDir()
-	writeConfig(t, dir, "format: custom\ncustom: \"x\"\n")
-	if _, _, err := config.Load(dir); err == nil {
-		t.Fatalf("format: custom should fail validation")
+	writeConfig(t, dir, "format: custom\ncustom: \"build-<SHA>-v<MAJOR>.<MINOR>.<PATCH>\"\n")
+	cfg, _, err := config.Load(dir)
+	if err != nil {
+		t.Fatalf("valid custom config should load: %v", err)
 	}
-	if err := cmd.RunCheck(dir, false); err == nil {
-		t.Fatalf("check should reject format: custom")
+	if cfg.Custom != "build-<SHA>-v<MAJOR>.<MINOR>.<PATCH>" {
+		t.Fatalf("cfg.Custom = %q", cfg.Custom)
+	}
+	if err := cmd.RunCheck(dir, false); err != nil {
+		t.Fatalf("check should accept valid custom config: %v", err)
+	}
+}
+
+func TestCustomEmptyRejected(t *testing.T) {
+	dir := t.TempDir()
+	writeConfig(t, dir, "format: custom\n")
+	if _, _, err := config.Load(dir); err == nil {
+		t.Fatalf("format: custom with empty template should fail")
+	}
+}
+
+func TestCustomSetButUnusedRejected(t *testing.T) {
+	dir := t.TempDir()
+	writeConfig(t, dir, "format: triple\ncustom: \"v<MAJOR>.<MINOR>.<PATCH>\"\n")
+	if _, _, err := config.Load(dir); err == nil {
+		t.Fatalf("dormant custom template should fail validation")
 	}
 }
 
@@ -82,12 +102,12 @@ func TestBadForceValue(t *testing.T) {
 
 func TestInitTemplateCoversSchema(t *testing.T) {
 	tmpl := config.DefaultFileContent()
-	for _, key := range []string{"scale:", "pre:", "format:", "remote:", "push:", "force:", "require_clean:", "verbose:", "message:"} {
+	for _, key := range []string{"scale:", "pre:", "format:", "custom:", "remote:", "push:", "force:", "require_clean:", "doctor:", "verbose:", "message:"} {
 		if !strings.Contains(tmpl, key) {
 			t.Errorf("init template missing %q", key)
 		}
 	}
-	for _, dead := range []string{"version:", "confirm:", "custom:"} {
+	for _, dead := range []string{"version:", "confirm:"} {
 		if strings.Contains(tmpl, dead) {
 			t.Errorf("init template still has dead %q", dead)
 		}
