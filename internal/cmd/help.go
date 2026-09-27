@@ -61,7 +61,7 @@ var commands = []commandRow{
 	{"list", "       [--flags]       Shows all tags"},
 	{"help", "       [--flags]       Print this help text"},
 	{"doctor", "     [--flags]       Audit local vs remote tag health status"},
-	{"remote", "     [--flags]       View the remote URL for this git project"},
+	{"remote", "     [--flags]       Change the remote URL the tag will get pushed to"},
 	{"version", "    [--flags]       Show the build version"},
 	{"patch", "      [--flags]       New tag addition by    0.0.X"},
 	{"minor", "      [--flags]       New tag rounding to    0.X.0"},
@@ -76,6 +76,8 @@ var flagLines = []string{
 	"  -n --no-push   Create tag without pushing.",
 	"  -d --dry-run   Do A dry-run for testing.",
 	"  -f --force     Force push to remote.",
+	"  -m --message <msg> Tag message. Empty = lightweight tag.",
+	"  --require-clean   Abort if the working tree is dirty.",
 }
 
 // CommandHelp prints help for one command in the same direct style.
@@ -113,6 +115,8 @@ var tagFlags = []string{
 	"-n --no-push   Create tag without pushing.",
 	"-d --dry-run   Do A dry-run for testing.",
 	"-f --force     Force push to remote.",
+	"-m --message <msg> Tag message. Empty = lightweight tag.",
+	"--require-clean   Abort if the working tree is dirty.",
 	"-v --verbose   Enable verbose mode.",
 	"-h --help      Print the help text for a command.",
 }
@@ -156,10 +160,11 @@ var commandHelp = map[string]cmdHelp{
 		},
 	},
 	"remote": {
-		"View the remote URL for this git project.",
-		"remote [-v]",
+		"Change the remote URL the tag will get pushed to.",
+		"remote <name>",
 		[]string{
-			"-v --verbose   Show all remotes.",
+			"-s --show    Show the current remote instead.",
+			"-v --verbose   Show all remotes with --show.",
 			"-h --help      Print the help text for a command.",
 		},
 	},

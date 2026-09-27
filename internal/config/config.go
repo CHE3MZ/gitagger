@@ -18,6 +18,7 @@ type Resolved struct {
 	Push         bool
 	Force        bool
 	RequireClean bool
+	Doctor       bool
 	Verbose      bool
 	Message      string
 }
@@ -97,6 +98,13 @@ func Load(dir string) (Resolved, string, error) {
 		}
 		cfg.Verbose = b
 	}
+	if v, ok := m["doctor"]; ok && v != "" {
+		b, err := parseBool(v)
+		if err != nil {
+			return cfg, path, fmt.Errorf("bad doctor value %q in %s (want true/false)", v, path)
+		}
+		cfg.Doctor = b
+	}
 	if v, ok := m["require_clean"]; ok && v != "" {
 		b, err := parseBool(v)
 		if err != nil {
@@ -168,6 +176,10 @@ force: false
 # Abort instead of tagging when the working tree is dirty.
 require_clean: false
 
+# Run a doctor check before creating the tag.
+# Aborts early if the remote already has the next tag.
+doctor: false
+
 # Show detection details and the plan while working.
 # true = same as -v on every run.
 verbose: false
@@ -186,6 +198,59 @@ func parseBool(s string) (bool, error) {
 	default:
 		return false, fmt.Errorf("not a bool")
 	}
+}
+
+// SetRemote writes remote: <name> into the config file, creating a minimal
+// file when none exists. Other keys are left alone. Returns the file path.
+func SetRemote(dir, name string) (string, error) {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return "", fmt.Errorf("remote must not be empty")
+	}
+	path := Find(dir)
+	if path == "" {
+		path = filepath.Join(dir, ".gitagger.yml")
+		content := "# gitagger config — edit me, then just run `gitagger`.\nremote: " + name + "\n"
+		if err := os.WriteFile(path, []byte(content), 0o600); err != nil {
+			return "", err
+		}
+		return path, nil
+	}
+	// #nosec G304 — path always comes from Find(), which only
+	// returns our three known filenames (.gitagger.yml/.yaml/.gitagger).
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return "", err
+	}
+	mode := os.FileMode(0o644)
+	if st, err := os.Stat(path); err == nil {
+		mode = st.Mode().Perm()
+	}
+	lines := strings.Split(string(raw), "\n")
+	replaced := false
+	for i, ln := range lines {
+		t := strings.TrimSpace(ln)
+		if t == "" || strings.HasPrefix(t, "#") {
+			continue
+		}
+		if idx := strings.Index(t, ":"); idx >= 0 && strings.TrimSpace(t[:idx]) == "remote" {
+			lines[i] = "remote: " + name
+			replaced = true
+			break
+		}
+	}
+	if !replaced {
+		lines = append(lines, "remote: "+name)
+	}
+	// #nosec G306 — keeps the config file's existing permissions.
+	// #nosec G703 — path is the Find() result above (fixed basenames only).
+	if err := os.WriteFile(path, []byte(strings.Join(lines, "\n")), mode); err != nil {
+		return "", err
+	}
+	if _, _, err := Load(dir); err != nil {
+		return "", err
+	}
+	return path, nil
 }
 
 // parseSimple handles flat "key: value" YAML (comments + quotes ok).

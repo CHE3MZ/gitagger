@@ -36,7 +36,7 @@ func runCLI(args []string) error {
 		case "doctor":
 			return cmdWithRemote(args[1:], "doctor", icmd.RunDoctor)
 		case "remote":
-			return cmdWithRemote(args[1:], "remote", icmd.RunRemote)
+			return cmdRemote(args[1:])
 		case "patch", "minor", "major":
 			return cmdTag(args[0], args[1:])
 		case "-h", "--help":
@@ -123,7 +123,20 @@ func cmdWithRemote(args []string, name string, run func(string, string, bool) er
 		return nil
 	}
 	dir, _ := os.Getwd()
-	return run(dir, effectiveRemote(dir), v)
+	return run(dir, icmd.EffectiveRemote(dir), v)
+}
+
+func cmdRemote(args []string) error {
+	f, name, err := icmd.ParseRemoteArgs(args)
+	if err != nil {
+		return icmd.BadArgs("%s", err.Error())
+	}
+	if f.Help {
+		icmd.CommandHelp("remote")
+		return nil
+	}
+	dir, _ := os.Getwd()
+	return icmd.RunRemote(dir, name, f.Show, f.Verbose)
 }
 
 func cmdVersion(args []string) error {
@@ -152,12 +165,4 @@ func cmdHelp(args []string) error {
 	}
 	icmd.CommandHelp(args[0])
 	return nil
-}
-
-func effectiveRemote(dir string) string {
-	cfg, _, _ := config.Load(dir)
-	if cfg.Remote != "" {
-		return cfg.Remote
-	}
-	return "origin"
 }

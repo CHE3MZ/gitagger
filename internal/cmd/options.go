@@ -34,7 +34,11 @@ func BuildOptions(dir string, cfg config.Resolved, scale string, f TagFlags) (ru
 	o.Force = cfg.Force || f.Force
 	o.DryRun = f.DryRun
 	o.Message = cfg.Message
-	o.RequireClean = cfg.RequireClean
+	if f.Message != "" {
+		o.Message = f.Message
+	}
+	o.RequireClean = cfg.RequireClean || f.RequireClean
+	o.Doctor = cfg.Doctor
 	o.Verbose = cfg.Verbose || f.Verbose
 	return o, nil
 }

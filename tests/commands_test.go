@@ -52,8 +52,15 @@ func TestTagFlagShorts(t *testing.T) {
 	if !f.NoPush || !f.DryRun || !f.Force || !f.Verbose {
 		t.Fatalf("long flags not set: %+v", f)
 	}
+	f, _, err = cmd.ParseTagFlags([]string{"-m", "hello", "--require-clean"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if f.Message != "hello" || !f.RequireClean {
+		t.Fatalf("message/require-clean not set: %+v", f)
+	}
 	// Removed flags must error.
-	for _, a := range [][]string{{"--json"}, {"--confirm"}, {"--remote", "x"}, {"-m", "x"}, {"--require-clean"}, {"--custom", "x"}, {"-y"}} {
+	for _, a := range [][]string{{"--json"}, {"--confirm"}, {"--remote", "x"}, {"--custom", "x"}, {"-y"}} {
 		if _, _, err := cmd.ParseTagFlags(a); err == nil {
 			t.Errorf("ParseTagFlags(%v) should fail (flag removed)", a)
 		}
@@ -100,8 +107,8 @@ func TestCheckMissing(t *testing.T) {
 func TestRemoteShowsURL(t *testing.T) {
 	dir := initRepo(t)
 	mustGit(t, dir, "remote", "add", "origin", "https://example.com/repo.git")
-	if err := cmd.RunRemote(dir, "origin", false); err != nil {
-		t.Fatalf("remote should show URL: %v", err)
+	if err := cmd.RunRemote(dir, "", true, false); err != nil {
+		t.Fatalf("remote --show should show URL: %v", err)
 	}
 	out, err := git.Remotes(dir)
 	if err != nil || !strings.Contains(out, "https://example.com/repo.git") {
@@ -111,8 +118,62 @@ func TestRemoteShowsURL(t *testing.T) {
 
 func TestRemoteMissing(t *testing.T) {
 	dir := initRepo(t)
-	if err := cmd.RunRemote(dir, "origin", false); err == nil {
-		t.Fatalf("remote with no remote should fail")
+	if err := cmd.RunRemote(dir, "", true, false); err == nil {
+		t.Fatalf("remote --show with no remote should fail")
+	}
+}
+
+func TestRemoteSetPersists(t *testing.T) {
+	dir := initRepo(t)
+	mustGit(t, dir, "remote", "add", "origin", "https://example.com/a.git")
+	mustGit(t, dir, "remote", "add", "upstream", "https://example.com/b.git")
+	if err := cmd.RunRemote(dir, "upstream", false, false); err != nil {
+		t.Fatalf("remote set should pass: %v", err)
+	}
+	cfg, _, err := config.Load(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.Remote != "upstream" {
+		t.Fatalf("cfg.Remote = %q, want upstream", cfg.Remote)
+	}
+	// Existing keys survive the rewrite.
+	dir2 := t.TempDir()
+	mustGitTempInit(t, dir2)
+	writeConfig(t, dir2, "scale: minor\n")
+	if err := cmd.RunRemote(dir2, "origin", false, false); err != nil {
+		mustGit(t, dir2, "remote", "add", "origin", "https://example.com/a.git")
+		if err := cmd.RunRemote(dir2, "origin", false, false); err != nil {
+			t.Fatalf("remote set should pass: %v", err)
+		}
+	}
+	cfg, _, err = config.Load(dir2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.Remote != "origin" || cfg.Scale != "minor" {
+		t.Fatalf("cfg = %+v, want origin/minor preserved", cfg)
+	}
+}
+
+func TestRemoteSetMissing(t *testing.T) {
+	dir := initRepo(t)
+	if err := cmd.RunRemote(dir, "nope", false, false); err == nil {
+		t.Fatalf("setting a missing remote should fail")
+	}
+}
+
+func TestRemoteBareNeedsNameOrShow(t *testing.T) {
+	dir := initRepo(t)
+	if err := cmd.RunRemote(dir, "", false, false); err == nil {
+		t.Fatalf("bare remote should fail")
+	}
+	if _, _, err := cmd.ParseRemoteArgs([]string{"a", "b"}); err == nil {
+		t.Errorf("two names should fail")
+	}
+	f, name, err := cmd.ParseRemoteArgs([]string{"upstream", "-s"})
+	if err != nil || !f.Show || name != "upstream" {
+		t.Fatalf("parse = %+v,%q,%v", f, name, err)
 	}
 }
 

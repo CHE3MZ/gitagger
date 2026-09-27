@@ -25,6 +25,7 @@ type Options struct {
 	DryRun       bool
 	Message      string
 	RequireClean bool
+	Doctor       bool
 	Verbose      bool
 }
 
@@ -149,6 +150,24 @@ func EnsurePush(o Options, tag string) (PushOutcome, error) {
 		return PushOutcome{Pushed: false}, fmt.Errorf("push failed — tag %s kept locally (%v)", tag, err)
 	}
 	return PushOutcome{Pushed: true}, nil
+}
+
+// DoctorGate is the optional pre-tag remote check (doctor: true in config).
+// It never blocks offline or remote-less repos — those stay graceful.
+// It aborts only when the remote already has this tag, so a collision
+// fails before the local tag is created instead of after.
+func DoctorGate(o Options, tag string) error {
+	if _, err := git.RemoteURL(o.Dir, o.Remote); err != nil {
+		return nil
+	}
+	ls, err := git.LsRemoteTags(o.Dir, o.Remote)
+	if err != nil {
+		return nil
+	}
+	if git.RemoteHasTag(ls, tag) && !o.Force {
+		return fmt.Errorf("doctor: tag %s already exists on remote %q — use -f to overwrite or run `gitagger doctor`", tag, o.Remote)
+	}
+	return nil
 }
 
 // CheckHeadTagged aborts when HEAD already has any tag (unless --force).

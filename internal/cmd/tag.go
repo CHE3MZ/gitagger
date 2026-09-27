@@ -25,6 +25,17 @@ func RunTag(o run.Options) error {
 		return Exists("%s", err.Error())
 	}
 
+	// Doctor gate: with doctor: true, fail early on remote collision
+	// instead of creating a tag that can't push.
+	if o.Doctor && o.Push && !o.DryRun {
+		if err := run.DoctorGate(o, plan.Next); err != nil {
+			return Exists("%s", err.Error())
+		}
+		if o.Verbose {
+			fmt.Println(style.Dim("doctor: pre-push check passed"))
+		}
+	}
+
 	// Dirty-tree warning: warn but allow unless require_clean is set.
 	// ComputePlan already aborted when RequireClean is set.
 	if st, serr := git.StatusPorcelain(o.Dir); serr == nil && strings.TrimSpace(st) != "" {

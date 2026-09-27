@@ -9,13 +9,15 @@ import (
 
 // TagFlags mirrors `gitagger [patch|minor|major] [--flags]`.
 type TagFlags struct {
-	Pre     string
-	Format  string
-	NoPush  bool
-	Force   bool
-	DryRun  bool
-	Verbose bool
-	Help    bool
+	Pre          string
+	Format       string
+	Message      string
+	NoPush       bool
+	Force        bool
+	DryRun       bool
+	RequireClean bool
+	Verbose      bool
+	Help         bool
 }
 
 // ParseTagFlags parses tag flags, returning positionals separately.
@@ -49,6 +51,16 @@ func ParseTagFlags(args []string) (TagFlags, []string, error) {
 		case a == "--format" && i+1 < len(args):
 			i++
 			f.Format = args[i]
+		case a == "-m" && i+1 < len(args):
+			i++
+			f.Message = args[i]
+		case strings.HasPrefix(a, "--message="):
+			f.Message = strings.TrimPrefix(a, "--message=")
+		case a == "--message" && i+1 < len(args):
+			i++
+			f.Message = args[i]
+		case a == "--require-clean":
+			f.RequireClean = true
 		case strings.HasPrefix(a, "-"):
 			return f, pos, fmt.Errorf("unknown flag %q — try `gitagger --help`", a)
 		default:
@@ -90,4 +102,35 @@ func ParseCommon(args []string, cmd string) (help, verbose bool, err error) {
 		}
 	}
 	return help, verbose, nil
+}
+
+// RemoteFlags for `gitagger remote <name>` and `gitagger remote --show`.
+type RemoteFlags struct {
+	Show    bool
+	Verbose bool
+	Help    bool
+}
+
+// ParseRemoteArgs parses an optional remote name plus -s/--show.
+func ParseRemoteArgs(args []string) (RemoteFlags, string, error) {
+	var f RemoteFlags
+	name := ""
+	for _, a := range args {
+		switch {
+		case a == "-h" || a == "--help":
+			f.Help = true
+		case a == "-s" || a == "--show":
+			f.Show = true
+		case a == "-v" || a == "--verbose":
+			f.Verbose = true
+		case strings.HasPrefix(a, "-"):
+			return f, "", fmt.Errorf("unknown flag %q — try `gitagger remote --help`", a)
+		default:
+			if name != "" {
+				return f, "", fmt.Errorf("pick just one remote name")
+			}
+			name = a
+		}
+	}
+	return f, name, nil
 }
