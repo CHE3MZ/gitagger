@@ -292,3 +292,42 @@ func TestAutoFullLoop(t *testing.T) {
 		t.Fatalf("got %+v, want triple v1.2.5 after new commit", p)
 	}
 }
+
+func TestMaxPrevUnit(t *testing.T) {
+	cases := []struct {
+		name   string
+		tags   []string
+		format detect.Format
+		want   string
+	}{
+		{"backtagged triple", []string{"v1.0.5", "v1.0.4"}, detect.Triple, "v1.0.5"},
+		{"normal triple", []string{"v1.0.3", "v1.0.4"}, detect.Triple, "v1.0.4"},
+		{"tie keeps newest", []string{"v1.2.4", "v1.2.4-rc"}, detect.Triple, "v1.2.4-rc"},
+		{"tie keeps newest reversed", []string{"v1.2.4-rc", "v1.2.4"}, detect.Triple, "v1.2.4"},
+		{"ignores other formats", []string{"v9.9.9", "v1.2.3"}, detect.Double, ""},
+		{"double max", []string{"v1.9", "v1.10"}, detect.Double, "v1.10"},
+		{"single max", []string{"v9", "v10"}, detect.Single, "v10"},
+		{"date max", []string{"v2026.09.27", "v2026.09.26"}, detect.Date, "v2026.09.27"},
+		{"sha has no order", []string{"v1.2.3"}, detect.SHA, ""},
+		{"empty", nil, detect.Triple, ""},
+	}
+	for _, c := range cases {
+		if got := detect.MaxPrev(c.tags, c.format); got != c.want {
+			t.Errorf("%s = %q, want %q", c.name, got, c.want)
+		}
+	}
+}
+
+func TestAutoBacktaggedHistory(t *testing.T) {
+	// Mirror a real back-tag: v1.0.5 lives on the OLDER commit while
+	// v1.0.4 is newest by date. Bumping must follow max version (v1.0.6),
+	// not newest date (which would collide with existing v1.0.5).
+	dir := initRepo(t)
+	mustGit(t, dir, "tag", "v1.0.5")
+	commitDated(t, dir, time.Date(2026, 10, 1, 0, 0, 0, 0, time.UTC).Format(time.RFC3339))
+	mustGit(t, dir, "tag", "v1.0.4")
+	p := autoPlan(t, dir, "patch", "stable")
+	if p.Format != detect.Triple || p.Next != "v1.0.6" {
+		t.Fatalf("got %+v, want triple v1.0.6", p)
+	}
+}

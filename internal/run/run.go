@@ -114,6 +114,11 @@ func ComputePlan(o Options) (Plan, error) {
 	var prev string
 	if len(tags) > 0 {
 		prev = tags[len(tags)-1] // oldest -> newest
+		// Bump the highest version, not just the newest date:
+		// back-tagged histories order versions out of date order.
+		if mp := detect.MaxPrev(tags, format); mp != "" {
+			prev = mp
+		}
 	}
 	// Gather sha info lazily for sha/custom formats only.
 	var sha, fullSHA, count string
