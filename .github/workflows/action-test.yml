@@ -37,9 +37,9 @@ jobs:
       - name: Build sandbox repo
         shell: bash
         run: |
-          rm -rf /tmp/gitagger-sandbox
-          mkdir -p /tmp/gitagger-sandbox
-          cd /tmp/gitagger-sandbox
+          rm -rf sandbox
+          mkdir -p sandbox
+          cd sandbox
           git init -q
           git config user.email "ci@example.com"
           git config user.name "ci"
@@ -51,10 +51,10 @@ jobs:
         id: tag
         uses: ./
         with:
-          working-directory: /tmp/gitagger-sandbox
+          working-directory: sandbox
           args: --no-push
       - name: Assert tag created
         shell: bash
         run: |
           [ "${{ steps.tag.outputs.tag }}" = "v1.0.0" ] || { echo "expected v1.0.0, got '${{ steps.tag.outputs.tag }}'"; exit 1; }
-          git -C /tmp/gitagger-sandbox tag --list | grep -qx "v1.0.0"
+          git -C sandbox tag --list | grep -qx "v1.0.0"
