@@ -9,9 +9,16 @@ import (
 	"github.com/CHE3MZ/gitagger/internal/style"
 )
 
-// VersionString is the placeholder version until real builds stamp one in.
+// version is stamped at release time via ldflags (-X .../internal/cmd.version=...).
+// Unstamped dev builds report the dev string below.
+var version = "dev"
+
+// VersionString reports the build version.
 func VersionString() string {
-	return "gitagger is on the dev build version."
+	if version == "dev" {
+		return "gitagger is on the dev build version."
+	}
+	return "gitagger " + version
 }
 
 // PrintHelp prints the main help text.

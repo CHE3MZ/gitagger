@@ -1,0 +1,50 @@
+# gitagger releases. CI runs this on tags: goreleaser release --clean
+# Local preview without publishing: goreleaser release --snapshot --clean
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+
+version: 2
+
+project_name: gitagger
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: gitagger
+    main: ./cmd/gitagger
+    binary: gitagger
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X github.com/CHE3MZ/gitagger/internal/cmd.version={{.Version}}
+
+archives:
+  - formats: [tar.gz]
+    # this name template makes the OS and Arch compatible with the results of `uname`.
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else }}{{ .Arch }}{{ end }}
+    # use zip for windows archives
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
