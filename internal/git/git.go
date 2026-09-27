@@ -84,9 +84,6 @@ func HeadExists(dir string) bool {
 // ShortSHA returns the short HEAD sha.
 func ShortSHA(dir string) (string, error) { return runDefault(dir, "rev-parse", "--short", "HEAD") }
 
-// FullSHA returns the full HEAD sha.
-func FullSHA(dir string) (string, error) { return runDefault(dir, "rev-parse", "HEAD") }
-
 // Count returns git rev-list --count HEAD.
 func Count(dir string) (string, error) { return runDefault(dir, "rev-list", "--count", "HEAD") }
 

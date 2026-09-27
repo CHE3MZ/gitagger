@@ -27,7 +27,6 @@ type Options struct {
 	DryRun       bool
 	Message      string
 	RequireClean bool
-	JSON         bool
 	Verbose      bool
 }
 
@@ -50,10 +49,8 @@ func FromConfig(dir string, cfg config.Resolved, o Options) Options {
 	if o.Remote == "" {
 		o.Remote = cfg.Remote
 	}
-	// Push/Confirm/RequireClean/Message only default from config when
-	// the flag wasn't explicitly set — caller uses *bool tracking via
-	// the Has* fields below is overkill, so: zero value means "use config"
-	// except Force/DryRun/JSON/Verbose which default false anyway.
+	// Push/Confirm/RequireClean/Message come from config only —
+	// the CLI has no flags for them, BuildOptions copies the rest.
 	return o
 }
 
@@ -92,7 +89,7 @@ func ComputePlan(o Options) (Plan, error) {
 	for _, t := range tags {
 		existing[t] = true
 	}
-	// Plan §4: detect over last 20 tags (most recent 20 by creatordate).
+	// Detect over the last 20 tags (most recent 20 by creatordate).
 	detectInput := tags
 	if len(detectInput) > 20 {
 		detectInput = detectInput[len(detectInput)-20:]
@@ -131,7 +128,7 @@ func ComputePlan(o Options) (Plan, error) {
 	return Plan{Prev: prev, Next: nextTag, Format: format, VPrefix: vPrefix, Detected: detected, Existing: existing}, nil
 }
 
-// PushOutcome is the §8 remote safety sequence result.
+// PushOutcome is the remote safety sequence result.
 type PushOutcome struct {
 	Pushed  bool
 	Skipped string // human reason when not pushed
@@ -160,7 +157,6 @@ func EnsurePush(o Options, tag string) (PushOutcome, error) {
 }
 
 // CheckHeadTagged aborts when HEAD already has any tag (unless --force).
-// Plan §2: if HEAD is already tagged, abort instead of stacking duplicates.
 func CheckHeadTagged(o Options, tag string) error {
 	if o.Force {
 		return nil

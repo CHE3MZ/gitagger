@@ -31,7 +31,7 @@ func AskYes(prompt string) bool {
 	return line == "" || line == "y" || line == "yes"
 }
 
-// ShouldPrompt implements plan §6: prompt only when confirm requested
+// ShouldPrompt: prompt only when confirm is set
 // AND pushing AND not dry-run AND on a TTY.
 func ShouldPrompt(confirm, push, dryRun bool) bool {
 	return confirm && push && !dryRun && IsTTY()

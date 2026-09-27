@@ -108,7 +108,7 @@ func TestHeadAlreadyTaggedAborts(t *testing.T) {
 		t.Fatal(err)
 	}
 	o := run.Options{Dir: dir}
-	// Plan §2: any tag on HEAD aborts (not just collision).
+	// Any tag on HEAD aborts (not just collision).
 	if err := run.CheckHeadTagged(o, "v0.0.1"); err == nil {
 		t.Fatalf("expected abort when HEAD already has v0.0.1")
 	}

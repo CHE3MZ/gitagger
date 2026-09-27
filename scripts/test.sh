@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Single test automation: vet + full test suite.
 # Usage: sh scripts/test.sh
-# Mirrors CI (.github/workflows) and plan.md 12.3: `go test ./...` must pass.
+# Mirrors CI (.github/workflows): `go test ./...` must pass before every commit.
 set -eu
 cd "$(dirname "$0")/.."
 mkdir -p logs

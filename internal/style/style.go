@@ -3,11 +3,7 @@
 // blue for help, gray for side notes, white for everything else.
 package style
 
-import (
-	"fmt"
-	"os"
-	"strings"
-)
+import "os"
 
 const (
 	reset = "\x1b[0m"
@@ -20,7 +16,7 @@ const (
 )
 
 // enabled controls whether color codes are emitted.
-// Disabled for --json, NO_COLOR, or dumb terminals.
+// Disabled with NO_COLOR, or on dumb terminals.
 var enabled = true
 
 func init() {
@@ -32,9 +28,6 @@ func init() {
 		enabled = false
 	}
 }
-
-// SetEnabled toggles color output (used for --json mode).
-func SetEnabled(on bool) { enabled = on }
 
 func paint(code, s string) string {
 	if !enabled {
@@ -69,24 +62,8 @@ func BoldGreen(s string) string {
 	return "\x1b[1;32m" + s + reset
 }
 
-// BoldRed is a headline error.
-func BoldRed(s string) string {
-	if !enabled {
-		return s
-	}
-	return "\x1b[1;31m" + s + reset
-}
-
 // Error formats an error line.
 func Error(msg string) string { return Red("error: ") + White(msg) }
-
-// Errorf formats an error line with args.
-func Errorf(format string, args ...any) string {
-	return Error(fmt.Sprintf(format, args...))
-}
-
-// Success formats a happy line.
-func Success(msg string) string { return Green("done: ") + White(msg) }
 
 // Warn formats a warning line (keeps local tag, skips push, etc).
 func Warn(msg string) string { return paint("\x1b[33m", "warning: ") + White(msg) }
@@ -96,6 +73,3 @@ func Dim(msg string) string { return Gray(msg) }
 
 // Header bolds a section title.
 func Header(s string) string { return Bold(White(s)) }
-
-// JoinLines joins lines without trailing color bleed.
-func JoinLines(lines ...string) string { return strings.Join(lines, "\n") }

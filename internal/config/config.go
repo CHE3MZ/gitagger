@@ -9,20 +9,6 @@ import (
 	"strings"
 )
 
-// Config mirrors the YAML file. Keep field names friendly.
-type Config struct {
-	Version      int    `yaml:"version"`
-	Scale        string `yaml:"scale"`
-	Pre          string `yaml:"pre"`
-	Format       string `yaml:"format"`
-	Custom       string `yaml:"custom"`
-	Remote       string `yaml:"remote"`
-	Push         *bool  `yaml:"push"`
-	Confirm      *bool  `yaml:"confirm"`
-	RequireClean *bool  `yaml:"require_clean"`
-	Message      string `yaml:"message"`
-}
-
 // Resolved is config with defaults applied (no pointers).
 type Resolved struct {
 	Scale        string
@@ -36,7 +22,7 @@ type Resolved struct {
 	Message      string
 }
 
-// Defaults per plan: patch, stable, auto, push on, no prompt.
+// Defaults: patch, stable, auto, push on, no prompt.
 func Defaults() Resolved {
 	return Resolved{
 		Scale: "patch", Pre: "stable", Format: "auto",

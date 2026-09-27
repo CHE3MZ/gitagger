@@ -4,7 +4,7 @@ package cmd
 
 import "fmt"
 
-// Exit codes per plan §8.
+// Exit codes: 0 ok, 1 generic/push failed, 2 already-exists, 3 bad args.
 const (
 	CodeOK       = 0
 	CodeGeneric  = 1
