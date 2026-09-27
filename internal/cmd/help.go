@@ -37,8 +37,8 @@ func PrintHelp() {
 	}
 	fmt.Println()
 	fmt.Println(style.Header("Flags"))
-	for _, f := range flagLines {
-		fmt.Println(style.Blue(f))
+	for _, l := range renderFlagRows(2, 24) {
+		fmt.Println(l)
 	}
 }
 
@@ -68,16 +68,37 @@ var commands = []commandRow{
 	{"major", "      [--flags]       New tag rounding to    X.0.0"},
 }
 
-var flagLines = []string{
-	"  --pre                 prerelease flavor: stable|rc|beta|build|nightly (default stable)",
-	"  --format              force a style: auto|triple|double|single|date|sha|sha-num (default auto)",
-	"  -h --help             Print the help text for a command.",
-	"  -v --verbose          Enable verbose mode.",
-	"  -n --no-push          Create tag without pushing.",
-	"  -d --dry-run          Do A dry-run for testing.",
-	"  -f --force            Force push to remote.",
-	"  -m --message <msg>    Tag message. Empty = lightweight tag.",
-	"  -r --require-clean    Abort if the working tree is dirty.",
+type flagRow struct {
+	spec   string // blue: the flag itself
+	desc   string // gray: what it does
+	values string // blue: allowed values, empty when none
+}
+
+var flagRows = []flagRow{
+	{"--pre", "prerelease flavor:", "stable|rc|beta|build|nightly (default stable)"},
+	{"--format", "force a style:", "auto|triple|double|single|date|sha|sha-num (default auto)"},
+	{"-h --help", "Print the help text for a command.", ""},
+	{"-v --verbose", "Enable verbose mode.", ""},
+	{"-n --no-push", "Create tag without pushing.", ""},
+	{"-d --dry-run", "Do A dry-run for testing.", ""},
+	{"-f --force", "Force push to remote or force an action.", ""},
+	{"-m --message <msg>", "Tag message. (empty by default)", ""},
+	{"-r --require-clean", "Abort if the working tree is dirty.", ""},
+}
+
+// renderFlagRows paints one flag block: blue specs and values, gray descs,
+// all descs starting at descCol. Colors bake in after style init.
+func renderFlagRows(indent, descCol int) []string {
+	out := make([]string, 0, len(flagRows))
+	for _, f := range flagRows {
+		line := strings.Repeat(" ", indent) + style.Blue(f.spec) +
+			strings.Repeat(" ", descCol-indent-len(f.spec)) + style.Gray(f.desc)
+		if f.values != "" {
+			line += " " + style.Blue(f.values)
+		}
+		out = append(out, line)
+	}
+	return out
 }
 
 // CommandHelp prints help for one command in the same direct style.
@@ -119,17 +140,7 @@ type cmdHelp struct {
 	flags    []string
 }
 
-var tagFlags = []string{
-	"--pre               prerelease flavor: stable|rc|beta|build|nightly (default stable)",
-	"--format            force a style: auto|triple|double|single|date|sha|sha-num (default auto)",
-	"-h --help           Print the help text for a command.",
-	"-v --verbose        Enable verbose mode.",
-	"-n --no-push        Create tag without pushing.",
-	"-d --dry-run        Do A dry-run for testing.",
-	"-f --force          Force push to remote.",
-	"-m --message <msg>  Tag message. Empty = lightweight tag.",
-	"-r --require-clean  Abort if the working tree is dirty.",
-}
+var tagFlags = renderFlagRows(0, 20)
 
 var commandHelp = map[string]cmdHelp{
 	"init": {
