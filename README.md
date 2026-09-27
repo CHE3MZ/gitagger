@@ -5,7 +5,7 @@
 Gitagger makes tag creation for git projects ridiculously simple and easy!
 Just Install it and run `gitagger` and it will integrate with your existing tag format or initialize one for you.
 
-## Install
+## Installation
 
 ```sh
 go install github.com/CHE3MZ/gitagger/cmd/gitagger@latest
@@ -19,7 +19,7 @@ For CI, there is a GitHub Action:
 - uses: CHE3MZ/gitagger@v1
 ```
 
-## Use it
+## Usage
 
 ```sh
 gitagger                 # next patch tag, pushed if it can be
@@ -29,6 +29,8 @@ gitagger --dry-run       # peek first, change nothing
 gitagger --help          # everything else
 ```
 
-Want the same settings every time? Run `gitagger init` once, tweak `.gitagger.yml`, then forget about flags.
+Want the same settings every time? Run `gitagger init` once, 
+tweak `.gitagger.yml`, then forget about flags.
+running `gitagger` without any arguments will use your new config file.
 
 Full docs are coming later — for now, `gitagger help <command>` tells you what each command does.
