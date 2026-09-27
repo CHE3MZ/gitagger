@@ -18,7 +18,7 @@ func TestHelpExamplesCapped(t *testing.T) {
 
 func TestHelpExamplesExpected(t *testing.T) {
 	cases := map[string]int{
-		"init": 2, "check": 1, "list": 1, "help": 1, "doctor": 1,
+		"init": 0, "check": 0, "list": 0, "help": 1, "doctor": 0,
 		"remote": 3, "version": 0, "patch": 3, "minor": 3, "major": 3,
 	}
 	for c, want := range cases {

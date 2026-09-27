@@ -135,7 +135,7 @@ var commandHelp = map[string]cmdHelp{
 	"init": {
 		"Generates a .gitagger.yml file.",
 		"init [-f]",
-		[]string{"gitagger init", "gitagger init -f"},
+		nil,
 		[]string{
 			"-f --force     Overwrite the config file if it exists.",
 			"-v --verbose   Also show the full path.",
@@ -145,7 +145,7 @@ var commandHelp = map[string]cmdHelp{
 	"check": {
 		"Checks if your .gitagger.yml config is valid.",
 		"check [-v]",
-		[]string{"gitagger check"},
+		nil,
 		[]string{
 			"-v --verbose   Show the resolved config values.",
 			"-h --help      Print the help text for a command.",
@@ -154,7 +154,7 @@ var commandHelp = map[string]cmdHelp{
 	"list": {
 		"Shows all tags.",
 		"list [-v]",
-		[]string{"gitagger list"},
+		nil,
 		[]string{
 			"-v --verbose   Also show the remote URL.",
 			"-h --help      Print the help text for a command.",
@@ -163,13 +163,13 @@ var commandHelp = map[string]cmdHelp{
 	"help": {
 		"Print this help text.",
 		"help [command]",
-		[]string{"gitagger help remote"},
+		[]string{"gitagger help init"},
 		nil,
 	},
 	"doctor": {
 		"Audit local vs remote tag health status.",
 		"doctor [-v]",
-		[]string{"gitagger doctor"},
+		nil,
 		[]string{
 			"-v --verbose   Also show the remote URL.",
 			"-h --help      Print the help text for a command.",
