@@ -6,10 +6,10 @@ import "fmt"
 
 // Exit codes: 0 ok, 1 generic/push failed, 2 already-exists, 3 bad args.
 const (
-	CodeOK       = 0
-	CodeGeneric  = 1
-	CodeExists   = 2
-	CodeBadArgs  = 3
+	CodeOK      = 0
+	CodeGeneric = 1
+	CodeExists  = 2
+	CodeBadArgs = 3
 )
 
 // ExitError carries a process exit code with a message.

@@ -127,19 +127,23 @@ func cmdWithRemote(args []string, name string, run func(string, string, bool) er
 }
 
 func cmdVersion(args []string) error {
-	h, _, err := icmd.ParseCommon(args, "version")
-	if err != nil {
-		return icmd.BadArgs("%s", err.Error())
-	}
-	if h {
-		icmd.CommandHelp("version")
-		return nil
+	if len(args) > 0 {
+		if args[0] == "-h" || args[0] == "--help" {
+			icmd.CommandHelp("version")
+			return nil
+		}
+		return icmd.BadArgs("unknown flag %q — try `gitagger version --help`", args[0])
 	}
 	fmt.Println(icmd.VersionString())
 	return nil
 }
 
-func cmdHelp(args []string) error {	if len(args) == 0 {
+func cmdHelp(args []string) error {
+	if len(args) == 0 {
+		icmd.PrintHelp()
+		return nil
+	}
+	if args[0] == "-h" || args[0] == "--help" {
 		icmd.PrintHelp()
 		return nil
 	}
