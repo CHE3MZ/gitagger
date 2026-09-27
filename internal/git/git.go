@@ -137,6 +137,82 @@ func RemoteHasTag(lsRemoteOut, tag string) bool {
 	return false
 }
 
+// ParseRemoteTags extracts tag names from `git ls-remote --tags` output.
+// Peel lines (`refs/tags/v1^{}`) map to the same tag and are deduplicated.
+func ParseRemoteTags(lsRemoteOut string) []string {
+	seen := map[string]bool{}
+	var out []string
+	for _, line := range strings.Split(lsRemoteOut, "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		fields := strings.Fields(line)
+		if len(fields) < 2 {
+			continue
+		}
+		ref := fields[1]
+		if !strings.HasPrefix(ref, "refs/tags/") {
+			continue
+		}
+		tag := strings.TrimPrefix(ref, "refs/tags/")
+		tag = strings.TrimSuffix(tag, "^{}")
+		if tag == "" || seen[tag] {
+			continue
+		}
+		seen[tag] = true
+		out = append(out, tag)
+	}
+	return out
+}
+
+// RemoteTags lists remote tag names via ls-remote (short timeout).
+func RemoteTags(dir, remote string) ([]string, error) {
+	out, err := LsRemoteTags(dir, remote)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRemoteTags(out), nil
+}
+
+// DeleteTag removes a local tag (doctor --fix only, after confirm).
+func DeleteTag(dir, tag string) error {
+	_, err := runDefault(dir, "tag", "-d", tag)
+	return err
+}
+
+// HeadAheadCount counts HEAD commits since baseTag (exclusive).
+// Empty baseTag counts all HEAD commits (fresh repo distance).
+func HeadAheadCount(dir, baseTag string) (int, error) {
+	var out string
+	var err error
+	if strings.TrimSpace(baseTag) == "" {
+		out, err = runDefault(dir, "rev-list", "--count", "HEAD")
+	} else {
+		out, err = runDefault(dir, "rev-list", "--count", baseTag+"..HEAD")
+	}
+	if err != nil {
+		return 0, err
+	}
+	n := 0
+	_, _ = parseCount(out, &n)
+	return n, nil
+}
+
+func parseCount(out string, n *int) (bool, error) {
+	out = strings.TrimSpace(out)
+	if out == "" {
+		return false, fmt.Errorf("empty count")
+	}
+	var v int
+	_, err := fmt.Sscanf(out, "%d", &v)
+	if err != nil {
+		return false, err
+	}
+	*n = v
+	return true, nil
+}
+
 // CreateTag makes a lightweight tag, or annotated with -m.
 func CreateTag(dir, tag, message string, force bool) error {
 	args := []string{"tag"}

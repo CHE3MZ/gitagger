@@ -92,15 +92,20 @@ func ComputePlan(o Options) (Plan, error) {
 	for _, t := range tags {
 		existing[t] = true
 	}
+	// Plan §4: detect over last 20 tags (most recent 20 by creatordate).
+	detectInput := tags
+	if len(detectInput) > 20 {
+		detectInput = detectInput[len(detectInput)-20:]
+	}
 	format := o.Format
 	detected := false
 	var vPrefix bool
 	if format == "" || format == detect.Auto {
-		format, vPrefix = detect.Detect(tags)
+		format, vPrefix = detect.Detect(detectInput)
 		detected = true
 	} else {
 		// v-prefix still follows history when forcing a format
-		_, vPrefix = detect.Detect(tags)
+		_, vPrefix = detect.Detect(detectInput)
 		if len(tags) == 0 {
 			vPrefix = true
 		}
@@ -154,7 +159,8 @@ func EnsurePush(o Options, tag string) (PushOutcome, error) {
 	return PushOutcome{Pushed: true}, nil
 }
 
-// CheckHeadTagged aborts when HEAD already has this tag (unless --force).
+// CheckHeadTagged aborts when HEAD already has any tag (unless --force).
+// Plan §2: if HEAD is already tagged, abort instead of stacking duplicates.
 func CheckHeadTagged(o Options, tag string) error {
 	if o.Force {
 		return nil
@@ -163,10 +169,8 @@ func CheckHeadTagged(o Options, tag string) error {
 	if err != nil {
 		return nil // don't block on introspection failure
 	}
-	for _, t := range onHead {
-		if t == tag {
-			return fmt.Errorf("HEAD is already tagged %s — nothing to do (use --force to retag)", tag)
-		}
+	if len(onHead) > 0 {
+		return fmt.Errorf("already on %s, use --force to retag", strings.Join(onHead, ", "))
 	}
 	if existing, _ := git.ListTags(o.Dir); existing != nil {
 		for _, t := range existing {
