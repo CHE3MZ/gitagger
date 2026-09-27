@@ -22,3 +22,39 @@ jobs:
         uses: ./
         with:
           args: --dry-run
+
+  # Sandbox: prove the action really creates tags, in a throwaway repo
+  # (no remote, nothing pushed, nothing touches this repository).
+  create-tag-sandbox:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build sandbox repo
+        shell: bash
+        run: |
+          rm -rf /tmp/gitagger-sandbox
+          mkdir -p /tmp/gitagger-sandbox
+          cd /tmp/gitagger-sandbox
+          git init -q
+          git config user.email "ci@example.com"
+          git config user.name "ci"
+          git config commit.gpgsign false
+          echo hi > f.txt
+          git add .
+          git commit -qm first
+      - name: Create tag via action
+        id: tag
+        uses: ./
+        with:
+          working-directory: /tmp/gitagger-sandbox
+          args: --no-push
+      - name: Assert tag created
+        shell: bash
+        run: |
+          [ "${{ steps.tag.outputs.tag }}" = "v1.0.0" ] || { echo "expected v1.0.0, got '${{ steps.tag.outputs.tag }}'"; exit 1; }
+          git -C /tmp/gitagger-sandbox tag --list | grep -qx "v1.0.0"

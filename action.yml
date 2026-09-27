@@ -79,10 +79,11 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        # auto-detect needs history, so make sure the checkout is complete.
-        git fetch --tags --force origin
-        if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
-          git fetch --unshallow --tags origin
+        # auto-detect needs history, so complete the checkout when possible.
+        # Best effort only: gitagger itself handles missing remotes gracefully.
+        git fetch --tags --force origin || true
+        if [ "$(git rev-parse --is-shallow-repository 2>/dev/null || echo false)" = "true" ]; then
+          git fetch --unshallow --tags origin || true
         fi
 
     - name: Run gitagger
