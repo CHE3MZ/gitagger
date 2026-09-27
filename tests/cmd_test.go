@@ -20,8 +20,8 @@ func TestDryRunCreatesNothing(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if plan.Next != "v0.0.1" {
-		t.Fatalf("next = %q, want v0.0.1", plan.Next)
+	if plan.Next != "v1.0.0" {
+		t.Fatalf("next = %q, want v1.0.0", plan.Next)
 	}
 	tags, _ := git.ListTags(dir)
 	if len(tags) != 0 {
@@ -175,8 +175,8 @@ func TestConfigPrecedenceFiles(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if plan.Next != "v0.0.1-rc" {
-		t.Fatalf("next = %q, want v0.0.1-rc", plan.Next)
+	if plan.Next != "v1.0.0-rc" {
+		t.Fatalf("next = %q, want v1.0.0-rc", plan.Next)
 	}
 }
 

@@ -28,9 +28,9 @@ type Request struct {
 // InitialTag is the fallback for repos with no tags.
 func InitialTag(vPrefix bool) string {
 	if vPrefix {
-		return "v0.0.1"
+		return "v1.0.0"
 	}
-	return "0.0.1"
+	return "1.0.0"
 }
 
 func prefix(vPrefix bool) string {
@@ -77,7 +77,7 @@ func Compute(req Request) (string, error) {
 		default:
 			base := InitialTag(req.VPrefix)
 			if pre != "stable" {
-				// v0.0.1-rc style start
+				// v1.0.0-rc style start
 				b, _ := detect.StripPre(base)
 				return b + preSuffix(pre), nil
 			}

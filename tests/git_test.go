@@ -84,8 +84,8 @@ func TestNoRemoteKeepsTagLocally(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if plan.Next != "v0.0.1" {
-		t.Fatalf("next = %q, want v0.0.1", plan.Next)
+	if plan.Next != "v1.0.0" {
+		t.Fatalf("next = %q, want v1.0.0", plan.Next)
 	}
 	if err := git.CreateTag(dir, plan.Next, "", false); err != nil {
 		t.Fatal(err)

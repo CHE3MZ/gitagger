@@ -41,7 +41,7 @@ Rules for bare `gitagger`:
 
 * `scale = patch`, `pre = stable`, `format = auto`, `push = true`, `confirm = false`
 * Always creates the local tag first, then tries to push (see §8). Push is skipped gracefully — never deletes the local tag on push failure.
-* If repo has no tags: start at `v0.0.1` (triple + `v`, stable).
+* If repo has no tags: start at `v1.0.0` (triple + `v`, stable).
 * If HEAD already tagged: abort with `already on <tag>, use --force to retag` instead of duplicate.
 * If working tree dirty: warn but allow (tags don't depend on tree). Only abort tag creation if HEAD has no commits. Do NOT block on dirty — unlike goreleaser build. Add `--require-clean` opt-in.
 * Prompt appears ONLY with `--confirm` flag or `confirm: true` in config AND interactive TTY.

@@ -124,7 +124,7 @@ func TestDateCollisionCounter(t *testing.T) {
 
 func TestFreshRepoStartsAtTriple(t *testing.T) {
 	got, err := next.Compute(next.Request{Format: detect.Triple, VPrefix: true, Scale: "patch", Pre: "stable"})
-	if err != nil || got != "v0.0.1" {
-		t.Errorf("fresh = %q,%v want v0.0.1", got, err)
+	if err != nil || got != "v1.0.0" {
+		t.Errorf("fresh = %q,%v want v1.0.0", got, err)
 	}
 }
