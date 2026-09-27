@@ -27,10 +27,12 @@ func runCLI(args []string) error {
 			return cmdInit(args[1:])
 		case "check":
 			return cmdSimple(args[1:], "check", icmd.RunCheck)
-		case "list":
+		case "list", "ls":
 			return cmdSimple(args[1:], "list", icmd.RunList)
 		case "help":
 			return cmdHelp(args[1:])
+		case "version":
+			return cmdVersion(args[1:])
 		case "doctor":
 			return cmdWithRemote(args[1:], "doctor", icmd.RunDoctor)
 		case "remote":
@@ -124,8 +126,20 @@ func cmdWithRemote(args []string, name string, run func(string, string, bool) er
 	return run(dir, effectiveRemote(dir), v)
 }
 
-func cmdHelp(args []string) error {
-	if len(args) == 0 {
+func cmdVersion(args []string) error {
+	h, _, err := icmd.ParseCommon(args, "version")
+	if err != nil {
+		return icmd.BadArgs("%s", err.Error())
+	}
+	if h {
+		icmd.CommandHelp("version")
+		return nil
+	}
+	fmt.Println(icmd.VersionString())
+	return nil
+}
+
+func cmdHelp(args []string) error {	if len(args) == 0 {
 		icmd.PrintHelp()
 		return nil
 	}

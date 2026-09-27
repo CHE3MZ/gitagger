@@ -1,154 +1,178 @@
-// Help text. The main text is the owner's words, verbatim.
-// Per-command help follows the same direct style.
+// Help text. Words are the owner's; colors follow the house scheme:
+// gray for info, blue for flags, green for commands, red stays for errors.
 package cmd
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+
+	"github.com/CHE3MZ/gitagger/internal/style"
+)
+
+// VersionString is the placeholder version until real builds stamp one in.
+func VersionString() string {
+	return "gitagger is on the dev build version."
+}
 
 // PrintHelp prints the main help text.
 func PrintHelp() {
-	fmt.Print(mainHelp)
+	fmt.Println(style.Bold("automate git tags without the headache."))
+	fmt.Println()
+	fmt.Println(style.Header("USAGE"))
+	fmt.Println()
+	fmt.Println("  gitagger [command] [--flags]")
+	fmt.Println()
+	fmt.Println(style.Header("EXAMPLES"))
+	fmt.Println()
+	for _, e := range examples {
+		inv, comment, _ := strings.Cut(e, "#")
+		fmt.Printf("  %s%s\n", style.Green(inv), style.Gray("#"+comment))
+	}
+	fmt.Println()
+	fmt.Println(style.Header("COMMANDS"))
+	fmt.Println()
+	for _, c := range commands {
+		fmt.Printf("  %s%s\n", style.Green(c.name), style.Gray(c.rest))
+	}
+	fmt.Println()
+	fmt.Println(style.Header("Flags"))
+	for _, f := range flagLines {
+		fmt.Println(style.Blue(f))
+	}
 }
 
-const mainHelp = `automate git tags without the headache.
+type commandRow struct {
+	name string
+	rest string
+}
 
-USAGE
+var examples = []string{
+	"gitagger                   # create a new tag and push",
+	"gitagger patch             # create a new patch tag",
+	"gitagger minor             # create a new minor tag",
+	"gitagger major             # create a new major tag",
+	"gitagger major --pre beta  # create a new major beta tag",
+}
 
-  gitagger [command] [--flags]
+var commands = []commandRow{
+	{"init", "       [--flags]       Generates a .gitagger.yml file"},
+	{"check", "      [--flags]       Checks if your .gitagger.yml config is valid"},
+	{"list", "       [--flags]       Shows all tags"},
+	{"help", "       [--flags]       Print this help text"},
+	{"doctor", "     [--flags]       Audit local vs remote tag health status"},
+	{"remote", "     [--flags]       View the remote URL for this git project"},
+	{"patch", "      [--flags]       New tag addition by    0.0.X"},
+	{"minor", "      [--flags]       New tag rounding to    0.X.0"},
+	{"major", "      [--flags]       New tag rounding to    X.0.0"},
+}
 
-EXAMPLES
-  gitagger                   # create a new tag and push
-  gitagger patch             # create a new patch tag
-  gitagger minor             # create a new minor tag
-  gitagger major             # create a new major tag
-  gitagger major --pre beta  # create a new major beta tag
-
-COMMANDS
-  init       [--flags]       Generates a .gitagger.yml file
-  check      [--flags]       Checks if your .gitagger.yml config is valid
-  list       [--flags]       Shows all tags
-  help       [--flags]       Print this help text
-  doctor     [--flags]       Audit local vs remote tag health status
-  remote     [--flags]       View the remote URL for this git project
-  patch      [--flags]       New tag addition by    0.0.X
-  minor      [--flags]       New tag rounding to    0.X.0
-  major      [--flags]       New tag rounding to    X.0.0
-
-Flags
-  --pre          stable|rc|beta|build|nightly                    prerelease flavor (default stable)
-  --format       auto|triple|double|single|date|sha|sha-num      force a style (default auto)
-  -h --help      Print the help text for a command.
-  -v --verbose   Enable verbose mode.
-  -n --no-push   Create tag without pushing.
-  -d --dry-run   Do A dry-run for testing.
-  -f --force     Force push to remote.
-`
+var flagLines = []string{
+	"  --pre          stable|rc|beta|build|nightly                    prerelease flavor (default stable)",
+	"  --format       auto|triple|double|single|date|sha|sha-num      force a style (default auto)",
+	"  -h --help      Print the help text for a command.",
+	"  -v --verbose   Enable verbose mode.",
+	"  -n --no-push   Create tag without pushing.",
+	"  -d --dry-run   Do A dry-run for testing.",
+	"  -f --force     Force push to remote.",
+}
 
 // CommandHelp prints help for one command in the same direct style.
 func CommandHelp(cmd string) {
+	if cmd == "ls" {
+		cmd = "list"
+	}
 	if h, ok := commandHelp[cmd]; ok {
-		fmt.Print(h)
+		fmt.Println(style.Gray(h.desc))
+		fmt.Println()
+		fmt.Println(style.Header("USAGE"))
+		fmt.Println()
+		fmt.Printf("  gitagger %s\n", style.Green(h.usage))
+		if len(h.flags) > 0 {
+			fmt.Println()
+			fmt.Println(style.Header("FLAGS"))
+			for _, f := range h.flags {
+				fmt.Println(style.Blue(f))
+			}
+		}
 		return
 	}
 	PrintHelp()
 }
 
-var commandHelp = map[string]string{
-	"init": `Generates a .gitagger.yml file.
+type cmdHelp struct {
+	desc  string
+	usage string
+	flags []string
+}
 
-USAGE
-  gitagger init [-f]
+var tagFlags = []string{
+	"--pre          stable|rc|beta|build|nightly                    prerelease flavor (default stable)",
+	"--format       auto|triple|double|single|date|sha|sha-num      force a style (default auto)",
+	"-n --no-push   Create tag without pushing.",
+	"-d --dry-run   Do A dry-run for testing.",
+	"-f --force     Force push to remote.",
+	"-v --verbose   Enable verbose mode.",
+	"-h --help      Print the help text for a command.",
+}
 
-FLAGS
-  -f --force   Overwrite the config file if it exists.
-  -h --help    Print the help text for a command.
-`,
-	"check": `Checks if your .gitagger.yml config is valid.
-
-USAGE
-  gitagger check [-v]
-
-FLAGS
-  -v --verbose   Show the resolved config values.
-  -h --help      Print the help text for a command.
-`,
-	"list": `Shows all tags.
-
-USAGE
-  gitagger list [-v]
-
-FLAGS
-  -v --verbose   Also show the remote URL.
-  -h --help      Print the help text for a command.
-`,
-	"help": `Print this help text.
-
-USAGE
-  gitagger help [command]
-`,
-	"doctor": `Audit local vs remote tag health status.
-
-USAGE
-  gitagger doctor [-v]
-
-FLAGS
-  -v --verbose   Also show the remote URL.
-  -h --help      Print the help text for a command.
-`,
-	"remote": `View the remote URL for this git project.
-
-USAGE
-  gitagger remote [-v]
-
-FLAGS
-  -v --verbose   Show all remotes.
-  -h --help      Print the help text for a command.
-`,
-	"patch": `New tag addition by    0.0.X.
-
-USAGE
-  gitagger patch [--flags]
-
-FLAGS
-  --pre          stable|rc|beta|build|nightly                    prerelease flavor (default stable)
-  --format       auto|triple|double|single|date|sha|sha-num      force a style (default auto)
-  -n --no-push   Create tag without pushing.
-  -d --dry-run   Do A dry-run for testing.
-  -f --force     Force push to remote.
-  -v --verbose   Enable verbose mode.
-  -h --help      Print the help text for a command.
-`,
-	"minor": `New tag rounding to    0.X.0.
-
-USAGE
-  gitagger minor [--flags]
-
-FLAGS
-  --pre          stable|rc|beta|build|nightly                    prerelease flavor (default stable)
-  --format       auto|triple|double|single|date|sha|sha-num      force a style (default auto)
-  -n --no-push   Create tag without pushing.
-  -d --dry-run   Do A dry-run for testing.
-  -f --force     Force push to remote.
-  -v --verbose   Enable verbose mode.
-  -h --help      Print the help text for a command.
-`,
-	"major": `New tag rounding to    X.0.0.
-
-USAGE
-  gitagger major [--flags]
-
-FLAGS
-  --pre          stable|rc|beta|build|nightly                    prerelease flavor (default stable)
-  --format       auto|triple|double|single|date|sha|sha-num      force a style (default auto)
-  -n --no-push   Create tag without pushing.
-  -d --dry-run   Do A dry-run for testing.
-  -f --force     Force push to remote.
-  -v --verbose   Enable verbose mode.
-  -h --help      Print the help text for a command.
-`,
+var commandHelp = map[string]cmdHelp{
+	"init": {
+		"Generates a .gitagger.yml file.",
+		"init [-f]",
+		[]string{
+			"-f --force   Overwrite the config file if it exists.",
+			"-h --help    Print the help text for a command.",
+		},
+	},
+	"check": {
+		"Checks if your .gitagger.yml config is valid.",
+		"check [-v]",
+		[]string{
+			"-v --verbose   Show the resolved config values.",
+			"-h --help      Print the help text for a command.",
+		},
+	},
+	"list": {
+		"Shows all tags.",
+		"list [-v]",
+		[]string{
+			"-v --verbose   Also show the remote URL.",
+			"-h --help      Print the help text for a command.",
+		},
+	},
+	"help": {
+		"Print this help text.",
+		"help [command]",
+		nil,
+	},
+	"doctor": {
+		"Audit local vs remote tag health status.",
+		"doctor [-v]",
+		[]string{
+			"-v --verbose   Also show the remote URL.",
+			"-h --help      Print the help text for a command.",
+		},
+	},
+	"remote": {
+		"View the remote URL for this git project.",
+		"remote [-v]",
+		[]string{
+			"-v --verbose   Show all remotes.",
+			"-h --help      Print the help text for a command.",
+		},
+	},
+	"version": {
+		"Show the build version.",
+		"version",
+		nil,
+	},
+	"patch": {"New tag addition by    0.0.X.", "patch [--flags]", tagFlags},
+	"minor": {"New tag rounding to    0.X.0.", "minor [--flags]", tagFlags},
+	"major": {"New tag rounding to    X.0.0.", "major [--flags]", tagFlags},
 }
 
 // KnownCommands lists every command for `gitagger help [command]`.
-var KnownCommands = []string{"init", "check", "list", "help", "doctor", "remote", "patch", "minor", "major"}
+var KnownCommands = []string{"init", "check", "list", "ls", "help", "doctor", "remote", "version", "patch", "minor", "major"}
 
 // IsCommand reports whether name is a known command.
 func IsCommand(name string) bool {

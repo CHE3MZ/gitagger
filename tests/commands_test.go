@@ -137,3 +137,34 @@ func TestBuildOptionsPrecedence(t *testing.T) {
 		t.Errorf("bad format should fail")
 	}
 }
+
+func TestVersionString(t *testing.T) {
+	if got := cmd.VersionString(); got != "gitagger is on the dev build version." {
+		t.Fatalf("version = %q", got)
+	}
+}
+
+func TestKnownCommands(t *testing.T) {
+	for _, c := range []string{"init", "check", "list", "ls", "help", "doctor", "remote", "version", "patch", "minor", "major"} {
+		if !cmd.IsCommand(c) {
+			t.Errorf("IsCommand(%q) = false", c)
+		}
+		cmd.CommandHelp(c) // must not crash
+	}
+	if cmd.IsCommand("bogus") {
+		t.Errorf("IsCommand(bogus) = true")
+	}
+}
+
+func TestRunList(t *testing.T) {
+	dir := initRepo(t)
+	if err := cmd.RunList(dir, false); err != nil {
+		t.Fatalf("empty list should pass: %v", err)
+	}
+	if err := git.CreateTag(dir, "v1.0.0", "", false); err != nil {
+		t.Fatal(err)
+	}
+	if err := cmd.RunList(dir, true); err != nil {
+		t.Fatalf("list should pass: %v", err)
+	}
+}
