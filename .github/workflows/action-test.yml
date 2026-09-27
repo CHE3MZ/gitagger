@@ -1,0 +1,24 @@
+# Dogfood: run this repo's own action on every push.
+# Uses the released binary (--dry-run creates nothing).
+name: Action self-test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  use-local-action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitagger version
+        uses: ./
+        with:
+          args: version
+      - name: gitagger dry run
+        uses: ./
+        with:
+          args: --dry-run

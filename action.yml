@@ -1,0 +1,103 @@
+name: 'Gitagger'
+description: 'Automate tag creation for your repository.'
+author: CHE3MZ
+branding:
+  icon: "git-branch"
+  color: "white"
+
+inputs:
+  version:
+    description: 'gitagger release to use (e.g. v1.0.2) or "latest".'
+    required: false
+    default: 'latest'
+  working-directory:
+    description: 'Directory to run gitagger in.'
+    required: false
+    default: '.'
+  args:
+    description: 'Extra args passed to gitagger (e.g. "minor --pre rc").'
+    required: false
+    default: ''
+
+outputs:
+  tag:
+    description: 'Tag now pointing at HEAD (empty when none).'
+    value: ${{ steps.gitagger.outputs.tag }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Resolve gitagger version
+      id: resolve
+      shell: bash
+      env:
+        INPUT_VERSION: ${{ inputs.version }}
+      run: |
+        version="$INPUT_VERSION"
+        if [ "$version" = "latest" ]; then
+          version=$(curl -fsSL https://api.github.com/repos/CHE3MZ/gitagger/releases/latest | grep -o '"tag_name": *"[^"]*"' | head -n 1 | cut -d'"' -f 4)
+        fi
+        if [ -z "$version" ]; then
+          echo "::error::could not resolve a gitagger release version"
+          exit 1
+        fi
+        echo "version=$version" >> "$GITHUB_OUTPUT"
+        echo "Using gitagger $version"
+
+    - name: Download gitagger
+      shell: bash
+      env:
+        VERSION: ${{ steps.resolve.outputs.version }}
+      run: |
+        case "${RUNNER_OS}" in
+          Linux) asset_os="Linux"; ext="tar.gz" ;;
+          macOS) asset_os="Darwin"; ext="tar.gz" ;;
+          Windows) asset_os="Windows"; ext="zip" ;;
+          *) echo "::error::unsupported runner OS ${RUNNER_OS}"; exit 1 ;;
+        esac
+        case "${RUNNER_ARCH}" in
+          X64) asset_arch="x86_64" ;;
+          ARM64) asset_arch="arm64" ;;
+          *) echo "::error::unsupported runner arch ${RUNNER_ARCH}"; exit 1 ;;
+        esac
+        url="https://github.com/CHE3MZ/gitagger/releases/download/${VERSION}/gitagger_${asset_os}_${asset_arch}.${ext}"
+        echo "Downloading $url"
+        mkdir -p "${RUNNER_TEMP}/gitagger"
+        curl -fsSL -o "${RUNNER_TEMP}/gitagger/pkg.${ext}" "$url"
+        if [ "$ext" = "zip" ]; then
+          unzip -o -q "${RUNNER_TEMP}/gitagger/pkg.${ext}" -d "${RUNNER_TEMP}/gitagger"
+          bin="${RUNNER_TEMP}/gitagger/gitagger.exe"
+        else
+          tar -xzf "${RUNNER_TEMP}/gitagger/pkg.${ext}" -C "${RUNNER_TEMP}/gitagger"
+          bin="${RUNNER_TEMP}/gitagger/gitagger"
+          chmod +x "$bin"
+        fi
+        echo "${RUNNER_TEMP}/gitagger" >> "$GITHUB_PATH"
+        "$bin" version
+
+    - name: Fetch history and tags
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        # auto-detect needs history, so make sure the checkout is complete.
+        git fetch --tags --force origin
+        if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
+          git fetch --unshallow --tags origin
+        fi
+
+    - name: Run gitagger
+      id: gitagger
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        ARGS: ${{ inputs.args }}
+      run: |
+        # shellcheck disable=SC2086
+        gitagger $ARGS
+        tag=$(git tag --points-at HEAD | tail -n 1)
+        echo "tag=$tag" >> "$GITHUB_OUTPUT"
+        if [ -n "$tag" ]; then
+          echo "Tagged $tag"
+        else
+          echo "No new tag on HEAD"
+        fi
