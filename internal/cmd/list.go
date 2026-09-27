@@ -1,32 +1,21 @@
-// RunList shows tags oldest -> newest.
+// RunList shows all tags, oldest -> newest.
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
 
 	"github.com/CHE3MZ/gitagger/internal/git"
 	"github.com/CHE3MZ/gitagger/internal/style"
 )
 
-// RunList prints up to limit tags (newest last), optionally as JSON.
-func RunList(dir string, limit int, jsonOut bool) error {
-	if jsonOut {
-		style.SetEnabled(false)
-	}
+// RunList prints every tag. With verbose it also shows the remote URL.
+func RunList(dir string, verbose bool) error {
 	if err := git.EnsureAvailable(); err != nil {
 		return GenericErr(err)
 	}
 	tags, err := git.ListTags(dir)
 	if err != nil {
 		return GenericErr(err)
-	}
-	if len(tags) > limit {
-		tags = tags[len(tags)-limit:]
-	}
-	if jsonOut {
-		return json.NewEncoder(os.Stdout).Encode(tags)
 	}
 	if len(tags) == 0 {
 		fmt.Println(style.Dim("no tags yet — run `gitagger` to make your first one"))
@@ -36,5 +25,10 @@ func RunList(dir string, limit int, jsonOut bool) error {
 		fmt.Println(style.White(t))
 	}
 	fmt.Println(style.Dim(fmt.Sprintf("%d tag(s), newest last", len(tags))))
+	if verbose {
+		if url, err := git.RemoteURL(dir, "origin"); err == nil {
+			fmt.Println(style.Dim("remote: " + url))
+		}
+	}
 	return nil
 }

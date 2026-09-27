@@ -120,6 +120,11 @@ func RemoteURL(dir, remote string) (string, error) {
 	return out, nil
 }
 
+// Remotes returns raw `git remote -v` output (all remotes).
+func Remotes(dir string) (string, error) {
+	return runDefault(dir, "remote", "-v")
+}
+
 // LsRemoteTags runs ls-remote with a short timeout for the offline check.
 func LsRemoteTags(dir, remote string) (string, error) {
 	return run(dir, 10*time.Second, "ls-remote", "--tags", remote)

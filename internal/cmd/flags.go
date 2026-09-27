@@ -1,5 +1,5 @@
 // Flag parsing for the thin main.go dispatcher.
-// No git, no detection here — just arg shapes.
+// Only the flags from the help text exist. No git, no detection here.
 package cmd
 
 import (
@@ -7,22 +7,15 @@ import (
 	"strings"
 )
 
-// TagFlags mirrors `gitagger [major|minor|patch] [flags]`.
+// TagFlags mirrors `gitagger [patch|minor|major] [--flags]`.
 type TagFlags struct {
-	Pre          string
-	Format       string
-	Custom       string
-	Remote       string
-	Message      string
-	NoPush       bool
-	Confirm      bool
-	YesCompat    bool
-	Force        bool
-	DryRun       bool
-	RequireClean bool
-	JSON         bool
-	Verbose      bool
-	Help         bool
+	Pre     string
+	Format  string
+	NoPush  bool
+	Force   bool
+	DryRun  bool
+	Verbose bool
+	Help    bool
 }
 
 // ParseTagFlags parses tag flags, returning positionals separately.
@@ -38,21 +31,13 @@ func ParseTagFlags(args []string) (TagFlags, []string, error) {
 			i = len(args)
 		case a == "-h" || a == "--help":
 			f.Help = true
-		case a == "-y" || a == "--yes":
-			f.YesCompat = true
-		case a == "--no-push":
+		case a == "-n" || a == "--no-push":
 			f.NoPush = true
-		case a == "--confirm":
-			f.Confirm = true
-		case a == "--force":
+		case a == "-f" || a == "--force":
 			f.Force = true
-		case a == "--dry-run":
+		case a == "-d" || a == "--dry-run":
 			f.DryRun = true
-		case a == "--require-clean":
-			f.RequireClean = true
-		case a == "--json":
-			f.JSON = true
-		case a == "--verbose":
+		case a == "-v" || a == "--verbose":
 			f.Verbose = true
 		case strings.HasPrefix(a, "--pre="):
 			f.Pre = strings.TrimPrefix(a, "--pre=")
@@ -64,24 +49,6 @@ func ParseTagFlags(args []string) (TagFlags, []string, error) {
 		case a == "--format" && i+1 < len(args):
 			i++
 			f.Format = args[i]
-		case strings.HasPrefix(a, "--custom="):
-			f.Custom = strings.TrimPrefix(a, "--custom=")
-		case a == "--custom" && i+1 < len(args):
-			i++
-			f.Custom = args[i]
-		case strings.HasPrefix(a, "--remote="):
-			f.Remote = strings.TrimPrefix(a, "--remote=")
-		case a == "--remote" && i+1 < len(args):
-			i++
-			f.Remote = args[i]
-		case a == "-m" && i+1 < len(args):
-			i++
-			f.Message = args[i]
-		case strings.HasPrefix(a, "--message="):
-			f.Message = strings.TrimPrefix(a, "--message=")
-		case a == "--message" && i+1 < len(args):
-			i++
-			f.Message = args[i]
 		case strings.HasPrefix(a, "-"):
 			return f, pos, fmt.Errorf("unknown flag %q — try `gitagger --help`", a)
 		default:
@@ -109,31 +76,18 @@ func ParseScale(pos []string) (string, error) {
 	return scale, nil
 }
 
-// ListOpts for `gitagger list`.
-type ListOpts struct {
-	Limit int
-	JSON  bool
-}
-
-// ParseListArgs parses `--limit N` and `--json`.
-func ParseListArgs(args []string) ListOpts {
-	o := ListOpts{Limit: 20}
-	for i := 0; i < len(args); i++ {
-		a := args[i]
-		if a == "--json" {
-			o.JSON = true
-		} else if a == "--limit" && i+1 < len(args) {
-			i++
-			var n int
-			if _, err := fmt.Sscanf(args[i], "%d", &n); err == nil && n > 0 {
-				o.Limit = n
-			}
-		} else if strings.HasPrefix(a, "--limit=") {
-			var n int
-			if _, err := fmt.Sscanf(strings.TrimPrefix(a, "--limit="), "%d", &n); err == nil && n > 0 {
-				o.Limit = n
-			}
+// ParseCommon parses -h/--help and -v/--verbose for simple subcommands.
+// Anything else is an error naming the command's own help.
+func ParseCommon(args []string, cmd string) (help, verbose bool, err error) {
+	for _, a := range args {
+		switch a {
+		case "-h", "--help":
+			help = true
+		case "-v", "--verbose":
+			verbose = true
+		default:
+			return false, false, fmt.Errorf("unknown flag %q — try `gitagger %s --help`", a, cmd)
 		}
 	}
-	return o
+	return help, verbose, nil
 }

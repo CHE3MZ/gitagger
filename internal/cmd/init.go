@@ -1,4 +1,4 @@
-// RunInit writes .gitagger.yml with commented defaults.
+// RunInit generates a .gitagger.yml file.
 package cmd
 
 import (
@@ -9,17 +9,21 @@ import (
 	"github.com/CHE3MZ/gitagger/internal/style"
 )
 
-// RunInit creates .gitagger.yml in dir unless it exists without force.
-func RunInit(dir string, force bool) error {
+// RunInit writes .gitagger.yml in dir. Refuses to overwrite unless force.
+// With verbose it prints the full path.
+func RunInit(dir string, force, verbose bool) error {
 	existing := config.Find(dir)
 	if existing != "" && !force {
-		return Exists("config already exists at %s (use --force to overwrite)", existing)
+		return Exists("config already exists at %s (use -f to overwrite)", existing)
 	}
 	path := dir + string(os.PathSeparator) + ".gitagger.yml"
 	if err := os.WriteFile(path, []byte(config.DefaultFileContent()), 0o600); err != nil {
 		return Generic("couldn't write %s (%v)", path, err)
 	}
-	fmt.Printf("%s %s\n", style.Green("wrote"), style.White(".gitagger.yml"))
-	fmt.Println(style.Dim("tweak it if you like, then just run `gitagger`"))
+	if verbose {
+		fmt.Printf("%s %s\n", style.Green("wrote"), style.White(path))
+	} else {
+		fmt.Printf("%s %s\n", style.Green("wrote"), style.White(".gitagger.yml"))
+	}
 	return nil
 }

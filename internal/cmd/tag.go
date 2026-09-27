@@ -3,9 +3,7 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/CHE3MZ/gitagger/internal/detect"
@@ -15,13 +13,12 @@ import (
 )
 
 // RunTag creates the next tag and pushes when safe.
-// JSON mode suppresses human lines and emits one JSON object.
 func RunTag(o run.Options) error {
 	if !detect.ValidPreCheck(o.Pre) {
 		return BadArgs("bad --pre %q (want stable|rc|beta|build|nightly)", o.Pre)
 	}
 	if o.Format == detect.Custom && strings.TrimSpace(o.Custom) == "" {
-		return BadArgs("format is custom but --custom is empty (v2 feature anyway)")
+		return BadArgs("format is custom but no custom template is set (use .gitagger.yml)")
 	}
 
 	plan, err := run.ComputePlan(o)
@@ -32,61 +29,42 @@ func RunTag(o run.Options) error {
 		return Exists("%s", err.Error())
 	}
 
-	// Dirty-tree warning (plan §2): warn but allow unless --require-clean.
+	// Dirty-tree warning: warn but allow unless require_clean is set.
 	// ComputePlan already aborted when RequireClean is set.
 	if st, serr := git.StatusPorcelain(o.Dir); serr == nil && strings.TrimSpace(st) != "" {
-		if !o.JSON {
-			fmt.Println(style.Warn("working tree is dirty — tagging anyway (use --require-clean to block)"))
-		}
+		fmt.Println(style.Warn("working tree is dirty — tagging anyway"))
 	}
 
 	if o.DryRun {
-		if o.JSON {
-			return printPlanJSON(plan.Prev, plan.Next, false, o.Remote)
-		}
 		printDryRun(o, plan)
 		return nil
 	}
 
-	if o.JSON {
-		style.SetEnabled(false)
-	}
-
-	if !o.JSON {
-		greetPlan(o, plan)
-	}
+	greetPlan(o, plan)
 
 	if err := git.CreateTag(o.Dir, plan.Next, o.Message, o.Force); err != nil {
-		// Local-exists collision without --force is a no-op (exit 2).
+		// Local-exists collision without -f is a no-op (exit 2).
 		msg := strings.ToLower(err.Error())
 		if strings.Contains(msg, "already exists") {
-			return Exists("tag %s already exists — use --force to overwrite", plan.Next)
+			return Exists("tag %s already exists — use -f to overwrite", plan.Next)
 		}
 		return Generic("couldn't create tag %s (%v)", plan.Next, err)
 	}
-	if !o.JSON {
-		fmt.Printf("%s %s\n", style.Green("created tag"), style.BoldGreen(plan.Next))
-	}
+	fmt.Printf("%s %s\n", style.Green("created tag"), style.BoldGreen(plan.Next))
 
 	if !o.Push {
-		if o.JSON {
-			return printPlanJSON(plan.Prev, plan.Next, false, o.Remote)
-		}
-		fmt.Println(style.Dim("kept locally (--no-push). push later with `git push " + o.Remote + " " + plan.Next + "`"))
+		fmt.Println(style.Dim("kept locally (-n). push later with `git push " + o.Remote + " " + plan.Next + "`"))
 		return nil
 	}
 
 	if o.Confirm {
 		if ShouldPrompt(true, o.Push, o.DryRun) {
 			if !AskYes(fmt.Sprintf("push %s to %s?", plan.Next, o.Remote)) {
-				if o.JSON {
-					return printPlanJSON(plan.Prev, plan.Next, false, o.Remote)
-				}
 				fmt.Println(style.Dim("kept locally. push later with `git push " + o.Remote + " " + plan.Next + "`"))
 				return nil
 			}
 		}
-		// Non-TTY + --confirm: proceed without prompting (CI-friendly).
+		// Non-TTY with confirm set: proceed without prompting.
 	}
 
 	outcome, err := run.EnsurePush(o, plan.Next)
@@ -96,9 +74,6 @@ func RunTag(o run.Options) error {
 			return Exists("%s", msg)
 		}
 		return GenericErr(err)
-	}
-	if o.JSON {
-		return printPlanJSON(plan.Prev, plan.Next, outcome.Pushed, o.Remote)
 	}
 	if outcome.Pushed {
 		fmt.Printf("%s %s to %s\n", style.Green("pushed"), style.BoldGreen(plan.Next), style.White(o.Remote))
@@ -133,16 +108,8 @@ func printDryRun(o run.Options, plan run.Plan) {
 	if o.Push {
 		fmt.Println(style.Dim("would push to " + o.Remote))
 	} else {
-		fmt.Println(style.Dim("would keep locally (--no-push)"))
+		fmt.Println(style.Dim("would keep locally (-n)"))
 	}
-}
-
-func printPlanJSON(prev, next string, pushed bool, remote string) error {
-	enc := json.NewEncoder(os.Stdout)
-	enc.SetIndent("", "  ")
-	return enc.Encode(map[string]any{
-		"prev": prev, "next": next, "pushed": pushed, "remote": remote,
-	})
 }
 
 // mapPlanError assigns exit codes: exists->2, bad args->3, else 1.
@@ -152,6 +119,7 @@ func mapPlanError(err error) error {
 	switch {
 	case strings.Contains(lower, "already exists"),
 		strings.Contains(lower, "already tagged"),
+		strings.Contains(lower, "already on"),
 		strings.Contains(lower, "nothing to do"):
 		return Exists("%s", msg)
 	case strings.Contains(lower, "unknown pre"),
@@ -162,6 +130,7 @@ func mapPlanError(err error) error {
 		strings.Contains(lower, "bad format"),
 		strings.Contains(lower, "remote must not"),
 		strings.Contains(lower, "custom template is empty"),
+		strings.Contains(lower, "no custom template"),
 		strings.Contains(lower, "format is custom"):
 		return BadArgs("%s", msg)
 	default:
