@@ -9,24 +9,24 @@ import (
 	"strings"
 )
 
-// Resolved is config with defaults applied (no pointers).
+// Resolved is config with defaults applied.
 type Resolved struct {
 	Scale        string
 	Pre          string
 	Format       string
-	Custom       string
 	Remote       string
 	Push         bool
-	Confirm      bool
+	Force        bool
 	RequireClean bool
+	Verbose      bool
 	Message      string
 }
 
-// Defaults: patch, stable, auto, push on, no prompt.
+// Defaults: patch, stable, auto, origin, push on. Everything else off/empty.
 func Defaults() Resolved {
 	return Resolved{
 		Scale: "patch", Pre: "stable", Format: "auto",
-		Remote: "origin", Push: true, Confirm: false,
+		Remote: "origin", Push: true,
 	}
 }
 
@@ -73,9 +73,6 @@ func Load(dir string) (Resolved, string, error) {
 	if v, ok := m["format"]; ok && v != "" {
 		cfg.Format = strings.ToLower(v)
 	}
-	if v, ok := m["custom"]; ok {
-		cfg.Custom = v
-	}
 	if v, ok := m["remote"]; ok && v != "" {
 		cfg.Remote = v
 	}
@@ -86,12 +83,19 @@ func Load(dir string) (Resolved, string, error) {
 		}
 		cfg.Push = b
 	}
-	if v, ok := m["confirm"]; ok && v != "" {
+	if v, ok := m["force"]; ok && v != "" {
 		b, err := parseBool(v)
 		if err != nil {
-			return cfg, path, fmt.Errorf("bad confirm value %q in %s (want true/false)", v, path)
+			return cfg, path, fmt.Errorf("bad force value %q in %s (want true/false)", v, path)
 		}
-		cfg.Confirm = b
+		cfg.Force = b
+	}
+	if v, ok := m["verbose"]; ok && v != "" {
+		b, err := parseBool(v)
+		if err != nil {
+			return cfg, path, fmt.Errorf("bad verbose value %q in %s (want true/false)", v, path)
+		}
+		cfg.Verbose = b
 	}
 	if v, ok := m["require_clean"]; ok && v != "" {
 		b, err := parseBool(v)
@@ -122,12 +126,9 @@ func Validate(c Resolved) error {
 		return fmt.Errorf("bad pre %q (want stable|rc|beta|build|nightly)", c.Pre)
 	}
 	switch c.Format {
-	case "auto", "triple", "double", "single", "date", "sha", "sha-num", "custom":
+	case "auto", "triple", "double", "single", "date", "sha", "sha-num":
 	default:
-		return fmt.Errorf("bad format %q (want auto|triple|double|single|date|sha|sha-num|custom)", c.Format)
-	}
-	if c.Format == "custom" && strings.TrimSpace(c.Custom) == "" {
-		return fmt.Errorf("format is custom but custom template is empty")
+		return fmt.Errorf("bad format %q (want auto|triple|double|single|date|sha|sha-num)", c.Format)
 	}
 	if strings.TrimSpace(c.Remote) == "" {
 		return fmt.Errorf("remote must not be empty")
@@ -136,18 +137,43 @@ func Validate(c Resolved) error {
 }
 
 // DefaultFileContent is what `gitagger init` writes.
+// Every key is documented — this file is the whole schema.
 func DefaultFileContent() string {
-	return `# gitagger config — edit me, then just run ` + "`gitagger`" + `
-version: 1
-scale: patch        # major | minor | patch
-pre: stable         # stable | rc | beta | build | nightly
-format: auto        # auto | triple | double | single | date | sha | sha-num | custom
-custom: ""          # template when format=custom (v2)
+	return `# gitagger config — edit me, then just run ` + "`gitagger`" + `.
+# Everything is optional. Flags beat config, config beats defaults.
+
+# Tag size for triple/double/single styles.
+# major | minor | patch
+scale: patch
+
+# Flavor appended to the tag. stable = no suffix.
+# stable | rc | beta | build | nightly
+pre: stable
+
+# Tag style. auto follows your tag history.
+# auto | triple | double | single | date | sha | sha-num
+format: auto
+
+# Push target. Must exist for auto-push to happen.
 remote: origin
-push: true          # auto-push when safe; false = local tags only
-confirm: false      # true = ask before pushing
+
+# Auto-push the new tag when the remote is reachable.
+# true = push, false = keep the tag local (same as -n).
+push: true
+
+# Always overwrite clashing tags and force-push them.
+# true = same as -f on every run. Keep false unless you mean it.
+force: false
+
+# Abort instead of tagging when the working tree is dirty.
 require_clean: false
-message: ""         # annotated tag message; empty = lightweight tag
+
+# Show detection details and the plan while working.
+# true = same as -v on every run.
+verbose: false
+
+# Tag message. Empty = lightweight tag, set = annotated tag.
+message: ""
 `
 }
 

@@ -17,10 +17,6 @@ func RunTag(o run.Options) error {
 	if !detect.ValidPreCheck(o.Pre) {
 		return BadArgs("bad --pre %q (want stable|rc|beta|build|nightly)", o.Pre)
 	}
-	if o.Format == detect.Custom && strings.TrimSpace(o.Custom) == "" {
-		return BadArgs("format is custom but no custom template is set (use .gitagger.yml)")
-	}
-
 	plan, err := run.ComputePlan(o)
 	if err != nil {
 		return mapPlanError(err)
@@ -55,16 +51,6 @@ func RunTag(o run.Options) error {
 	if !o.Push {
 		fmt.Println(style.Dim("kept locally (-n). push later with `git push " + o.Remote + " " + plan.Next + "`"))
 		return nil
-	}
-
-	if o.Confirm {
-		if ShouldPrompt(true, o.Push, o.DryRun) {
-			if !AskYes(fmt.Sprintf("push %s to %s?", plan.Next, o.Remote)) {
-				fmt.Println(style.Dim("kept locally. push later with `git push " + o.Remote + " " + plan.Next + "`"))
-				return nil
-			}
-		}
-		// Non-TTY with confirm set: proceed without prompting.
 	}
 
 	outcome, err := run.EnsurePush(o, plan.Next)

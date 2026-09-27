@@ -19,10 +19,8 @@ type Options struct {
 	Scale        string
 	Pre          string
 	Format       detect.Format
-	Custom       string
 	Remote       string
 	Push         bool
-	Confirm      bool
 	Force        bool
 	DryRun       bool
 	Message      string
@@ -42,9 +40,6 @@ func FromConfig(dir string, cfg config.Resolved, o Options) Options {
 	if o.Format == "" {
 		f, _ := detect.ParseFormat(cfg.Format)
 		o.Format = f
-	}
-	if o.Custom == "" {
-		o.Custom = cfg.Custom
 	}
 	if o.Remote == "" {
 		o.Remote = cfg.Remote

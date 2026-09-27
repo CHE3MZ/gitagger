@@ -21,8 +21,8 @@ func RunCheck(dir string, verbose bool) error {
 	}
 	fmt.Printf("%s %s\n", style.Green("config is valid:"), style.White(path))
 	if verbose {
-		fmt.Println(style.Dim(fmt.Sprintf("scale=%s pre=%s format=%s remote=%s push=%v",
-			cfg.Scale, cfg.Pre, cfg.Format, cfg.Remote, cfg.Push)))
+		fmt.Println(style.Dim(fmt.Sprintf("scale=%s pre=%s format=%s remote=%s push=%v force=%v verbose=%v",
+			cfg.Scale, cfg.Pre, cfg.Format, cfg.Remote, cfg.Push, cfg.Force, cfg.Verbose)))
 	}
 	return nil
 }

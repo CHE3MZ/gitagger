@@ -164,7 +164,7 @@ func TestDetectUsesLast20(t *testing.T) {
 func TestConfigPrecedenceFiles(t *testing.T) {
 	dir := t.TempDir()
 	mustGitTempInit(t, dir)
-	content := "scale: minor\npre: rc\nformat: triple\nremote: upstream\npush: false\nconfirm: true\n"
+	content := "scale: minor\npre: rc\nformat: triple\nremote: upstream\npush: false\n"
 	if err := os.WriteFile(filepath.Join(dir, ".gitagger.yml"), []byte(content), 0o644); err != nil {
 		t.Fatal(err)
 	}

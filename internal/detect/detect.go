@@ -124,7 +124,7 @@ func Detect(tags []string) (Format, bool) {
 // ParseFormat parses --format flag values.
 func ParseFormat(s string) (Format, bool) {
 	switch Format(strings.ToLower(strings.TrimSpace(s))) {
-	case Auto, Triple, Double, Single, Date, SHA, SHANum, Custom:
+	case Auto, Triple, Double, Single, Date, SHA, SHANum:
 		return Format(strings.ToLower(strings.TrimSpace(s))), true
 	default:
 		return Unknown, false

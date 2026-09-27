@@ -31,11 +31,10 @@ func BuildOptions(dir string, cfg config.Resolved, scale string, f TagFlags) (ru
 	if f.NoPush {
 		o.Push = false
 	}
-	o.Confirm = cfg.Confirm
-	o.Force = f.Force
+	o.Force = cfg.Force || f.Force
 	o.DryRun = f.DryRun
 	o.Message = cfg.Message
 	o.RequireClean = cfg.RequireClean
-	o.Verbose = f.Verbose
+	o.Verbose = cfg.Verbose || f.Verbose
 	return o, nil
 }

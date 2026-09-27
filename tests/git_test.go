@@ -140,7 +140,7 @@ func TestTempReposNeverTouchRootGit(t *testing.T) {
 
 func TestConfigFileLoads(t *testing.T) {
 	dir := t.TempDir()
-	content := "scale: minor\npre: rc\nformat: date\nremote: upstream\npush: false\nconfirm: true\n"
+	content := "scale: minor\npre: rc\nformat: date\nremote: upstream\npush: false\nforce: true\nverbose: true\n"
 	if err := os.WriteFile(filepath.Join(dir, ".gitagger.yml"), []byte(content), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -154,7 +154,7 @@ func TestConfigFileLoads(t *testing.T) {
 	if cfg.Scale != "minor" || cfg.Pre != "rc" || cfg.Format != "date" || cfg.Remote != "upstream" {
 		t.Fatalf("cfg = %+v, wrong values", cfg)
 	}
-	if cfg.Push || !cfg.Confirm {
-		t.Fatalf("cfg push/confirm = %v/%v, want false/true", cfg.Push, cfg.Confirm)
+	if cfg.Push || !cfg.Force || !cfg.Verbose {
+		t.Fatalf("cfg push/force/verbose = %v/%v/%v, want false/true/true", cfg.Push, cfg.Force, cfg.Verbose)
 	}
 }
