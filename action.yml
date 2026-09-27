@@ -18,6 +18,10 @@ inputs:
     description: 'Extra args passed to gitagger (e.g. "minor --pre rc").'
     required: false
     default: ''
+  token:
+    description: 'GitHub token for release API calls (higher rate limits).'
+    required: false
+    default: ${{ github.token }}
 
 outputs:
   tag:
@@ -32,10 +36,20 @@ runs:
       shell: bash
       env:
         INPUT_VERSION: ${{ inputs.version }}
+        INPUT_TOKEN: ${{ inputs.token }}
       run: |
         version="$INPUT_VERSION"
         if [ "$version" = "latest" ]; then
-          version=$(curl -fsSL https://api.github.com/repos/CHE3MZ/gitagger/releases/latest | grep -o '"tag_name": *"[^"]*"' | head -n 1 | cut -d'"' -f 4)
+          auth=()
+          if [ -n "$INPUT_TOKEN" ]; then
+            auth=(-H "Authorization: Bearer $INPUT_TOKEN")
+          fi
+          version=""
+          for i in 1 2 3; do
+            version=$(curl -fsSL --retry 3 --retry-delay 5 --retry-all-errors "${auth[@]}" https://api.github.com/repos/CHE3MZ/gitagger/releases/latest | grep -o '"tag_name": *"[^"]*"' | head -n 1 | cut -d'"' -f 4)
+            [ -n "$version" ] && break
+            sleep 5
+          done
         fi
         if [ -z "$version" ]; then
           echo "::error::could not resolve a gitagger release version"
@@ -63,7 +77,7 @@ runs:
         url="https://github.com/CHE3MZ/gitagger/releases/download/${VERSION}/gitagger_${asset_os}_${asset_arch}.${ext}"
         echo "Downloading $url"
         mkdir -p "${RUNNER_TEMP}/gitagger"
-        curl -fsSL -o "${RUNNER_TEMP}/gitagger/pkg.${ext}" "$url"
+        curl -fsSL --retry 3 --retry-delay 5 -o "${RUNNER_TEMP}/gitagger/pkg.${ext}" "$url"
         if [ "$ext" = "zip" ]; then
           unzip -o -q "${RUNNER_TEMP}/gitagger/pkg.${ext}" -d "${RUNNER_TEMP}/gitagger"
           bin="${RUNNER_TEMP}/gitagger/gitagger.exe"
