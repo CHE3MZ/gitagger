@@ -91,6 +91,15 @@ func CommandHelp(cmd string) {
 		fmt.Println(style.Header("USAGE"))
 		fmt.Println()
 		fmt.Printf("  %s %s\n", style.White("gitagger"), style.Green(h.usage))
+		if len(h.examples) > 0 {
+			fmt.Println()
+			fmt.Println(style.Header("EXAMPLE"))
+			fmt.Println()
+			for _, e := range h.examples {
+				head, rest, _ := strings.Cut(e, " ")
+				fmt.Printf("  %s%s\n", style.White(head), style.Green(" "+rest))
+			}
+		}
 		if len(h.flags) > 0 {
 			fmt.Println()
 			fmt.Println(style.Header("FLAGS"))
@@ -104,9 +113,10 @@ func CommandHelp(cmd string) {
 }
 
 type cmdHelp struct {
-	desc  string
-	usage string
-	flags []string
+	desc     string
+	usage    string
+	examples []string
+	flags    []string
 }
 
 var tagFlags = []string{
@@ -125,6 +135,7 @@ var commandHelp = map[string]cmdHelp{
 	"init": {
 		"Generates a .gitagger.yml file.",
 		"init [-f]",
+		[]string{"gitagger init", "gitagger init -f"},
 		[]string{
 			"-f --force     Overwrite the config file if it exists.",
 			"-v --verbose   Also show the full path.",
@@ -134,6 +145,7 @@ var commandHelp = map[string]cmdHelp{
 	"check": {
 		"Checks if your .gitagger.yml config is valid.",
 		"check [-v]",
+		[]string{"gitagger check"},
 		[]string{
 			"-v --verbose   Show the resolved config values.",
 			"-h --help      Print the help text for a command.",
@@ -142,6 +154,7 @@ var commandHelp = map[string]cmdHelp{
 	"list": {
 		"Shows all tags.",
 		"list [-v]",
+		[]string{"gitagger list"},
 		[]string{
 			"-v --verbose   Also show the remote URL.",
 			"-h --help      Print the help text for a command.",
@@ -150,11 +163,13 @@ var commandHelp = map[string]cmdHelp{
 	"help": {
 		"Print this help text.",
 		"help [command]",
+		[]string{"gitagger help remote"},
 		nil,
 	},
 	"doctor": {
 		"Audit local vs remote tag health status.",
 		"doctor [-v]",
+		[]string{"gitagger doctor"},
 		[]string{
 			"-v --verbose   Also show the remote URL.",
 			"-h --help      Print the help text for a command.",
@@ -163,6 +178,7 @@ var commandHelp = map[string]cmdHelp{
 	"remote": {
 		"Change the remote URL the tag will get pushed to.",
 		"remote <name>",
+		[]string{"gitagger remote origin", "gitagger remote upstream", "gitagger remote --show"},
 		[]string{
 			"-s --show      Show the current remote instead.",
 			"-v --verbose   Show all remotes with --show.",
@@ -173,10 +189,13 @@ var commandHelp = map[string]cmdHelp{
 		"Show the build version.",
 		"version",
 		nil,
+		[]string{
+			"-h --help    Print the help text for a command.",
+		},
 	},
-	"patch": {"New tag addition by    0.0.X.", "patch [--flags]", tagFlags},
-	"minor": {"New tag rounding to    0.X.0.", "minor [--flags]", tagFlags},
-	"major": {"New tag rounding to    X.0.0.", "major [--flags]", tagFlags},
+	"patch": {"New tag addition by    0.0.X.", "patch [--flags]", []string{"gitagger patch", "gitagger patch --pre rc", "gitagger patch -m \"fix login\" -n"}, tagFlags},
+	"minor": {"New tag rounding to    0.X.0.", "minor [--flags]", []string{"gitagger minor", "gitagger minor --pre beta", "gitagger minor -d"}, tagFlags},
+	"major": {"New tag rounding to    X.0.0.", "major [--flags]", []string{"gitagger major", "gitagger major --pre rc", "gitagger major --format date"}, tagFlags},
 }
 
 // KnownCommands lists every command for `gitagger help [command]`.
@@ -190,4 +209,15 @@ func IsCommand(name string) bool {
 		}
 	}
 	return false
+}
+
+// ExampleCount returns how many example lines a command documents.
+func ExampleCount(cmd string) int {
+	if cmd == "ls" {
+		cmd = "list"
+	}
+	if h, ok := commandHelp[cmd]; ok {
+		return len(h.examples)
+	}
+	return 0
 }
