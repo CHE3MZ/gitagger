@@ -71,13 +71,13 @@ var commands = []commandRow{
 var flagLines = []string{
 	"  --pre          stable|rc|beta|build|nightly                    prerelease flavor (default stable)",
 	"  --format       auto|triple|double|single|date|sha|sha-num      force a style (default auto)",
-	"  -h --help      Print the help text for a command.",
-	"  -v --verbose   Enable verbose mode.",
-	"  -n --no-push   Create tag without pushing.",
-	"  -d --dry-run   Do A dry-run for testing.",
-	"  -f --force     Force push to remote.",
-	"  -m --message <msg> Tag message. Empty = lightweight tag.",
-	"  -r --require-clean Abort if the working tree is dirty.",
+	"  -h --help                                                      Print the help text for a command.",
+	"  -v --verbose                                                   Enable verbose mode.",
+	"  -n --no-push                                                   Create tag without pushing.",
+	"  -d --dry-run                                                   Do A dry-run for testing.",
+	"  -f --force                                                     Force push to remote.",
+	"  -m --message <msg>                                             Tag message. Empty = lightweight tag.",
+	"  -r --require-clean                                             Abort if the working tree is dirty.",
 }
 
 // CommandHelp prints help for one command in the same direct style.
@@ -112,13 +112,13 @@ type cmdHelp struct {
 var tagFlags = []string{
 	"--pre          stable|rc|beta|build|nightly                    prerelease flavor (default stable)",
 	"--format       auto|triple|double|single|date|sha|sha-num      force a style (default auto)",
-	"-n --no-push   Create tag without pushing.",
-	"-d --dry-run   Do A dry-run for testing.",
-	"-f --force     Force push to remote.",
-	"-m --message <msg> Tag message. Empty = lightweight tag.",
-	"-r --require-clean Abort if the working tree is dirty.",
-	"-v --verbose   Enable verbose mode.",
-	"-h --help      Print the help text for a command.",
+	"-n --no-push                                                   Create tag without pushing.",
+	"-d --dry-run                                                   Do A dry-run for testing.",
+	"-f --force                                                     Force push to remote.",
+	"-m --message <msg>                                             Tag message. Empty = lightweight tag.",
+	"-r --require-clean                                             Abort if the working tree is dirty.",
+	"-v --verbose                                                   Enable verbose mode.",
+	"-h --help                                                      Print the help text for a command.",
 }
 
 var commandHelp = map[string]cmdHelp{
@@ -126,8 +126,9 @@ var commandHelp = map[string]cmdHelp{
 		"Generates a .gitagger.yml file.",
 		"init [-f]",
 		[]string{
-			"-f --force   Overwrite the config file if it exists.",
-			"-h --help    Print the help text for a command.",
+			"-f --force     Overwrite the config file if it exists.",
+			"-v --verbose   Also show the full path.",
+			"-h --help      Print the help text for a command.",
 		},
 	},
 	"check": {
@@ -163,7 +164,7 @@ var commandHelp = map[string]cmdHelp{
 		"Change the remote URL the tag will get pushed to.",
 		"remote <name>",
 		[]string{
-			"-s --show    Show the current remote instead.",
+			"-s --show      Show the current remote instead.",
 			"-v --verbose   Show all remotes with --show.",
 			"-h --help      Print the help text for a command.",
 		},

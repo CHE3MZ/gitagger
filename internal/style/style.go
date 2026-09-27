@@ -8,9 +8,9 @@ import "os"
 const (
 	reset = "\x1b[0m"
 	bold  = "\x1b[1m"
-	red   = "\x1b[91m"
+	red   = "\x1b[31m"
 	green = "\x1b[92m"
-	blue  = "\x1b[94m"
+	blue  = "\x1b[34m"
 	gray  = "\x1b[90m"
 	white = "\x1b[37m"
 )
