@@ -176,7 +176,8 @@ pre: stable
 format: auto
 
 # Custom tag template. Only used when format is custom above.
-# API: MAJOR MINOR PATCH YEAR MONTH DAY DATE SHA FULLSHA COUNT PRE NUMBER TAG — ex: "build-<SHA>-v<MAJOR>.<MINOR>.<PATCH>-<DATE><PRE>"
+# API: MAJOR MINOR PATCH YEAR MONTH DAY DATE SHA FULLSHA COUNT PRE NUMBER TAG
+# EXAMPLE: "build-<SHA>-v<MAJOR>.<MINOR>.<PATCH>-<DATE><PRE>"
 custom: ""
 
 # Push target. Must exist for auto-push to happen.

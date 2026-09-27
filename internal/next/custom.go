@@ -123,7 +123,7 @@ func custom(req Request, scale, pre string) (string, error) {
 		"MAJOR": strconv.Itoa(maj), "MINOR": strconv.Itoa(min), "PATCH": strconv.Itoa(pch),
 		"YEAR": now.Format("2006"), "MONTH": now.Format("01"), "DAY": now.Format("02"),
 		"DATE": now.Format("2006.01.02"),
-		"SHA": req.SHA, "FULLSHA": req.FullSHA, "COUNT": req.Count,
+		"SHA":  req.SHA, "FULLSHA": req.FullSHA, "COUNT": req.Count,
 		"PRE": preSuffix(pre),
 		"TAG": req.Prev,
 	}

@@ -53,8 +53,8 @@ func FromConfig(dir string, cfg config.Resolved, o Options) Options {
 	if o.Remote == "" {
 		o.Remote = cfg.Remote
 	}
-	// Push/Confirm/RequireClean/Message come from config only —
-	// the CLI has no flags for them, BuildOptions copies the rest.
+	// Push/Force/Message/RequireClean/Doctor/Verbose start from config —
+	// BuildOptions applies flag overrides on top.
 	return o
 }
 

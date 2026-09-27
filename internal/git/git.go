@@ -180,7 +180,7 @@ func RemoteTags(dir, remote string) ([]string, error) {
 	return ParseRemoteTags(out), nil
 }
 
-// DeleteTag removes a local tag (doctor --fix only, after confirm).
+// DeleteTag removes a local tag.
 func DeleteTag(dir, tag string) error {
 	_, err := runDefault(dir, "tag", "-d", tag)
 	return err
