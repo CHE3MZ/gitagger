@@ -38,11 +38,11 @@ func TestParseScale(t *testing.T) {
 }
 
 func TestTagFlagShorts(t *testing.T) {
-	f, _, err := cmd.ParseTagFlags([]string{"-n", "-d", "-f", "-v"})
+	f, _, err := cmd.ParseTagFlags([]string{"-n", "-d", "-f", "-v", "-r"})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !f.NoPush || !f.DryRun || !f.Force || !f.Verbose {
+	if !f.NoPush || !f.DryRun || !f.Force || !f.Verbose || !f.RequireClean {
 		t.Fatalf("short flags not set: %+v", f)
 	}
 	f, _, err = cmd.ParseTagFlags([]string{"--no-push", "--dry-run", "--force", "--verbose"})

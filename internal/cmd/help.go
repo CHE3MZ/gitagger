@@ -77,7 +77,7 @@ var flagLines = []string{
 	"  -d --dry-run   Do A dry-run for testing.",
 	"  -f --force     Force push to remote.",
 	"  -m --message <msg> Tag message. Empty = lightweight tag.",
-	"  --require-clean   Abort if the working tree is dirty.",
+	"  -r --require-clean Abort if the working tree is dirty.",
 }
 
 // CommandHelp prints help for one command in the same direct style.
@@ -116,7 +116,7 @@ var tagFlags = []string{
 	"-d --dry-run   Do A dry-run for testing.",
 	"-f --force     Force push to remote.",
 	"-m --message <msg> Tag message. Empty = lightweight tag.",
-	"--require-clean   Abort if the working tree is dirty.",
+	"-r --require-clean Abort if the working tree is dirty.",
 	"-v --verbose   Enable verbose mode.",
 	"-h --help      Print the help text for a command.",
 }

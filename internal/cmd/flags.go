@@ -59,7 +59,7 @@ func ParseTagFlags(args []string) (TagFlags, []string, error) {
 		case a == "--message" && i+1 < len(args):
 			i++
 			f.Message = args[i]
-		case a == "--require-clean":
+		case a == "-r" || a == "--require-clean":
 			f.RequireClean = true
 		case strings.HasPrefix(a, "-"):
 			return f, pos, fmt.Errorf("unknown flag %q — try `gitagger --help`", a)

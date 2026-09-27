@@ -8,9 +8,9 @@ import "os"
 const (
 	reset = "\x1b[0m"
 	bold  = "\x1b[1m"
-	red   = "\x1b[31m"
-	green = "\x1b[32m"
-	blue  = "\x1b[34m"
+	red   = "\x1b[91m"
+	green = "\x1b[92m"
+	blue  = "\x1b[94m"
 	gray  = "\x1b[90m"
 	white = "\x1b[37m"
 )
@@ -59,7 +59,7 @@ func BoldGreen(s string) string {
 	if !enabled {
 		return s
 	}
-	return "\x1b[1;32m" + s + reset
+	return "\x1b[1;92m" + s + reset
 }
 
 // Error formats an error line.
