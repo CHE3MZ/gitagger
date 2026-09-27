@@ -20,13 +20,14 @@ func PrintHelp() {
 	fmt.Println()
 	fmt.Println(style.Header("USAGE"))
 	fmt.Println()
-	fmt.Println("  gitagger [command] [--flags]")
+	fmt.Printf("  %s %s %s\n", style.White("gitagger"), style.Green("[command]"), style.Blue("[--flags]"))
 	fmt.Println()
 	fmt.Println(style.Header("EXAMPLES"))
 	fmt.Println()
 	for _, e := range examples {
 		inv, comment, _ := strings.Cut(e, "#")
-		fmt.Printf("  %s%s\n", style.Green(inv), style.Gray("#"+comment))
+		head, rest, _ := strings.Cut(inv, " ")
+		fmt.Printf("  %s%s%s\n", style.White(head), style.Green(" "+rest), style.Gray("#"+comment))
 	}
 	fmt.Println()
 	fmt.Println(style.Header("COMMANDS"))
@@ -86,7 +87,7 @@ func CommandHelp(cmd string) {
 		fmt.Println()
 		fmt.Println(style.Header("USAGE"))
 		fmt.Println()
-		fmt.Printf("  gitagger %s\n", style.Green(h.usage))
+		fmt.Printf("  %s %s\n", style.White("gitagger"), style.Green(h.usage))
 		if len(h.flags) > 0 {
 			fmt.Println()
 			fmt.Println(style.Header("FLAGS"))
