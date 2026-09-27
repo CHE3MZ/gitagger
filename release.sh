@@ -14,6 +14,8 @@ goreleaser release --clean --skip=publish
 echo "Uploading release binaries to github via the gh CLI..."
 gh release create "$taglatest" \
   ./dist/*.tar.gz \
+  ./dist/*.zip \
+  ./dist/*.txt \
   ./dist/metadata.json \
   --title "$taglatest" \
   --notes "$releasenotes"
