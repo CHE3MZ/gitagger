@@ -50,6 +50,10 @@ runs:
             [ -n "$version" ] && break
             sleep 5
           done
+          if [ -z "$version" ]; then
+            echo "API lookup failed, falling back to git tags"
+            version=$(git ls-remote --tags --sort=-v:refname https://github.com/CHE3MZ/gitagger.git 2>/dev/null | grep -o 'refs/tags/v[0-9][0-9.]*' | head -n 1 | sed 's|.*/||')
+          fi
         fi
         if [ -z "$version" ]; then
           echo "::error::could not resolve a gitagger release version"
