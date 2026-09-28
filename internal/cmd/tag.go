@@ -15,6 +15,7 @@ import (
 
 // RunTag creates the next tag and pushes when safe.
 func RunTag(o run.Options) error {
+	o.Hooks = filterHooks(o.Hooks, o.Arguments)
 	if !detect.ValidPreCheck(o.Pre) {
 		return BadArgs("bad --pre %q (want stable|rc|beta|build|nightly)", o.Pre)
 	}
@@ -92,10 +93,11 @@ func hookEnv(o run.Options, plan run.Plan, pushed bool) map[string]string {
 		pushedStr = "true"
 	}
 	return map[string]string{
-		"GITAGGER_TAG":    plan.Next,
-		"GITAGGER_PREV":   plan.Prev,
-		"GITAGGER_REMOTE": o.Remote,
-		"GITAGGER_PUSHED": pushedStr,
+		"GITAGGER_TAG":      plan.Next,
+		"GITAGGER_PREV":     plan.Prev,
+		"GITAGGER_REMOTE":   o.Remote,
+		"GITAGGER_PUSHED":   pushedStr,
+		"GITAGGER_ARGUMENT": strings.Join(o.Arguments, ","),
 	}
 }
 

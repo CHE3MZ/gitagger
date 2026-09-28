@@ -52,6 +52,29 @@ func OsMatches(selector, goos string) bool {
 	}
 	return !matched
 }
+// filterHooks keeps untagged blocks plus those matching given arguments
+// (case-insensitive). Runs without -a see untagged blocks only.
+func filterHooks(h config.Hooks, args []string) config.Hooks {
+	want := map[string]bool{}
+	for _, a := range args {
+		want[strings.ToLower(a)] = true
+	}
+	keep := func(blocks []config.HookBlock) []config.HookBlock {
+		var out []config.HookBlock
+		for _, b := range blocks {
+			if b.Argument == "" || want[strings.ToLower(b.Argument)] {
+				out = append(out, b)
+			}
+		}
+		return out
+	}
+	h.Start = keep(h.Start)
+	h.Success = keep(h.Success)
+	h.Failure = keep(h.Failure)
+	h.Finish = keep(h.Finish)
+	return h
+}
+
 // RunHooks runs every block for event in order, streaming output live.
 // Blocks for other platforms are skipped. env values are exported to
 // each command alongside GITAGGER_EVENT.

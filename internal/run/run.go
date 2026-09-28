@@ -29,6 +29,7 @@ type Options struct {
 	Doctor       bool
 	Verbose      bool
 	Hooks        config.Hooks
+	Arguments    []string
 }
 
 // FromConfig applies flag overrides onto loaded config.

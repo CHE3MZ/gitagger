@@ -38,12 +38,14 @@ func Defaults() Resolved {
 	}
 }
 
-// HookBlock is one shell block: optional shell/os plus commands.
-// Shell defaults to sh, os defaults to all platforms.
+// HookBlock is one shell block: optional argument/shell/os plus commands.
+// Shell defaults to sh, os defaults to all. A block with an argument runs
+// only when that argument is given (-a/--argument).
 type HookBlock struct {
-	Shell string     `yaml:"shell"`
-	OS    string     `yaml:"os"`
-	Run   StringList `yaml:"run"`
+	Argument string     `yaml:"argument"`
+	Shell    string     `yaml:"shell"`
+	OS       string     `yaml:"os"`
+	Run      StringList `yaml:"run"`
 }
 
 // HookList is one block or a list of blocks.
@@ -165,6 +167,20 @@ func splitOS(s string) []string {
 		}
 	}
 	return out
+}
+
+// validArgumentName checks argument identifiers: letters, digits, _ and -.
+func validArgumentName(s string) bool {
+	if s == "" {
+		return false
+	}
+	for _, r := range s {
+		if r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r >= '0' && r <= '9' || r == '_' || r == '-' {
+			continue
+		}
+		return false
+	}
+	return true
 }
 
 // Candidates in lookup order.
@@ -334,6 +350,9 @@ func validateHooks(h Hooks) error {
 	}
 	for _, ev := range events {
 		for _, b := range ev.blocks {
+			if b.Argument != "" && !validArgumentName(b.Argument) {
+				return fmt.Errorf("bad argument %q in %s hook (want [a-zA-Z0-9_-]+)", b.Argument, ev.name)
+			}
 			if !validShells[b.Shell] {
 				return fmt.Errorf("bad shell %q in %s hook (want sh|bash|pwsh|batch)", b.Shell, ev.name)
 			}
@@ -405,10 +424,11 @@ message: ""
 
 # Hooks run shell commands at lifecycle events: start, success etc.
 # Each event takes one block or a list. shell defaults to sh, os defaults to all.
-# API: on:, start:, success:, failure:, finish:, run:, shell:, os:
+# API: on:, start:, success:, failure:, finish:, run:, shell:, os:, argument:
 # EVENTS: start:, success:, failure:, finish: - determine when to run the hook.
 # SHELLS: sh, bash, pwsh, batch - determine what shell type to run the command on.
 # OS: windows, macos, linux - determine what OS type to run the command on.
+# Blocks take argument: <name> to run only with gitagger -a <name>.
 on:
   failure:
     - shell: sh

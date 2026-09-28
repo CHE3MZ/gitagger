@@ -92,6 +92,7 @@ var flagRows = []flagRow{
 	{"-m --message <msg>", "Tag message. (empty by default)", ""},
 	{"-r --require-clean", "Abort if the working tree is dirty.", ""},
 	{"-p --path <dir>", "Operate in another directory.", ""},
+	{"-a --argument <name>", "Enable hooks with this argument.", ""},
 }
 
 // renderFlagRows paints one flag block: blue specs and values, gray descs,

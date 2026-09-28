@@ -13,6 +13,7 @@ type TagFlags struct {
 	Format       string
 	Message      string
 	Path         string
+	Arguments    []string
 	NoPush       bool
 	Force        bool
 	DryRun       bool
@@ -68,6 +69,14 @@ func ParseTagFlags(args []string) (TagFlags, []string, error) {
 		case a == "--path" && i+1 < len(args):
 			i++
 			f.Path = args[i]
+		case a == "-a" && i+1 < len(args):
+			i++
+			f.Arguments = append(f.Arguments, args[i])
+		case strings.HasPrefix(a, "--argument="):
+			f.Arguments = append(f.Arguments, strings.TrimPrefix(a, "--argument="))
+		case a == "--argument" && i+1 < len(args):
+			i++
+			f.Arguments = append(f.Arguments, args[i])
 		case a == "-r" || a == "--require-clean":
 			f.RequireClean = true
 		case strings.HasPrefix(a, "-"):
