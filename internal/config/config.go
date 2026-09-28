@@ -151,8 +151,19 @@ var validShells = map[string]bool{
 	"sh": true, "bash": true, "pwsh": true, "batch": true,
 }
 
-// validHookOS limits blocks to platforms. Empty means all.
-var validHookOS = map[string]bool{"": true, "linux": true, "macos": true, "windows": true}
+// validHookOS limits blocks to platforms.
+var validHookOS = map[string]bool{"linux": true, "macos": true, "windows": true}
+
+// splitOS splits "macos, linux" into selectors. Empty means all platforms.
+func splitOS(s string) []string {
+	var out []string
+	for _, p := range strings.Split(s, ",") {
+		if p = strings.ToLower(strings.TrimSpace(p)); p != "" {
+			out = append(out, p)
+		}
+	}
+	return out
+}
 
 // Candidates in lookup order.
 func candidates(dir string) []string {
@@ -323,8 +334,10 @@ func validateHooks(h Hooks) error {
 			if !validShells[b.Shell] {
 				return fmt.Errorf("bad shell %q in %s hook (want sh|bash|pwsh|batch)", b.Shell, ev.name)
 			}
-			if !validHookOS[b.OS] {
-				return fmt.Errorf("bad os %q in %s hook (want linux|macos|windows)", b.OS, ev.name)
+			for _, o := range splitOS(b.OS) {
+				if !validHookOS[o] {
+					return fmt.Errorf("bad os %q in %s hook (want linux|macos|windows)", b.OS, ev.name)
+				}
 			}
 			if len(b.Run) == 0 {
 				return fmt.Errorf("%s hook block has no run commands", ev.name)
@@ -390,12 +403,17 @@ message: ""
 # Hooks run shell commands at lifecycle events: start, success etc.
 # Each event takes one block or a list. shell defaults to sh, os defaults to all.
 # API: on:, start:, success:, failure:, finish:, run:, shell:, os:
-# EVENTS: start:, success:, failure:, finish:
-# SHELLS: sh, bash, pwsh, batch
-# OS: windows, macos, linux
+# EVENTS: start:, success:, failure:, finish: - determine when to run the hook.
+# SHELLS: sh, bash, pwsh, batch - determine what shell type to run the command on.
+# OS: windows, macos, linux - determine what OS type to run the command on.
 on:
   failure:
     - shell: sh
+      os: macos, linux
+      run:
+        - echo "Oops! Something went wrong..."
+    - shell: batch
+      os: windows
       run:
         - echo "Oops! Something went wrong..."
 `

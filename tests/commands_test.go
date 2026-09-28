@@ -285,8 +285,8 @@ func TestRunInitClean(t *testing.T) {
 	if err != nil {
 		t.Fatalf("clean config should load: %v", err)
 	}
-	if cfg.Scale != "patch" || len(cfg.Hooks.Failure) != 1 {
-		t.Fatalf("clean config should hold defaults + failure hook: %+v", cfg)
+	if cfg.Scale != "patch" || len(cfg.Hooks.Failure) != 2 {
+		t.Fatalf("clean config should hold defaults + failure hooks: %+v", cfg)
 	}
 }
 

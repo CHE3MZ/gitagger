@@ -69,6 +69,7 @@ func TestHooksRejectBadShapes(t *testing.T) {
 		{"empty run", "on:\n  start:\n    run: []\n"},
 		{"blank command", "on:\n  start:\n    run: [\"\"]\n"},
 		{"bad os", "on:\n  start:\n    os: plan9\n    run: echo hi\n"},
+		{"bad os in list", "on:\n  start:\n    os: linux, plan9\n    run: echo hi\n"},
 		{"bare string in list", "on:\n  start:\n    - echo hi\n"},
 		{"top-level typo", "remtoe: origin\n"},
 	}
@@ -114,11 +115,14 @@ func TestInitTemplateLoads(t *testing.T) {
 	if err != nil {
 		t.Fatalf("init template should load: %v", err)
 	}
-	if len(cfg.Hooks.Start)+len(cfg.Hooks.Success)+len(cfg.Hooks.Finish) != 0 || len(cfg.Hooks.Failure) != 1 {
-		t.Fatalf("init template should hold only the default failure hook: %+v", cfg.Hooks)
+	if len(cfg.Hooks.Start) != 0 || len(cfg.Hooks.Success) != 0 || len(cfg.Hooks.Finish) != 0 || len(cfg.Hooks.Failure) != 2 {
+		t.Fatalf("init template should hold only the default failure hooks: %+v", cfg.Hooks)
 	}
-	if cfg.Hooks.Failure[0].Shell != "sh" || len(cfg.Hooks.Failure[0].Run) != 1 {
-		t.Fatalf("default failure hook wrong: %+v", cfg.Hooks.Failure[0])
+	if cfg.Hooks.Failure[0].Shell != "sh" || cfg.Hooks.Failure[0].OS != "macos, linux" {
+		t.Fatalf("default sh failure hook wrong: %+v", cfg.Hooks.Failure[0])
+	}
+	if cfg.Hooks.Failure[1].Shell != "batch" || cfg.Hooks.Failure[1].OS != "windows" {
+		t.Fatalf("default batch failure hook wrong: %+v", cfg.Hooks.Failure[1])
 	}
 }
 
@@ -205,6 +209,9 @@ func TestOsMatches(t *testing.T) {
 		{"windows", "linux", false},
 		{"macos", "darwin", true},
 		{"macos", "linux", false},
+		{"macos, linux", "darwin", true},
+		{"macos, linux", "linux", true},
+		{"macos, linux", "windows", false},
 		// Config validation only allows macos (never darwin), but an
 		// exact match is still a match if it ever arrives.
 		{"darwin", "darwin", true},
@@ -213,5 +220,17 @@ func TestOsMatches(t *testing.T) {
 		if got := cmd.OsMatches(c.selector, c.goos); got != c.want {
 			t.Errorf("OsMatches(%q, %q) = %v, want %v", c.selector, c.goos, got, c.want)
 		}
+	}
+}
+
+func TestHooksOsListLoads(t *testing.T) {
+	dir := t.TempDir()
+	writeConfig(t, dir, "on:\n  failure:\n    - shell: sh\n      os: macos, linux\n      run: echo oops\n")
+	cfg, _, err := config.Load(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(cfg.Hooks.Failure) != 1 || cfg.Hooks.Failure[0].OS != "macos, linux" {
+		t.Fatalf("hooks = %+v", cfg.Hooks)
 	}
 }

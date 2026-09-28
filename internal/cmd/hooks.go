@@ -33,15 +33,24 @@ func shellRunner(shell string) (string, []string, error) {
 }
 
 // OsMatches reports whether an os: selector targets a GOOS value.
+// The selector is one platform or a comma list ("macos, linux").
 // "macos" is accepted for Go's "darwin"; empty means all platforms.
 func OsMatches(selector, goos string) bool {
-	if selector == "" {
-		return true
+	matched := false
+	for _, p := range strings.Split(selector, ",") {
+		p = strings.ToLower(strings.TrimSpace(p))
+		if p == "" {
+			continue
+		}
+		matched = true
+		if p == "macos" && goos == "darwin" {
+			return true
+		}
+		if p == goos {
+			return true
+		}
 	}
-	if selector == "macos" && goos == "darwin" {
-		return true
-	}
-	return selector == goos
+	return !matched
 }
 // RunHooks runs every block for event in order, streaming output live.
 // Blocks for other platforms are skipped. env values are exported to
