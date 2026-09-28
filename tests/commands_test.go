@@ -209,7 +209,7 @@ func TestVersionString(t *testing.T) {
 }
 
 func TestKnownCommands(t *testing.T) {
-	for _, c := range []string{"init", "check", "list", "ls", "help", "doctor", "remote", "version", "patch", "minor", "major"} {
+	for _, c := range []string{"init", "check", "list", "ls", "help", "handbook", "doctor", "remote", "version", "patch", "minor", "major"} {
 		if !cmd.IsCommand(c) {
 			t.Errorf("IsCommand(%q) = false", c)
 		}
@@ -218,6 +218,13 @@ func TestKnownCommands(t *testing.T) {
 	if cmd.IsCommand("bogus") {
 		t.Errorf("IsCommand(bogus) = true")
 	}
+}
+
+func TestHandbookRuns(t *testing.T) {
+	if err := cmd.RunHandbook(t.TempDir(), false); err != nil {
+		t.Fatalf("handbook should always pass: %v", err)
+	}
+	cmd.PrintHandbook() // must not crash
 }
 
 func TestRunList(t *testing.T) {

@@ -379,6 +379,7 @@ func validateHooks(h Hooks) error {
 func DefaultFileContent() string {
 	return `# gitagger config — edit me, then just run ` + "`gitagger`" + `.
 # Everything is optional. Flags beat config, config beats defaults.
+# Run gitagger handbook to view the full handbook for the gitagger config!
 
 # Tag size for triple/double/single styles.
 # major | minor | patch
