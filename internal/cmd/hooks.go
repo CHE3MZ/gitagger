@@ -20,22 +20,29 @@ func shellRunner(shell string) (string, []string, error) {
 		return "sh", []string{"-c"}, nil
 	case "bash":
 		return "bash", []string{"-c"}, nil
-	case "zsh":
-		return "zsh", []string{"-c"}, nil
 	case "pwsh":
 		return "pwsh", []string{"-Command"}, nil
-	case "powershell":
-		return "powershell", []string{"-Command"}, nil
 	case "batch":
 		if runtime.GOOS != "windows" {
 			return "", nil, fmt.Errorf("shell %q needs Windows", shell)
 		}
 		return "cmd", []string{"/C"}, nil
 	default:
-		return "", nil, fmt.Errorf("unknown shell %q (want sh|bash|zsh|pwsh|powershell|batch)", shell)
+		return "", nil, fmt.Errorf("unknown shell %q (want sh|bash|pwsh|batch)", shell)
 	}
 }
 
+// OsMatches reports whether an os: selector targets a GOOS value.
+// "macos" is accepted for Go's "darwin"; empty means all platforms.
+func OsMatches(selector, goos string) bool {
+	if selector == "" {
+		return true
+	}
+	if selector == "macos" && goos == "darwin" {
+		return true
+	}
+	return selector == goos
+}
 // RunHooks runs every block for event in order, streaming output live.
 // Blocks for other platforms are skipped. env values are exported to
 // each command alongside GITAGGER_EVENT.
@@ -50,7 +57,7 @@ func RunHooks(dir, event string, blocks []config.HookBlock, env map[string]strin
 			shell = "sh"
 		}
 		osName := strings.ToLower(strings.TrimSpace(b.OS))
-		if osName != "" && osName != runtime.GOOS {
+		if !OsMatches(osName, runtime.GOOS) {
 			if verbose {
 				first, rest := "", b.Run
 				if len(rest) > 0 {

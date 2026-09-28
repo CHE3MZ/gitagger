@@ -148,8 +148,7 @@ var legacyKeys = map[string]bool{"version": true, "confirm": true}
 
 // validShells are the only shell names hooks accept.
 var validShells = map[string]bool{
-	"sh": true, "bash": true, "zsh": true,
-	"pwsh": true, "powershell": true, "batch": true,
+	"sh": true, "bash": true, "pwsh": true, "batch": true,
 }
 
 // validHookOS limits blocks to platforms. Empty means all.
@@ -322,7 +321,7 @@ func validateHooks(h Hooks) error {
 	for _, ev := range events {
 		for _, b := range ev.blocks {
 			if !validShells[b.Shell] {
-				return fmt.Errorf("bad shell %q in %s hook (want sh|bash|zsh|pwsh|powershell|batch)", b.Shell, ev.name)
+				return fmt.Errorf("bad shell %q in %s hook (want sh|bash|pwsh|batch)", b.Shell, ev.name)
 			}
 			if !validHookOS[b.OS] {
 				return fmt.Errorf("bad os %q in %s hook (want linux|macos|windows)", b.OS, ev.name)
@@ -392,7 +391,7 @@ message: ""
 # Each event takes one block or a list. shell defaults to sh, os defaults to all.
 # API: on:, start:, success:, failure:, finish:, run:, shell:, os:
 # EVENTS: start:, success:, failure:, finish:
-# SHELLS: sh, bash, zsh, pwsh, powershell, batch
+# SHELLS: sh, bash, pwsh, batch
 # OS: windows, macos, linux
 on:
   failure:

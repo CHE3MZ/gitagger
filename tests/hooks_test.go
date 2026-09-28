@@ -64,6 +64,8 @@ func TestHooksRejectBadShapes(t *testing.T) {
 	cases := []struct{ name, content string }{
 		{"unknown event", "on:\n  frobnicate: echo hi\n"},
 		{"unknown shell", "on:\n  start:\n    shell: fish\n    run: echo hi\n"},
+		{"gone shell zsh", "on:\n  start:\n    shell: zsh\n    run: echo hi\n"},
+		{"gone shell powershell", "on:\n  start:\n    shell: powershell\n    run: echo hi\n"},
 		{"empty run", "on:\n  start:\n    run: []\n"},
 		{"blank command", "on:\n  start:\n    run: [\"\"]\n"},
 		{"bad os", "on:\n  start:\n    os: plan9\n    run: echo hi\n"},
@@ -173,8 +175,7 @@ func TestHooksFailureAndFinishRun(t *testing.T) {
 	}
 }
 
-func TestHooksSkipOtherOS(t *testing.T) {
-	needSh(t)
+func TestHooksSkipOtherOS(t *testing.T) {	needSh(t)
 	other := "windows"
 	if runtime.GOOS == "windows" {
 		other = "linux"
@@ -188,5 +189,29 @@ func TestHooksSkipOtherOS(t *testing.T) {
 	}
 	if !strings.Contains(out.String(), "skipped") {
 		t.Fatalf("expected skip note, got %q", out.String())
+	}
+}
+
+func TestOsMatches(t *testing.T) {
+	cases := []struct {
+		selector, goos string
+		want           bool
+	}{
+		{"", "linux", true},
+		{"", "windows", true},
+		{"linux", "linux", true},
+		{"linux", "windows", false},
+		{"windows", "windows", true},
+		{"windows", "linux", false},
+		{"macos", "darwin", true},
+		{"macos", "linux", false},
+		// Config validation only allows macos (never darwin), but an
+		// exact match is still a match if it ever arrives.
+		{"darwin", "darwin", true},
+	}
+	for _, c := range cases {
+		if got := cmd.OsMatches(c.selector, c.goos); got != c.want {
+			t.Errorf("OsMatches(%q, %q) = %v, want %v", c.selector, c.goos, got, c.want)
+		}
 	}
 }
