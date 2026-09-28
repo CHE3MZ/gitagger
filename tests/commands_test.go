@@ -229,3 +229,67 @@ func TestRunList(t *testing.T) {
 		t.Fatalf("list should pass: %v", err)
 	}
 }
+
+func TestRunInitWritesTemplate(t *testing.T) {
+	dir := t.TempDir()
+	if err := cmd.RunInit(dir, false, false); err != nil {
+		t.Fatal(err)
+	}
+	cfg, path, err := config.Load(dir)
+	if err != nil {
+		t.Fatalf("fresh init should load: %v", err)
+	}
+	if path == "" {
+		t.Fatalf("expected to find .gitagger.yml")
+	}
+	if cfg.Scale != "patch" || cfg.Remote != "origin" || !cfg.Push {
+		t.Fatalf("fresh init should hold defaults: %+v", cfg)
+	}
+	if err := cmd.RunCheck(dir, false); err != nil {
+		t.Fatalf("fresh init should validate: %v", err)
+	}
+}
+
+func TestRunInitRefusesOverwrite(t *testing.T) {
+	dir := t.TempDir()
+	if err := cmd.RunInit(dir, false, false); err != nil {
+		t.Fatal(err)
+	}
+	err := cmd.RunInit(dir, false, false)
+	if err == nil {
+		t.Fatalf("second init should refuse")
+	}
+	if cmd.CodeOf(err) != 2 {
+		t.Fatalf("refusal should exit 2, got %d", cmd.CodeOf(err))
+	}
+	if err := cmd.RunInit(dir, true, false); err != nil {
+		t.Fatalf("forced init should overwrite: %v", err)
+	}
+}
+
+func TestRunDoctorNoRemote(t *testing.T) {
+	dir := initRepo(t)
+	if err := cmd.RunDoctor(dir, "origin", false); err != nil {
+		t.Fatalf("doctor without remote should stay graceful: %v", err)
+	}
+	if err := git.CreateTag(dir, "hello", "", false); err != nil {
+		t.Fatal(err)
+	}
+	if err := cmd.RunDoctor(dir, "origin", true); err != nil {
+		t.Fatalf("doctor with odd tags should still pass: %v", err)
+	}
+}
+
+func TestRunDoctorWithRemote(t *testing.T) {
+	dir := initRepo(t)
+	remoteDir := t.TempDir()
+	mustGit(t, remoteDir, "init", "--bare", "-q")
+	mustGit(t, dir, "remote", "add", "origin", remoteDir)
+	if err := git.CreateTag(dir, "v1.0.0", "", false); err != nil {
+		t.Fatal(err)
+	}
+	// Local-only tag, reachable remote: full compare path, still no error.
+	if err := cmd.RunDoctor(dir, "origin", true); err != nil {
+		t.Fatalf("doctor should pass: %v", err)
+	}
+}
