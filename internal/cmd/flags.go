@@ -12,6 +12,7 @@ type TagFlags struct {
 	Pre          string
 	Format       string
 	Message      string
+	Path         string
 	NoPush       bool
 	Force        bool
 	DryRun       bool
@@ -59,6 +60,14 @@ func ParseTagFlags(args []string) (TagFlags, []string, error) {
 		case a == "--message" && i+1 < len(args):
 			i++
 			f.Message = args[i]
+		case a == "-p" && i+1 < len(args):
+			i++
+			f.Path = args[i]
+		case strings.HasPrefix(a, "--path="):
+			f.Path = strings.TrimPrefix(a, "--path=")
+		case a == "--path" && i+1 < len(args):
+			i++
+			f.Path = args[i]
 		case a == "-r" || a == "--require-clean":
 			f.RequireClean = true
 		case strings.HasPrefix(a, "-"):
@@ -88,20 +97,29 @@ func ParseScale(pos []string) (string, error) {
 	return scale, nil
 }
 
-// ParseCommon parses -h/--help and -v/--verbose for simple subcommands.
+// ParseCommon parses -h/--help, -v/--verbose and -p/--path for subcommands.
 // Anything else is an error naming the command's own help.
-func ParseCommon(args []string, cmd string) (help, verbose bool, err error) {
-	for _, a := range args {
-		switch a {
-		case "-h", "--help":
+func ParseCommon(args []string, cmd string) (help, verbose bool, path string, err error) {
+	for i := 0; i < len(args); i++ {
+		a := args[i]
+		switch {
+		case a == "-h" || a == "--help":
 			help = true
-		case "-v", "--verbose":
+		case a == "-v" || a == "--verbose":
 			verbose = true
+		case a == "-p" && i+1 < len(args):
+			i++
+			path = args[i]
+		case strings.HasPrefix(a, "--path="):
+			path = strings.TrimPrefix(a, "--path=")
+		case a == "--path" && i+1 < len(args):
+			i++
+			path = args[i]
 		default:
-			return false, false, fmt.Errorf("unknown flag %q — try `gitagger %s --help`", a, cmd)
+			return false, false, "", fmt.Errorf("unknown flag %q — try `gitagger %s --help`", a, cmd)
 		}
 	}
-	return help, verbose, nil
+	return help, verbose, path, nil
 }
 
 // RemoteFlags for `gitagger remote <name>` and `gitagger remote --show`.
@@ -109,13 +127,15 @@ type RemoteFlags struct {
 	Show    bool
 	Verbose bool
 	Help    bool
+	Path    string
 }
 
-// ParseRemoteArgs parses an optional remote name plus -s/--show.
+// ParseRemoteArgs parses an optional remote name plus -s/--show and -p.
 func ParseRemoteArgs(args []string) (RemoteFlags, string, error) {
 	var f RemoteFlags
 	name := ""
-	for _, a := range args {
+	for i := 0; i < len(args); i++ {
+		a := args[i]
 		switch {
 		case a == "-h" || a == "--help":
 			f.Help = true
@@ -123,6 +143,14 @@ func ParseRemoteArgs(args []string) (RemoteFlags, string, error) {
 			f.Show = true
 		case a == "-v" || a == "--verbose":
 			f.Verbose = true
+		case a == "-p" && i+1 < len(args):
+			i++
+			f.Path = args[i]
+		case strings.HasPrefix(a, "--path="):
+			f.Path = strings.TrimPrefix(a, "--path=")
+		case a == "--path" && i+1 < len(args):
+			i++
+			f.Path = args[i]
 		case strings.HasPrefix(a, "-"):
 			return f, "", fmt.Errorf("unknown flag %q — try `gitagger remote --help`", a)
 		default:

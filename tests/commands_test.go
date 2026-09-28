@@ -68,12 +68,15 @@ func TestTagFlagShorts(t *testing.T) {
 }
 
 func TestParseCommon(t *testing.T) {
-	h, v, err := cmd.ParseCommon([]string{"-h", "-v"}, "list")
-	if err != nil || !h || !v {
-		t.Fatalf("ParseCommon = %v,%v,%v", h, v, err)
+	h, v, p, err := cmd.ParseCommon([]string{"-h", "-v", "-p", "elsewhere"}, "list")
+	if err != nil || !h || !v || p != "elsewhere" {
+		t.Fatalf("ParseCommon = %v,%v,%v,%v", h, v, p, err)
 	}
-	if _, _, err := cmd.ParseCommon([]string{"--limit", "5"}, "list"); err == nil {
+	if _, _, _, err := cmd.ParseCommon([]string{"--limit", "5"}, "list"); err == nil {
 		t.Errorf("ParseCommon should reject --limit")
+	}
+	if _, _, p, err := cmd.ParseCommon([]string{"--path=/tmp"}, "list"); err != nil || p != "/tmp" {
+		t.Errorf("ParseCommon --path= = %q,%v", p, err)
 	}
 }
 

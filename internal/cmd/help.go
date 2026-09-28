@@ -91,6 +91,7 @@ var flagRows = []flagRow{
 	{"-f --force", "Force push to remote or force an action.", ""},
 	{"-m --message <msg>", "Tag message. (empty by default)", ""},
 	{"-r --require-clean", "Abort if the working tree is dirty.", ""},
+	{"-p --path <dir>", "Operate in another directory.", ""},
 }
 
 // renderFlagRows paints one flag block: blue specs and values, gray descs,
@@ -152,13 +153,14 @@ var tagFlags = renderFlagRows(0, 20)
 var commandHelp = map[string]cmdHelp{
 	"init": {
 		"Generates a .gitagger.yml file.",
-		"init [-f] [--clean]",
+		"init [-f] [--clean] [-p]",
 		nil,
 		[]string{
-			"-f --force     Overwrite the config file if it exists.",
-			"--clean         Generate a config without comments.",
-			"-v --verbose   Also show the full path.",
-			"-h --help      Print the help text for a command.",
+			"-f --force       Overwrite the config file if it exists.",
+			"-c --clean       Generate a config without comments.",
+			"-p --path <dir>  Operate in another directory.",
+			"-v --verbose     Also show the full path.",
+			"-h --help        Print the help text for a command.",
 		},
 	},
 	"check": {
@@ -166,8 +168,9 @@ var commandHelp = map[string]cmdHelp{
 		"check [-v]",
 		nil,
 		[]string{
-			"-v --verbose   Show the resolved config values.",
-			"-h --help      Print the help text for a command.",
+			"-v --verbose     Show the resolved config values.",
+			"-p --path <dir>  Operate in another directory.",
+			"-h --help        Print the help text for a command.",
 		},
 	},
 	"list": {
@@ -175,8 +178,9 @@ var commandHelp = map[string]cmdHelp{
 		"list [-v]",
 		nil,
 		[]string{
-			"-v --verbose   Also show the remote URL.",
-			"-h --help      Print the help text for a command.",
+			"-v --verbose     Also show the remote URL.",
+			"-p --path <dir>  Operate in another directory.",
+			"-h --help        Print the help text for a command.",
 		},
 	},
 	"help": {
@@ -190,8 +194,9 @@ var commandHelp = map[string]cmdHelp{
 		"doctor [-v]",
 		nil,
 		[]string{
-			"-v --verbose   Also show the remote URL.",
-			"-h --help      Print the help text for a command.",
+			"-v --verbose     Also show the remote URL.",
+			"-p --path <dir>  Operate in another directory.",
+			"-h --help        Print the help text for a command.",
 		},
 	},
 	"remote": {
@@ -199,9 +204,10 @@ var commandHelp = map[string]cmdHelp{
 		"remote <name>",
 		[]string{"gitagger remote origin", "gitagger remote upstream", "gitagger remote --show"},
 		[]string{
-			"-s --show      Show the current remote instead.",
-			"-v --verbose   Show all remotes with --show.",
-			"-h --help      Print the help text for a command.",
+			"-s --show        Show the current remote instead.",
+			"-p --path <dir>  Operate in another directory.",
+			"-v --verbose     Show all remotes with --show.",
+			"-h --help        Print the help text for a command.",
 		},
 	},
 	"version": {

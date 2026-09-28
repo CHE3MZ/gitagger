@@ -27,6 +27,7 @@ type Resolved struct {
 	Verbose      bool
 	Message      string
 	Hooks        Hooks
+	Path         string
 }
 
 // Defaults: patch, stable, auto, origin, push on. Everything else off/empty.
@@ -140,6 +141,7 @@ type fileConfig struct {
 	Verbose      *YBool         `yaml:"verbose"`
 	Message      string         `yaml:"message"`
 	On           Hooks          `yaml:"on"`
+	Path         string         `yaml:"path"`
 	Extra        map[string]any `yaml:",inline"`
 }
 
@@ -261,6 +263,7 @@ func Load(dir string) (Resolved, string, error) {
 		cfg.Verbose = bool(*fc.Verbose)
 	}
 	cfg.Message = fc.Message
+	cfg.Path = fc.Path
 	cfg.Hooks = fc.On
 	normalizeHooks(&cfg.Hooks)
 	if err := Validate(cfg); err != nil {

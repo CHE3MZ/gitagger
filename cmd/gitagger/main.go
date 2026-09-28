@@ -69,7 +69,11 @@ func cmdTag(scale string, args []string) error {
 	} else if posScale != "" && posScale != scale {
 		return icmd.BadArgs("pick just one of major|minor|patch")
 	}
-	dir, _ := os.Getwd()
+	cwd, _ := os.Getwd()
+	dir, err := icmd.ResolveDir(cwd, f.Path)
+	if err != nil {
+		return err
+	}
 	cfg, _, err := config.Load(dir)
 	if err != nil {
 		return icmd.BadArgs("%s", err.Error())
@@ -83,27 +87,41 @@ func cmdTag(scale string, args []string) error {
 
 func cmdInit(args []string) error {
 	force, verbose, clean := false, false, false
-	for _, a := range args {
-		switch a {
-		case "-h", "--help":
+	flagPath := ""
+	for i := 0; i < len(args); i++ {
+		a := args[i]
+		switch {
+		case a == "-h" || a == "--help":
 			icmd.CommandHelp("init")
 			return nil
-		case "-v", "--verbose":
+		case a == "-v" || a == "--verbose":
 			verbose = true
-		case "-f", "--force":
+		case a == "-f" || a == "--force":
 			force = true
-		case "--clean":
+		case a == "-c" || a == "--clean":
 			clean = true
+		case a == "-p" && i+1 < len(args):
+			i++
+			flagPath = args[i]
+		case strings.HasPrefix(a, "--path="):
+			flagPath = strings.TrimPrefix(a, "--path=")
+		case a == "--path" && i+1 < len(args):
+			i++
+			flagPath = args[i]
 		default:
 			return icmd.BadArgs("unknown flag %q — try `gitagger init --help`", a)
 		}
 	}
-	dir, _ := os.Getwd()
+	cwd, _ := os.Getwd()
+	dir, err := icmd.ResolveDir(cwd, flagPath)
+	if err != nil {
+		return err
+	}
 	return icmd.RunInit(dir, force, verbose, clean)
 }
 
 func cmdSimple(args []string, name string, run func(string, bool) error) error {
-	h, v, err := icmd.ParseCommon(args, name)
+	h, v, p, err := icmd.ParseCommon(args, name)
 	if err != nil {
 		return icmd.BadArgs("%s", err.Error())
 	}
@@ -111,12 +129,16 @@ func cmdSimple(args []string, name string, run func(string, bool) error) error {
 		icmd.CommandHelp(name)
 		return nil
 	}
-	dir, _ := os.Getwd()
+	cwd, _ := os.Getwd()
+	dir, err := icmd.ResolveDir(cwd, p)
+	if err != nil {
+		return err
+	}
 	return run(dir, v)
 }
 
 func cmdWithRemote(args []string, name string, run func(string, string, bool) error) error {
-	h, v, err := icmd.ParseCommon(args, name)
+	h, v, p, err := icmd.ParseCommon(args, name)
 	if err != nil {
 		return icmd.BadArgs("%s", err.Error())
 	}
@@ -124,7 +146,11 @@ func cmdWithRemote(args []string, name string, run func(string, string, bool) er
 		icmd.CommandHelp(name)
 		return nil
 	}
-	dir, _ := os.Getwd()
+	cwd, _ := os.Getwd()
+	dir, err := icmd.ResolveDir(cwd, p)
+	if err != nil {
+		return err
+	}
 	return run(dir, icmd.EffectiveRemote(dir), v)
 }
 
@@ -137,7 +163,11 @@ func cmdRemote(args []string) error {
 		icmd.CommandHelp("remote")
 		return nil
 	}
-	dir, _ := os.Getwd()
+	cwd, _ := os.Getwd()
+	dir, err := icmd.ResolveDir(cwd, f.Path)
+	if err != nil {
+		return err
+	}
 	return icmd.RunRemote(dir, name, f.Show, f.Verbose)
 }
 
