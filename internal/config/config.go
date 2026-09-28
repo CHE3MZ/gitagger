@@ -428,7 +428,7 @@ message: ""
 # EVENTS: start:, success:, failure:, finish: - determine when to run the hook.
 # SHELLS: sh, bash, pwsh, batch - determine what shell type to run the command on.
 # OS: windows, macos, linux - determine what OS type to run the command on.
-# Blocks take argument: <name> to run only with gitagger -a <name>.
+# ARGUMENTS: you can make Blocks take argument: <name> to run only with gitagger -a <name>.
 on:
   failure:
     - shell: sh
