@@ -212,6 +212,17 @@ func TestOsMatches(t *testing.T) {
 		{"macos, linux", "darwin", true},
 		{"macos, linux", "linux", true},
 		{"macos, linux", "windows", false},
+		{"windows, linux", "windows", true},
+		{"windows, linux", "linux", true},
+		{"windows, linux", "darwin", false},
+		{"macos, windows", "darwin", true},
+		{"macos, windows", "windows", true},
+		{"macos, windows", "linux", false},
+		{"windows, macos, linux", "windows", true},
+		{"windows, macos, linux", "darwin", true},
+		{"windows, macos, linux", "linux", true},
+		{"Windows, LINUX", "windows", true},
+		{"  linux  ,  windows  ", "linux", true},
 		// Config validation only allows macos (never darwin), but an
 		// exact match is still a match if it ever arrives.
 		{"darwin", "darwin", true},
