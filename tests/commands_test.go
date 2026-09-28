@@ -232,7 +232,7 @@ func TestRunList(t *testing.T) {
 
 func TestRunInitWritesTemplate(t *testing.T) {
 	dir := t.TempDir()
-	if err := cmd.RunInit(dir, false, false); err != nil {
+	if err := cmd.RunInit(dir, false, false, false); err != nil {
 		t.Fatal(err)
 	}
 	cfg, path, err := config.Load(dir)
@@ -252,18 +252,41 @@ func TestRunInitWritesTemplate(t *testing.T) {
 
 func TestRunInitRefusesOverwrite(t *testing.T) {
 	dir := t.TempDir()
-	if err := cmd.RunInit(dir, false, false); err != nil {
+	if err := cmd.RunInit(dir, false, false, false); err != nil {
 		t.Fatal(err)
 	}
-	err := cmd.RunInit(dir, false, false)
+	err := cmd.RunInit(dir, false, false, false)
 	if err == nil {
 		t.Fatalf("second init should refuse")
 	}
 	if cmd.CodeOf(err) != 2 {
 		t.Fatalf("refusal should exit 2, got %d", cmd.CodeOf(err))
 	}
-	if err := cmd.RunInit(dir, true, false); err != nil {
+	if err := cmd.RunInit(dir, true, false, false); err != nil {
 		t.Fatalf("forced init should overwrite: %v", err)
+	}
+}
+
+func TestRunInitClean(t *testing.T) {
+	dir := t.TempDir()
+	if err := cmd.RunInit(dir, false, false, true); err != nil {
+		t.Fatal(err)
+	}
+	raw, err := os.ReadFile(filepath.Join(dir, ".gitagger.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, line := range strings.Split(string(raw), "\n") {
+		if trimmed := strings.TrimSpace(line); trimmed != "" && strings.HasPrefix(trimmed, "#") {
+			t.Fatalf("clean config should have no comments, got %q", line)
+		}
+	}
+	cfg, _, err := config.Load(dir)
+	if err != nil {
+		t.Fatalf("clean config should load: %v", err)
+	}
+	if cfg.Scale != "patch" || len(cfg.Hooks.Failure) != 1 {
+		t.Fatalf("clean config should hold defaults + failure hook: %+v", cfg)
 	}
 }
 

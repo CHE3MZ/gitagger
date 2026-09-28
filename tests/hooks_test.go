@@ -112,8 +112,11 @@ func TestInitTemplateLoads(t *testing.T) {
 	if err != nil {
 		t.Fatalf("init template should load: %v", err)
 	}
-	if len(cfg.Hooks.Start)+len(cfg.Hooks.Success)+len(cfg.Hooks.Failure)+len(cfg.Hooks.Finish) != 0 {
-		t.Fatalf("init template should have no active hooks: %+v", cfg.Hooks)
+	if len(cfg.Hooks.Start)+len(cfg.Hooks.Success)+len(cfg.Hooks.Finish) != 0 || len(cfg.Hooks.Failure) != 1 {
+		t.Fatalf("init template should hold only the default failure hook: %+v", cfg.Hooks)
+	}
+	if cfg.Hooks.Failure[0].Shell != "sh" || len(cfg.Hooks.Failure[0].Run) != 1 {
+		t.Fatalf("default failure hook wrong: %+v", cfg.Hooks.Failure[0])
 	}
 }
 

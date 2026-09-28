@@ -82,7 +82,7 @@ func cmdTag(scale string, args []string) error {
 }
 
 func cmdInit(args []string) error {
-	force, verbose := false, false
+	force, verbose, clean := false, false, false
 	for _, a := range args {
 		switch a {
 		case "-h", "--help":
@@ -92,12 +92,14 @@ func cmdInit(args []string) error {
 			verbose = true
 		case "-f", "--force":
 			force = true
+		case "--clean":
+			clean = true
 		default:
 			return icmd.BadArgs("unknown flag %q — try `gitagger init --help`", a)
 		}
 	}
 	dir, _ := os.Getwd()
-	return icmd.RunInit(dir, force, verbose)
+	return icmd.RunInit(dir, force, verbose, clean)
 }
 
 func cmdSimple(args []string, name string, run func(string, bool) error) error {

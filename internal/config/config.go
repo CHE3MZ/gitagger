@@ -388,19 +388,29 @@ verbose: false
 # Tag message. Empty = lightweight tag, set = annotated tag.
 message: ""
 
-# Hooks run shell commands at lifecycle events: start, success, failure, finish (always).
+# Hooks run shell commands at lifecycle events: start, success etc.
 # Each event takes one block or a list. shell defaults to sh, os defaults to all.
-# Uncomment to use:
-# on:
-#   failure:
-#     - shell: sh
-#       run:
-#         - echo Oops! Something went wrong...
-#     - shell: batch
-#       os: windows
-#       run:
-#         - echo Oops! Something went wrong...
+# API: on:, start:, success:, failure:, finish:, run:, shell:, os:
+# EVENTS: start:, success:, failure:, finish:
+# SHELLS: sh, bash, zsh, pwsh, powershell, batch
+# OS: windows, macos, linux
+on:
+  failure:
+    - shell: sh
+      run:
+        - echo "Oops! Something went wrong..."
 `
+}
+
+// CleanFileContent is DefaultFileContent without comments or blank lines.
+func CleanFileContent() string {
+	var out []string
+	for _, line := range strings.Split(DefaultFileContent(), "\n") {
+		if t := strings.TrimSpace(line); t != "" && !strings.HasPrefix(t, "#") {
+			out = append(out, line)
+		}
+	}
+	return strings.Join(out, "\n") + "\n"
 }
 
 // SetRemote writes remote: <name> into the config file, creating a minimal
