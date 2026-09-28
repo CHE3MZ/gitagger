@@ -28,6 +28,7 @@ type Options struct {
 	RequireClean bool
 	Doctor       bool
 	Verbose      bool
+	Hooks        config.Hooks
 }
 
 // FromConfig applies flag overrides onto loaded config.

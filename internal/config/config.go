@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/CHE3MZ/gitagger/internal/next"
+	"gopkg.in/yaml.v3"
 )
 
 // Resolved is config with defaults applied.
@@ -24,6 +26,7 @@ type Resolved struct {
 	Doctor       bool
 	Verbose      bool
 	Message      string
+	Hooks        Hooks
 }
 
 // Defaults: patch, stable, auto, origin, push on. Everything else off/empty.
@@ -33,6 +36,124 @@ func Defaults() Resolved {
 		Remote: "origin", Push: true,
 	}
 }
+
+// HookBlock is one shell block: optional shell/os plus commands.
+// Shell defaults to sh, os defaults to all platforms.
+type HookBlock struct {
+	Shell string     `yaml:"shell"`
+	OS    string     `yaml:"os"`
+	Run   StringList `yaml:"run"`
+}
+
+// HookList is one block or a list of blocks.
+type HookList []HookBlock
+
+// UnmarshalYAML accepts `event: echo hi`, `event: {shell, run}` or a list
+// of blocks. Bare strings inside a list are rejected on purpose: write
+// `- run: echo hi` so intent is never ambiguous.
+func (h *HookList) UnmarshalYAML(value *yaml.Node) error {
+	if value.Kind == yaml.ScalarNode {
+		*h = []HookBlock{{Run: StringList{value.Value}}}
+		return nil
+	}
+	if value.Kind == yaml.MappingNode {
+		var b HookBlock
+		if err := value.Decode(&b); err != nil {
+			return err
+		}
+		*h = []HookBlock{b}
+		return nil
+	}
+	if value.Kind != yaml.SequenceNode {
+		return fmt.Errorf("want a block or list of blocks")
+	}
+	bs := make([]HookBlock, 0, len(value.Content))
+	for _, item := range value.Content {
+		if item.Kind != yaml.MappingNode {
+			return fmt.Errorf("want a block with run: (got %q)", item.Value)
+		}
+		var b HookBlock
+		if err := item.Decode(&b); err != nil {
+			return err
+		}
+		bs = append(bs, b)
+	}
+	*h = bs
+	return nil
+}
+
+// StringList is one string or a list of strings.
+type StringList []string
+
+// UnmarshalYAML accepts `run: echo hi` or a list.
+func (s *StringList) UnmarshalYAML(value *yaml.Node) error {
+	var single string
+	if err := value.Decode(&single); err == nil {
+		*s = []string{single}
+		return nil
+	}
+	var multi []string
+	if err := value.Decode(&multi); err == nil {
+		*s = multi
+		return nil
+	}
+	return fmt.Errorf("want a string or list of strings")
+}
+
+// Hooks holds lifecycle hooks. finish runs always (success and failure).
+type Hooks struct {
+	Start   HookList       `yaml:"start"`
+	Success HookList       `yaml:"success"`
+	Failure HookList       `yaml:"failure"`
+	Finish  HookList       `yaml:"finish"`
+	Extra   map[string]any `yaml:",inline"`
+}
+
+// YBool accepts true/false plus common spellings (compat with old loader).
+type YBool bool
+
+// UnmarshalYAML accepts true/false/yes/no/on/off/1/0 in any case.
+func (b *YBool) UnmarshalYAML(value *yaml.Node) error {
+	switch strings.ToLower(value.Value) {
+	case "true", "yes", "y", "1", "on":
+		*b = true
+		return nil
+	case "false", "no", "n", "0", "off":
+		*b = false
+		return nil
+	default:
+		return fmt.Errorf("bad bool value %q (want true/false)", value.Value)
+	}
+}
+
+// fileConfig mirrors the YAML file. Unknown top-level keys land in Extra.
+type fileConfig struct {
+	Scale        string         `yaml:"scale"`
+	Pre          string         `yaml:"pre"`
+	Format       string         `yaml:"format"`
+	Custom       string         `yaml:"custom"`
+	Remote       string         `yaml:"remote"`
+	Push         *YBool         `yaml:"push"`
+	Force        *YBool         `yaml:"force"`
+	RequireClean *YBool         `yaml:"require_clean"`
+	Doctor       *YBool         `yaml:"doctor"`
+	Verbose      *YBool         `yaml:"verbose"`
+	Message      string         `yaml:"message"`
+	On           Hooks          `yaml:"on"`
+	Extra        map[string]any `yaml:",inline"`
+}
+
+// legacyKeys are tolerated but ignored (removed features).
+var legacyKeys = map[string]bool{"version": true, "confirm": true}
+
+// validShells are the only shell names hooks accept.
+var validShells = map[string]bool{
+	"sh": true, "bash": true, "zsh": true,
+	"pwsh": true, "powershell": true, "batch": true,
+}
+
+// validHookOS limits blocks to platforms. Empty means all.
+var validHookOS = map[string]bool{"": true, "linux": true, "macos": true, "windows": true}
 
 // Candidates in lookup order.
 func candidates(dir string) []string {
@@ -53,8 +174,25 @@ func Find(dir string) string {
 	return ""
 }
 
+// lowercaseKeys lowercases every mapping key in place so files are
+// case-insensitive like the old loader. Values are never touched.
+func lowercaseKeys(n *yaml.Node) {
+	switch n.Kind {
+	case yaml.MappingNode:
+		for i := 0; i+1 < len(n.Content); i += 2 {
+			if n.Content[i].Kind == yaml.ScalarNode {
+				n.Content[i].Value = strings.ToLower(n.Content[i].Value)
+			}
+			lowercaseKeys(n.Content[i+1])
+		}
+	case yaml.DocumentNode, yaml.SequenceNode:
+		for _, c := range n.Content {
+			lowercaseKeys(c)
+		}
+	}
+}
+
 // Load reads dir's config file (or defaults when missing).
-// Minimal YAML parse on purpose: no external dep, small schema.
 func Load(dir string) (Resolved, string, error) {
 	cfg := Defaults()
 	path := Find(dir)
@@ -67,64 +205,71 @@ func Load(dir string) (Resolved, string, error) {
 	if err != nil {
 		return cfg, path, err
 	}
-	m := parseSimple(string(raw))
-	if v, ok := m["scale"]; ok && v != "" {
-		cfg.Scale = strings.ToLower(v)
+	var doc yaml.Node
+	if err := yaml.Unmarshal(raw, &doc); err != nil {
+		return cfg, path, fmt.Errorf("bad yaml in %s (%v)", path, err)
 	}
-	if v, ok := m["pre"]; ok && v != "" {
-		cfg.Pre = strings.ToLower(v)
+	if len(doc.Content) == 0 {
+		return cfg, path, nil
 	}
-	if v, ok := m["format"]; ok && v != "" {
-		cfg.Format = strings.ToLower(v)
+	lowercaseKeys(doc.Content[0])
+	var fc fileConfig
+	if err := doc.Content[0].Decode(&fc); err != nil {
+		return cfg, path, fmt.Errorf("bad config in %s (%v)", path, err)
 	}
-	if v, ok := m["custom"]; ok {
-		cfg.Custom = v
-	}
-	if v, ok := m["remote"]; ok && v != "" {
-		cfg.Remote = v
-	}
-	if v, ok := m["push"]; ok && v != "" {
-		b, err := parseBool(v)
-		if err != nil {
-			return cfg, path, fmt.Errorf("bad push value %q in %s (want true/false)", v, path)
+	for k := range fc.Extra {
+		if !legacyKeys[k] {
+			return cfg, path, fmt.Errorf("unknown config key %q in %s", k, path)
 		}
-		cfg.Push = b
 	}
-	if v, ok := m["force"]; ok && v != "" {
-		b, err := parseBool(v)
-		if err != nil {
-			return cfg, path, fmt.Errorf("bad force value %q in %s (want true/false)", v, path)
-		}
-		cfg.Force = b
+	if fc.Scale != "" {
+		cfg.Scale = strings.ToLower(fc.Scale)
 	}
-	if v, ok := m["verbose"]; ok && v != "" {
-		b, err := parseBool(v)
-		if err != nil {
-			return cfg, path, fmt.Errorf("bad verbose value %q in %s (want true/false)", v, path)
-		}
-		cfg.Verbose = b
+	if fc.Pre != "" {
+		cfg.Pre = strings.ToLower(fc.Pre)
 	}
-	if v, ok := m["doctor"]; ok && v != "" {
-		b, err := parseBool(v)
-		if err != nil {
-			return cfg, path, fmt.Errorf("bad doctor value %q in %s (want true/false)", v, path)
-		}
-		cfg.Doctor = b
+	if fc.Format != "" {
+		cfg.Format = strings.ToLower(fc.Format)
 	}
-	if v, ok := m["require_clean"]; ok && v != "" {
-		b, err := parseBool(v)
-		if err != nil {
-			return cfg, path, fmt.Errorf("bad require_clean value %q in %s", v, path)
-		}
-		cfg.RequireClean = b
+	cfg.Custom = fc.Custom
+	if fc.Remote != "" {
+		cfg.Remote = fc.Remote
 	}
-	if v, ok := m["message"]; ok {
-		cfg.Message = v
+	if fc.Push != nil {
+		cfg.Push = bool(*fc.Push)
 	}
+	if fc.Force != nil {
+		cfg.Force = bool(*fc.Force)
+	}
+	if fc.RequireClean != nil {
+		cfg.RequireClean = bool(*fc.RequireClean)
+	}
+	if fc.Doctor != nil {
+		cfg.Doctor = bool(*fc.Doctor)
+	}
+	if fc.Verbose != nil {
+		cfg.Verbose = bool(*fc.Verbose)
+	}
+	cfg.Message = fc.Message
+	cfg.Hooks = fc.On
+	normalizeHooks(&cfg.Hooks)
 	if err := Validate(cfg); err != nil {
 		return cfg, path, err
 	}
 	return cfg, path, nil
+}
+
+// normalizeHooks lowercases shell/os and defaults empty shells to sh.
+func normalizeHooks(h *Hooks) {
+	for _, list := range []*HookList{&h.Start, &h.Success, &h.Failure, &h.Finish} {
+		for i := range *list {
+			(*list)[i].Shell = strings.ToLower(strings.TrimSpace((*list)[i].Shell))
+			if (*list)[i].Shell == "" {
+				(*list)[i].Shell = "sh"
+			}
+			(*list)[i].OS = strings.ToLower(strings.TrimSpace((*list)[i].OS))
+		}
+	}
 }
 
 // Validate checks enum values with a helpful message.
@@ -153,6 +298,44 @@ func Validate(c Resolved) error {
 	}
 	if strings.TrimSpace(c.Remote) == "" {
 		return fmt.Errorf("remote must not be empty")
+	}
+	return validateHooks(c.Hooks)
+}
+
+// validateHooks checks events, shells, platforms, and commands.
+func validateHooks(h Hooks) error {
+	if len(h.Extra) > 0 {
+		keys := make([]string, 0, len(h.Extra))
+		for k := range h.Extra {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		return fmt.Errorf("unknown hook event %q (want start|success|failure|finish)", strings.Join(keys, ", "))
+	}
+	events := []struct {
+		name   string
+		blocks HookList
+	}{
+		{"start", h.Start}, {"success", h.Success},
+		{"failure", h.Failure}, {"finish", h.Finish},
+	}
+	for _, ev := range events {
+		for _, b := range ev.blocks {
+			if !validShells[b.Shell] {
+				return fmt.Errorf("bad shell %q in %s hook (want sh|bash|zsh|pwsh|powershell|batch)", b.Shell, ev.name)
+			}
+			if !validHookOS[b.OS] {
+				return fmt.Errorf("bad os %q in %s hook (want linux|macos|windows)", b.OS, ev.name)
+			}
+			if len(b.Run) == 0 {
+				return fmt.Errorf("%s hook block has no run commands", ev.name)
+			}
+			for _, c := range b.Run {
+				if strings.TrimSpace(c) == "" {
+					return fmt.Errorf("%s hook has an empty run command", ev.name)
+				}
+			}
+		}
 	}
 	return nil
 }
@@ -204,18 +387,20 @@ verbose: false
 
 # Tag message. Empty = lightweight tag, set = annotated tag.
 message: ""
-`
-}
 
-func parseBool(s string) (bool, error) {
-	switch strings.ToLower(strings.TrimSpace(s)) {
-	case "true", "yes", "y", "1", "on":
-		return true, nil
-	case "false", "no", "n", "0", "off":
-		return false, nil
-	default:
-		return false, fmt.Errorf("not a bool")
-	}
+# Hooks run shell commands at lifecycle events: start, success, failure, finish (always).
+# Each event takes one block or a list. shell defaults to sh, os defaults to all.
+# Uncomment to use:
+# on:
+#   failure:
+#     - shell: sh
+#       run:
+#         - echo Oops! Something went wrong...
+#     - shell: batch
+#       os: windows
+#       run:
+#         - echo Oops! Something went wrong...
+`
 }
 
 // SetRemote writes remote: <name> into the config file, creating a minimal
@@ -269,28 +454,4 @@ func SetRemote(dir, name string) (string, error) {
 		return "", err
 	}
 	return path, nil
-}
-
-// parseSimple handles flat "key: value" YAML (comments + quotes ok).
-func parseSimple(src string) map[string]string {
-	m := map[string]string{}
-	for _, line := range strings.Split(src, "\n") {
-		line = strings.TrimSpace(line)
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-		idx := strings.Index(line, ":")
-		if idx < 0 {
-			continue
-		}
-		k := strings.TrimSpace(line[:idx])
-		v := strings.TrimSpace(line[idx+1:])
-		v = strings.TrimSpace(strings.Trim(v, `"'`))
-		// drop trailing comments
-		if i := strings.Index(v, " #"); i >= 0 {
-			v = strings.TrimSpace(v[:i])
-		}
-		m[strings.ToLower(k)] = v
-	}
-	return m
 }

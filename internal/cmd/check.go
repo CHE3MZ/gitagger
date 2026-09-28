@@ -23,6 +23,8 @@ func RunCheck(dir string, verbose bool) error {
 	if verbose {
 		fmt.Println(style.Dim(fmt.Sprintf("scale=%s pre=%s format=%s remote=%s push=%v force=%v require_clean=%v doctor=%v verbose=%v custom=%q",
 			cfg.Scale, cfg.Pre, cfg.Format, cfg.Remote, cfg.Push, cfg.Force, cfg.RequireClean, cfg.Doctor, cfg.Verbose, cfg.Custom)))
+		fmt.Println(style.Dim(fmt.Sprintf("hooks: start:%d success:%d failure:%d finish:%d",
+			len(cfg.Hooks.Start), len(cfg.Hooks.Success), len(cfg.Hooks.Failure), len(cfg.Hooks.Finish))))
 	}
 	return nil
 }

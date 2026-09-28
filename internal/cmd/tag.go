@@ -4,6 +4,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/CHE3MZ/gitagger/internal/detect"
@@ -22,14 +23,14 @@ func RunTag(o run.Options) error {
 		return mapPlanError(err)
 	}
 	if err := run.CheckHeadTagged(o, plan.Next); err != nil {
-		return Exists("%s", err.Error())
+		return runFailureHooks(o, plan, false, Exists("%s", err.Error()))
 	}
 
 	// Doctor gate: with doctor: true, fail early on remote collision
 	// instead of creating a tag that can't push.
 	if o.Doctor && o.Push && !o.DryRun {
 		if err := run.DoctorGate(o, plan.Next); err != nil {
-			return Exists("%s", err.Error())
+			return runFailureHooks(o, plan, false, Exists("%s", err.Error()))
 		}
 		if o.Verbose {
 			fmt.Println(style.Dim("doctor: pre-push check passed"))
@@ -49,33 +50,78 @@ func RunTag(o run.Options) error {
 
 	greetPlan(o, plan)
 
+	if err := RunHooks(o.Dir, "start", o.Hooks.Start, hookEnv(o, plan, false), o.Verbose, os.Stdout, os.Stderr); err != nil {
+		return runFailureHooks(o, plan, false, err)
+	}
+
 	if err := git.CreateTag(o.Dir, plan.Next, o.Message, o.Force); err != nil {
 		// Local-exists collision without -f is a no-op (exit 2).
 		msg := strings.ToLower(err.Error())
 		if strings.Contains(msg, "already exists") {
-			return Exists("tag %s already exists — use -f to overwrite", plan.Next)
+			return runFailureHooks(o, plan, false, Exists("tag %s already exists — use -f to overwrite", plan.Next))
 		}
-		return Generic("couldn't create tag %s (%v)", plan.Next, err)
+		return runFailureHooks(o, plan, false, Generic("couldn't create tag %s (%v)", plan.Next, err))
 	}
 	fmt.Printf("%s %s\n", style.Green("created tag"), style.BoldGreen(plan.Next))
 
 	if !o.Push {
 		fmt.Println(style.Dim("kept locally (-n). push later with `git push " + o.Remote + " " + plan.Next + "`"))
-		return nil
+		return runDoneHooks(o, plan, false)
 	}
 
 	outcome, err := run.EnsurePush(o, plan.Next)
 	if err != nil {
 		msg := err.Error()
 		if strings.Contains(msg, "already exists on remote") {
-			return Exists("%s", msg)
+			return runFailureHooks(o, plan, false, Exists("%s", msg))
 		}
-		return GenericErr(err)
+		return runFailureHooks(o, plan, false, GenericErr(err))
 	}
 	if outcome.Pushed {
 		fmt.Printf("%s %s to %s\n", style.Green("pushed"), style.BoldGreen(plan.Next), style.White(o.Remote))
 	} else {
 		fmt.Println(style.Warn(outcome.Skipped))
+	}
+	return runDoneHooks(o, plan, outcome.Pushed)
+}
+
+// hookEnv builds hook environment for the current plan.
+func hookEnv(o run.Options, plan run.Plan, pushed bool) map[string]string {
+	pushedStr := "false"
+	if pushed {
+		pushedStr = "true"
+	}
+	return map[string]string{
+		"GITAGGER_TAG":    plan.Next,
+		"GITAGGER_PREV":   plan.Prev,
+		"GITAGGER_REMOTE": o.Remote,
+		"GITAGGER_PUSHED": pushedStr,
+	}
+}
+
+// runFailureHooks runs failure then finish hooks, keeping the original error.
+// Failure hooks only cover post-plan failures (pre-plan errors have no tag
+// context). A failing failure/finish hook is reported, never re-triggered.
+func runFailureHooks(o run.Options, plan run.Plan, pushed bool, err error) error {
+	env := hookEnv(o, plan, pushed)
+	if ferr := RunHooks(o.Dir, "failure", o.Hooks.Failure, env, o.Verbose, os.Stdout, os.Stderr); ferr != nil {
+		fmt.Fprintln(os.Stderr, style.Error(fmt.Sprintf("failure hook failed: %v", ferr)))
+	}
+	if ferr := RunHooks(o.Dir, "finish", o.Hooks.Finish, env, o.Verbose, os.Stdout, os.Stderr); ferr != nil {
+		fmt.Fprintln(os.Stderr, style.Error(fmt.Sprintf("finish hook failed: %v", ferr)))
+	}
+	return err
+}
+
+// runDoneHooks runs success hooks, then finish hooks.
+// A failing success hook still runs failure hooks first (try/catch/finally).
+func runDoneHooks(o run.Options, plan run.Plan, pushed bool) error {
+	env := hookEnv(o, plan, pushed)
+	if err := RunHooks(o.Dir, "success", o.Hooks.Success, env, o.Verbose, os.Stdout, os.Stderr); err != nil {
+		return runFailureHooks(o, plan, pushed, Generic("tag %s created but success hook failed (%v)", plan.Next, err))
+	}
+	if err := RunHooks(o.Dir, "finish", o.Hooks.Finish, env, o.Verbose, os.Stdout, os.Stderr); err != nil {
+		return Generic("tag %s created but finish hook failed (%v)", plan.Next, err)
 	}
 	return nil
 }
@@ -96,6 +142,8 @@ func printDryRun(o run.Options, plan run.Plan) {
 	fmt.Println(style.Header("dry run — nothing created"))
 	if o.Verbose {
 		fmt.Println(style.Dim(fmt.Sprintf("detected: %s, v-prefix=%v (from history)", plan.Format, plan.VPrefix)))
+		fmt.Println(style.Dim(fmt.Sprintf("hooks: start:%d success:%d failure:%d finish:%d",
+			len(o.Hooks.Start), len(o.Hooks.Success), len(o.Hooks.Failure), len(o.Hooks.Finish))))
 	}
 	if plan.Prev != "" {
 		fmt.Printf("was:  %s\n", style.White(plan.Prev))
