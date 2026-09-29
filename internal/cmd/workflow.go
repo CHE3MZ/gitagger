@@ -114,6 +114,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Set git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - uses: CHE3MZ/gitagger@v1
         # with:
         #   args: minor
@@ -125,6 +129,8 @@ const jenkinsWorkflow = `pipeline {
   stages {
     stage('Tag') {
       steps {
+        sh 'git config user.name "github-actions[bot]"'
+        sh 'git config user.email "41898282+github-actions[bot]@users.noreply.github.com"'
         sh 'go install github.com/CHE3MZ/gitagger/cmd/gitagger@latest'
         sh 'gitagger'
       }

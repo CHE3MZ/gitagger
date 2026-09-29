@@ -40,7 +40,7 @@ func TestWorkflowInitGH(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, want := range []string{"CHE3MZ/gitagger@v1", "fetch-depth: 0", "contents: write"} {
+	for _, want := range []string{"CHE3MZ/gitagger@v1", "fetch-depth: 0", "contents: write", "github-actions[bot]"} {
 		if !strings.Contains(string(raw), want) {
 			t.Errorf("gh workflow missing %q", want)
 		}
@@ -53,12 +53,14 @@ func TestWorkflowInitGH(t *testing.T) {
 	jobs, _ := doc["jobs"].(map[string]any)
 	tag, _ := jobs["tag"].(map[string]any)
 	steps, _ := tag["steps"].([]any)
-	if len(steps) < 2 {
-		t.Fatalf("generated workflow has no tag steps")
+	found := ""
+	for _, s := range steps {
+		if u, _ := s.(map[string]any)["uses"].(string); strings.HasPrefix(u, "CHE3MZ/gitagger@") {
+			found = u
+		}
 	}
-	uses, _ := steps[1].(map[string]any)["uses"].(string)
-	if uses != "CHE3MZ/gitagger@v1" {
-		t.Errorf("tag step uses %q, want CHE3MZ/gitagger@v1", uses)
+	if found != "CHE3MZ/gitagger@v1" {
+		t.Errorf("tag step uses %q, want CHE3MZ/gitagger@v1", found)
 	}
 	if err := cmd.RunWorkflowInit(dir, "gh", false, false); err == nil {
 		t.Fatalf("second init should refuse")
@@ -79,7 +81,7 @@ func TestWorkflowInitJenkins(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, want := range []string{"pipeline", "gitagger"} {
+	for _, want := range []string{"pipeline", "gitagger", "github-actions[bot]"} {
 		if !strings.Contains(string(raw), want) {
 			t.Errorf("jenkins file missing %q", want)
 		}
