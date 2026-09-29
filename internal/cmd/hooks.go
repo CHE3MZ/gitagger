@@ -52,8 +52,8 @@ func OsMatches(selector, goos string) bool {
 	}
 	return !matched
 }
-// filterHooks keeps untagged blocks plus those matching given arguments
-// (case-insensitive). Runs without -a see untagged blocks only.
+// filterHooks keeps untagged blocks, blocks matching given arguments, and
+// "none" blocks when no arguments were given (all case-insensitive).
 func filterHooks(h config.Hooks, args []string) config.Hooks {
 	want := map[string]bool{}
 	for _, a := range args {
@@ -62,8 +62,17 @@ func filterHooks(h config.Hooks, args []string) config.Hooks {
 	keep := func(blocks []config.HookBlock) []config.HookBlock {
 		var out []config.HookBlock
 		for _, b := range blocks {
-			if b.Argument == "" || want[strings.ToLower(b.Argument)] {
+			switch name := strings.ToLower(b.Argument); name {
+			case "":
 				out = append(out, b)
+			case "none":
+				if len(args) == 0 {
+					out = append(out, b)
+				}
+			default:
+				if want[name] {
+					out = append(out, b)
+				}
 			}
 		}
 		return out

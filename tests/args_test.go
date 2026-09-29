@@ -105,3 +105,40 @@ func TestArgumentEnv(t *testing.T) {
 		t.Fatalf("GITAGGER_ARGUMENT = %q", strings.TrimSpace(string(raw)))
 	}
 }
+
+func TestArgumentNone(t *testing.T) {
+	needSh(t)
+	mkHooks := func() config.Hooks {
+		return config.Hooks{Success: []config.HookBlock{
+			{Argument: "none", Shell: "sh", Run: []string{"echo x > none-ran"}},
+			{Shell: "sh", Run: []string{"echo x > always-ran"}},
+			{Argument: "release", Shell: "sh", Run: []string{"echo x > rel-ran"}},
+		}}
+	}
+	marker := func(dir, name string) bool {
+		_, err := os.Stat(filepath.Join(dir, name))
+		return err == nil
+	}
+
+	// Bare run: none + untagged run, named stays dormant.
+	dir := initRepo(t)
+	o := run.Options{Dir: dir, Scale: "patch", Pre: "stable", Remote: "origin", Push: false,
+		Hooks: mkHooks()}
+	if err := cmd.RunTag(o); err != nil {
+		t.Fatal(err)
+	}
+	if !marker(dir, "none-ran") || !marker(dir, "always-ran") || marker(dir, "rel-ran") {
+		t.Fatalf("bare run should fire none + untagged only")
+	}
+
+	// With -a release: none stays dormant, release + untagged run.
+	dir = initRepo(t)
+	o = run.Options{Dir: dir, Scale: "patch", Pre: "stable", Remote: "origin", Push: false,
+		Arguments: []string{"release"}, Hooks: mkHooks()}
+	if err := cmd.RunTag(o); err != nil {
+		t.Fatal(err)
+	}
+	if marker(dir, "none-ran") || !marker(dir, "always-ran") || !marker(dir, "rel-ran") {
+		t.Fatalf("-a release should skip none blocks")
+	}
+}
