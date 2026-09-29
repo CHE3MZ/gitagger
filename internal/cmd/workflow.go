@@ -103,8 +103,6 @@ func RunWorkflowInit(dir, id string, force, verbose bool) error {
 const ghWorkflow = `name: Gitagger
 
 on:
-  push:
-    branches: [main, master]
   workflow_dispatch:
 
 jobs:
