@@ -10,6 +10,10 @@
 
 Just [Install](#installation) it and run `gitagger` and it will integrate with your existing tag format or initialize one for you.
 
+![demo](assets/demo.gif)
+
+### Full documentation is coming soon!
+
 ## Installation
 
 ```sh
