@@ -1,9 +1,10 @@
-<img src="assets/icon.png" alt="Gitagger Logo" width="320" />
+<img src="assets/framed-icon-labelled.png" alt="Gitagger Logo" width="360" />
 
 # Gitagger
 
-Gitagger makes tag creation for git projects ridiculously simple and easy!
-Just Install it and run `gitagger` and it will integrate with your existing tag format or initialize one for you.
+### Gitagger makes tag creation for git projects *ridiculously* <u> simple and easy! </u>
+
+Just [Install](#installation) it and run `gitagger` and it will integrate with your existing tag format or initialize one for you.
 
 ## Installation
 
@@ -34,3 +35,9 @@ tweak `.gitagger.yml`, then forget about flags.
 running `gitagger` without any arguments will use your new config file.
 
 Full docs are coming later — for now, `gitagger help <command>` tells you what each command does.
+
+## License
+
+Gitagger is Licensed under the **[Apache 2.0 License](LICENSE).**
+
+<img src="assets/round-icon.png" alt="Gitagger End Section Logo" width="192" />
