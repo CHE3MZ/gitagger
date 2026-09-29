@@ -8,10 +8,11 @@ import (
 	"testing"
 
 	"github.com/CHE3MZ/gitagger/internal/cmd"
+	"github.com/CHE3MZ/gitagger/internal/config"
 	"gopkg.in/yaml.v3"
 )
 
-func TestWorkflowsListed(t *testing.T) {
+func TestWorkflowListed(t *testing.T) {
 	ws := cmd.Workflows()
 	if len(ws) != 2 || ws[0].ID != "gh" || ws[1].ID != "jenkins" {
 		t.Fatalf("workflows = %+v", ws)
@@ -22,17 +23,17 @@ func TestWorkflowsListed(t *testing.T) {
 	if _, ok := cmd.FindWorkflow("bogus"); ok {
 		t.Fatalf("unknown provider should fail lookup")
 	}
-	if err := cmd.RunWorkflowsList(); err != nil {
+	if err := cmd.RunWorkflowList(); err != nil {
 		t.Fatalf("list should pass: %v", err)
 	}
-	if err := cmd.RunWorkflowsOverview(); err != nil {
+	if err := cmd.RunWorkflowOverview(); err != nil {
 		t.Fatalf("overview should pass: %v", err)
 	}
 }
 
-func TestWorkflowsInitGH(t *testing.T) {
+func TestWorkflowInitGH(t *testing.T) {
 	dir := t.TempDir()
-	if err := cmd.RunWorkflowsInit(dir, "gh", false, false); err != nil {
+	if err := cmd.RunWorkflowInit(dir, "gh", false, false); err != nil {
 		t.Fatal(err)
 	}
 	raw, err := os.ReadFile(filepath.Join(dir, ".github", "workflows", "gitagger.yml"))
@@ -59,19 +60,19 @@ func TestWorkflowsInitGH(t *testing.T) {
 	if uses != "CHE3MZ/gitagger@v1" {
 		t.Errorf("tag step uses %q, want CHE3MZ/gitagger@v1", uses)
 	}
-	if err := cmd.RunWorkflowsInit(dir, "gh", false, false); err == nil {
+	if err := cmd.RunWorkflowInit(dir, "gh", false, false); err == nil {
 		t.Fatalf("second init should refuse")
 	} else if cmd.CodeOf(err) != 2 {
 		t.Fatalf("refusal should exit 2, got %d", cmd.CodeOf(err))
 	}
-	if err := cmd.RunWorkflowsInit(dir, "gh", true, false); err != nil {
+	if err := cmd.RunWorkflowInit(dir, "gh", true, false); err != nil {
 		t.Fatalf("forced init should overwrite: %v", err)
 	}
 }
 
-func TestWorkflowsInitJenkins(t *testing.T) {
+func TestWorkflowInitJenkins(t *testing.T) {
 	dir := t.TempDir()
-	if err := cmd.RunWorkflowsInit(dir, "jenkins", false, false); err != nil {
+	if err := cmd.RunWorkflowInit(dir, "jenkins", false, false); err != nil {
 		t.Fatal(err)
 	}
 	raw, err := os.ReadFile(filepath.Join(dir, ".jenkins", "gitagger.jenkinsfile"))
@@ -91,8 +92,43 @@ func TestWorkflowsInitJenkins(t *testing.T) {
 	}
 }
 
-func TestWorkflowsInitUnknown(t *testing.T) {
-	if err := cmd.RunWorkflowsInit(t.TempDir(), "bogus", false, false); err == nil {
+func TestWorkflowInitUnknown(t *testing.T) {
+	if err := cmd.RunWorkflowInit(t.TempDir(), "bogus", false, false); err == nil {
 		t.Fatalf("unknown provider should fail")
+	}
+}
+
+func TestWorkflowInitEnsuresConfig(t *testing.T) {
+	dir := t.TempDir()
+	if err := cmd.RunWorkflowInit(dir, "gh", false, false); err != nil {
+		t.Fatal(err)
+	}
+	cfg, path, err := config.Load(dir)
+	if err != nil {
+		t.Fatalf("generated config should load: %v", err)
+	}
+	if path == "" {
+		t.Fatalf("workflow init should create .gitagger.yml")
+	}
+	if cfg.Scale != "patch" {
+		t.Fatalf("generated config should hold defaults: %+v", cfg)
+	}
+}
+
+func TestWorkflowInitKeepsConfig(t *testing.T) {
+	dir := t.TempDir()
+	sentinel := "scale: minor\n"
+	if err := os.WriteFile(filepath.Join(dir, ".gitagger.yml"), []byte(sentinel), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := cmd.RunWorkflowInit(dir, "gh", false, false); err != nil {
+		t.Fatal(err)
+	}
+	raw, err := os.ReadFile(filepath.Join(dir, ".gitagger.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(raw) != sentinel {
+		t.Fatalf("existing config must be left alone, got %q", string(raw))
 	}
 }
