@@ -209,7 +209,7 @@ func TestVersionString(t *testing.T) {
 }
 
 func TestKnownCommands(t *testing.T) {
-	for _, c := range []string{"init", "check", "list", "ls", "help", "handbook", "doctor", "remote", "version", "patch", "minor", "major"} {
+	for _, c := range []string{"init", "check", "list", "ls", "help", "handbook", "doctor", "remote", "workflows", "version", "patch", "minor", "major"} {
 		if !cmd.IsCommand(c) {
 			t.Errorf("IsCommand(%q) = false", c)
 		}

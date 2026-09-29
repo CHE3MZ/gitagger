@@ -39,6 +39,8 @@ func runCLI(args []string) error {
 			return cmdWithRemote(args[1:], "doctor", icmd.RunDoctor)
 		case "remote":
 			return cmdRemote(args[1:])
+		case "workflows":
+			return cmdWorkflows(args[1:])
 		case "patch", "minor", "major":
 			return cmdTag(args[0], args[1:])
 		case "-h", "--help":
@@ -173,8 +175,50 @@ func cmdRemote(args []string) error {
 	return icmd.RunRemote(dir, name, f.Show, f.Verbose)
 }
 
-func cmdVersion(args []string) error {
-	if len(args) > 0 {
+func cmdWorkflows(args []string) error {
+	if len(args) == 0 {
+		return icmd.RunWorkflowsList()
+	}
+	switch args[0] {
+	case "-l", "--list":
+		if len(args) > 1 {
+			return icmd.BadArgs("don't know what %q means — try `gitagger workflows --help`", args[1])
+		}
+		return icmd.RunWorkflowsList()
+	case "-h", "--help":
+		icmd.CommandHelp("workflows")
+		return nil
+	case "init":
+		return cmdWorkflowsInit(args[1:])
+	default:
+		return icmd.BadArgs("don't know what %q means — try `gitagger workflows --help`", args[0])
+	}
+}
+
+func cmdWorkflowsInit(args []string) error {
+	if len(args) == 0 {
+		return icmd.BadArgs("give a provider: `gitagger workflows init <gh|jenkins>`")
+	}
+	id := strings.ToLower(args[0])
+	force, verbose := false, false
+	for _, a := range args[1:] {
+		switch a {
+		case "-f", "--force":
+			force = true
+		case "-v", "--verbose":
+			verbose = true
+		case "-h", "--help":
+			icmd.CommandHelp("workflows")
+			return nil
+		default:
+			return icmd.BadArgs("unknown flag %q — try `gitagger workflows --help`", a)
+		}
+	}
+	dir, _ := os.Getwd()
+	return icmd.RunWorkflowsInit(dir, id, force, verbose)
+}
+
+func cmdVersion(args []string) error {	if len(args) > 0 {
 		if args[0] == "-h" || args[0] == "--help" {
 			icmd.CommandHelp("version")
 			return nil
