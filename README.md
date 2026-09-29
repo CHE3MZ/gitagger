@@ -2,6 +2,10 @@
 
 # Gitagger
 
+[![CI](https://github.com/CHE3MZ/gitagger/actions/workflows/ci.yml/badge.svg)](https://github.com/CHE3MZ/gitagger/actions/workflows/ci.yml)
+[![Tests](https://github.com/CHE3MZ/gitagger/actions/workflows/action-test.yml/badge.svg)](https://github.com/CHE3MZ/gitagger/actions/workflows/action-test.yml)
+[![Releases](https://github.com/CHE3MZ/gitagger/actions/workflows/gitagger.yml/badge.svg)](https://github.com/CHE3MZ/gitagger/actions/workflows/gitagger.yml)
+
 ### Gitagger makes tag creation for git projects *ridiculously* <u> simple and easy! </u>
 
 Just [Install](#installation) it and run `gitagger` and it will integrate with your existing tag format or initialize one for you.
