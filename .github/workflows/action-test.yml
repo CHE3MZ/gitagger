@@ -18,6 +18,13 @@ jobs:
         uses: ./
         with:
           args: version
+      # Dry-run needs an untagged HEAD: release commits carry tags
+      # (vX, vX.Y, vX.Y.Z), and gitagger correctly refuses those.
+      - name: fresh commit for dry run
+        run: |
+          git config user.email "ci@example.com"
+          git config user.name "ci"
+          git commit --allow-empty -qm "dogfood probe"
       - name: gitagger dry run
         uses: ./
         with:
