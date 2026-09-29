@@ -119,7 +119,7 @@ jobs:
       - uses: CHE3MZ/gitagger@v1
         # with:
         #   args: minor
-        #   version: v1.0.5
+        #   version: vN.N.N
 `
 
 const jenkinsWorkflow = `pipeline {
