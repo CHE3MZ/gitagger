@@ -56,3 +56,23 @@ jobs:
         with:
           name: ops-logs
           path: logs/
+
+  action-lint:
+    name: actionlint (repo + generated)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: install actionlint
+        run: |
+          go install github.com/rhysd/actionlint/cmd/actionlint@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+      - name: lint repo workflows
+        run: actionlint .github/workflows/*.yml
+      - name: lint generated workflow
+        run: |
+          mkdir -p /tmp/gen-check
+          go run ./cmd/gitagger workflows init gh -p /tmp/gen-check
+          actionlint /tmp/gen-check/.github/workflows/gitagger.yml

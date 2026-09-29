@@ -196,25 +196,44 @@ func cmdWorkflows(args []string) error {
 }
 
 func cmdWorkflowsInit(args []string) error {
-	if len(args) == 0 {
-		return icmd.BadArgs("give a provider: `gitagger workflows init <gh|jenkins>`")
-	}
-	id := strings.ToLower(args[0])
+	id := ""
 	force, verbose := false, false
-	for _, a := range args[1:] {
-		switch a {
-		case "-f", "--force":
-			force = true
-		case "-v", "--verbose":
-			verbose = true
-		case "-h", "--help":
+	flagPath := ""
+	for i := 0; i < len(args); i++ {
+		a := args[i]
+		switch {
+		case a == "-h" || a == "--help":
 			icmd.CommandHelp("workflows")
 			return nil
-		default:
+		case a == "-f" || a == "--force":
+			force = true
+		case a == "-v" || a == "--verbose":
+			verbose = true
+		case a == "-p" && i+1 < len(args):
+			i++
+			flagPath = args[i]
+		case strings.HasPrefix(a, "--path="):
+			flagPath = strings.TrimPrefix(a, "--path=")
+		case a == "--path" && i+1 < len(args):
+			i++
+			flagPath = args[i]
+		case strings.HasPrefix(a, "-"):
 			return icmd.BadArgs("unknown flag %q — try `gitagger workflows --help`", a)
+		default:
+			if id != "" {
+				return icmd.BadArgs("pick just one provider: `gitagger workflows init <gh|jenkins>`")
+			}
+			id = strings.ToLower(a)
 		}
 	}
-	dir, _ := os.Getwd()
+	if id == "" {
+		return icmd.BadArgs("give a provider: `gitagger workflows init <gh|jenkins>`")
+	}
+	cwd, _ := os.Getwd()
+	dir, err := icmd.ResolveDir(cwd, flagPath)
+	if err != nil {
+		return err
+	}
 	return icmd.RunWorkflowsInit(dir, id, force, verbose)
 }
 

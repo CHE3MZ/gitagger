@@ -226,10 +226,11 @@ var commandHelp = map[string]cmdHelp{
 		"workflows init",
 		[]string{"gitagger workflows", "gitagger workflows init gh", "gitagger workflows init jenkins --force"},
 		[]string{
-			"-l --list      List workflows available for generation.",
-			"-f --force     Overwrite the workflow file if it exists.",
-			"-v --verbose   Also show the full path.",
-			"-h --help      Print the help text for a command.",
+			"-l --list        List workflows available for generation.",
+			"-f --force       Overwrite the workflow file if it exists.",
+			"-p --path <dir>  Operate in another directory.",
+			"-v --verbose     Also show the full path.",
+			"-h --help        Print the help text for a command.",
 		},
 	},
 	"version": {

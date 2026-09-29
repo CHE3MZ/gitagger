@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/CHE3MZ/gitagger/internal/cmd"
+	"gopkg.in/yaml.v3"
 )
 
 func TestWorkflowsListed(t *testing.T) {
@@ -43,6 +44,21 @@ func TestWorkflowsInitGH(t *testing.T) {
 			t.Errorf("gh workflow missing %q", want)
 		}
 	}
+	// Structural check: real YAML with the expected job/step shape.
+	var doc map[string]any
+	if err := yaml.Unmarshal(raw, &doc); err != nil {
+		t.Fatalf("generated workflow is not valid YAML: %v", err)
+	}
+	jobs, _ := doc["jobs"].(map[string]any)
+	tag, _ := jobs["tag"].(map[string]any)
+	steps, _ := tag["steps"].([]any)
+	if len(steps) < 2 {
+		t.Fatalf("generated workflow has no tag steps")
+	}
+	uses, _ := steps[1].(map[string]any)["uses"].(string)
+	if uses != "CHE3MZ/gitagger@v1" {
+		t.Errorf("tag step uses %q, want CHE3MZ/gitagger@v1", uses)
+	}
 	if err := cmd.RunWorkflowsInit(dir, "gh", false, false); err == nil {
 		t.Fatalf("second init should refuse")
 	} else if cmd.CodeOf(err) != 2 {
@@ -65,6 +81,12 @@ func TestWorkflowsInitJenkins(t *testing.T) {
 	for _, want := range []string{"pipeline", "gitagger"} {
 		if !strings.Contains(string(raw), want) {
 			t.Errorf("jenkins file missing %q", want)
+		}
+	}
+	// No Jenkins validator exists in CI; at least prove balanced structure.
+	for _, pair := range [][2]string{{"{", "}"}, {"(", ")"}, {"[", "]"}} {
+		if strings.Count(string(raw), pair[0]) != strings.Count(string(raw), pair[1]) {
+			t.Errorf("jenkins file has unbalanced %s%s", pair[0], pair[1])
 		}
 	}
 }
