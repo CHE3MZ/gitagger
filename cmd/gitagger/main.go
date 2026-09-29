@@ -177,7 +177,7 @@ func cmdRemote(args []string) error {
 
 func cmdWorkflows(args []string) error {
 	if len(args) == 0 {
-		return icmd.RunWorkflowsList()
+		return icmd.RunWorkflowsOverview()
 	}
 	switch args[0] {
 	case "-l", "--list":

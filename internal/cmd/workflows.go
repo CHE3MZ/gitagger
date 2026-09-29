@@ -15,13 +15,14 @@ type Workflow struct {
 	ID     string // gh, jenkins...
 	Target string // path written, relative to the project dir
 	Desc   string // one line for listings
+	Blurb  string // very short description for the overview
 }
 
 // Workflows lists every generatable file, in display order.
 func Workflows() []Workflow {
 	return []Workflow{
-		{ID: "gh", Target: filepath.Join(".github", "workflows", "gitagger.yml"), Desc: "GitHub Actions: tags on push using the gitagger action"},
-		{ID: "jenkins", Target: filepath.Join(".jenkins", "gitagger.jenkinsfile"), Desc: "Jenkins pipeline: tags using go install"},
+		{ID: "gh", Target: filepath.Join(".github", "workflows", "gitagger.yml"), Desc: "GitHub Actions: tags on push using the gitagger action", Blurb: "GitHub Actions workflow file"},
+		{ID: "jenkins", Target: filepath.Join(".jenkins", "gitagger.jenkinsfile"), Desc: "Jenkins pipeline: tags using go install", Blurb: "Jenkins workflow file"},
 	}
 }
 
@@ -33,6 +34,20 @@ func FindWorkflow(id string) (Workflow, bool) {
 		}
 	}
 	return Workflow{}, false
+}
+
+// RunWorkflowsOverview prints the compact COMMANDS + WORKFLOWS view.
+func RunWorkflowsOverview() error {
+	fmt.Println(style.Header("COMMANDS"))
+	fmt.Println()
+	fmt.Printf("  %s %s\n", style.White("gitagger"), style.Green("workflows init"))
+	fmt.Println()
+	fmt.Println(style.Header("WORKFLOWS"))
+	fmt.Println()
+	for _, w := range Workflows() {
+		fmt.Printf("  %s%s\n", style.Green(w.ID), style.Gray(strings.Repeat(" ", 10-len(w.ID))+w.Blurb))
+	}
+	return nil
 }
 
 // RunWorkflowsList prints every generatable workflow.

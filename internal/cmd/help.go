@@ -223,7 +223,7 @@ var commandHelp = map[string]cmdHelp{
 	},
 	"workflows": {
 		"Generate CI workflow files.",
-		"workflows [-l] | workflows init <gh|jenkins> [-f]",
+		"workflows init",
 		[]string{"gitagger workflows", "gitagger workflows init gh", "gitagger workflows init jenkins --force"},
 		[]string{
 			"-l --list      List workflows available for generation.",

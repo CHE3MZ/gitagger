@@ -24,6 +24,9 @@ func TestWorkflowsListed(t *testing.T) {
 	if err := cmd.RunWorkflowsList(); err != nil {
 		t.Fatalf("list should pass: %v", err)
 	}
+	if err := cmd.RunWorkflowsOverview(); err != nil {
+		t.Fatalf("overview should pass: %v", err)
+	}
 }
 
 func TestWorkflowsInitGH(t *testing.T) {
