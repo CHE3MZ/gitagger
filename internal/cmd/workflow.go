@@ -110,6 +110,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    # env:
+    #   GH_TOKEN: ${{ github.token }}   # uncomment if your hooks call gh
     steps:
       - uses: actions/checkout@v4
         with:
