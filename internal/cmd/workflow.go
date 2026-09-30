@@ -22,7 +22,7 @@ type Workflow struct {
 // Workflows lists every generatable file, in display order.
 func Workflows() []Workflow {
 	return []Workflow{
-		{ID: "gh", Target: filepath.Join(".github", "workflows", "gitagger.yml"), Desc: "GitHub Actions: tags on push using the gitagger action", Blurb: "GitHub Actions workflow file"},
+		{ID: "gh", Target: filepath.Join(".github", "workflows", "gitagger.yml"), Desc: "GitHub Actions: tags on dispatch using the gitagger action", Blurb: "GitHub Actions workflow file"},
 		{ID: "jenkins", Target: filepath.Join(".jenkins", "gitagger.jenkinsfile"), Desc: "Jenkins pipeline: tags using go install", Blurb: "Jenkins workflow file"},
 	}
 }
