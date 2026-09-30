@@ -28,10 +28,21 @@ func AskConfirm(r io.Reader, prompt string) bool {
 	}
 }
 
+// RemovePrompt returns the confirmation prompt for tag deletion.
+// localOnly selects the locally-only wording (used with --no-remote).
+// Both share style.ConfirmHint so every [y/n] looks the same.
+func RemovePrompt(localOnly bool) string {
+	if localOnly {
+		return "Are you sure you want to delete this tag locally only? This may cause inconsistencies later. " + style.ConfirmHint()
+	}
+	return "are you sure you want to remove this tag? " + style.ConfirmHint()
+}
+
 // RunRemove deletes tag locally after confirmation, and from the remote
-// when it is there too. confirm skips the prompt (same as -c).
-// Offline or remote-less repos stay graceful: the local delete still happens.
-func RunRemove(dir, tag string, confirm, verbose bool) error {
+// when it is there too. confirm skips the prompt (same as -c), noRemote
+// keeps the remote tag alone (same as -n). Offline or remote-less repos
+// stay graceful: the local delete still happens.
+func RunRemove(dir, tag string, confirm, noRemote, verbose bool) error {
 	if err := git.EnsureAvailable(); err != nil {
 		return GenericErr(err)
 	}
@@ -43,7 +54,7 @@ func RunRemove(dir, tag string, confirm, verbose bool) error {
 		return Generic("no tag %q in this project.", tag)
 	}
 	if !confirm {
-		if !AskConfirm(Stdin, "are you sure you want to remove this tag? [y/n]") {
+		if !AskConfirm(Stdin, RemovePrompt(noRemote)) {
 			fmt.Println(style.Dim(fmt.Sprintf("kept tag %s (aborted)", tag)))
 			return nil
 		}
@@ -52,6 +63,12 @@ func RunRemove(dir, tag string, confirm, verbose bool) error {
 		return Generic("couldn't remove tag %s (%v)", tag, err)
 	}
 	fmt.Printf("%s %s\n", style.Green("removed tag"), style.BoldGreen(tag))
+	if noRemote {
+		if verbose {
+			fmt.Println(style.Dim("left the remote tag alone (--no-remote)"))
+		}
+		return nil
+	}
 	remote := EffectiveRemote(dir)
 	if _, err := git.RemoteURL(dir, remote); err != nil {
 		if verbose {

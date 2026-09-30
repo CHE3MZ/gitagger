@@ -212,13 +212,15 @@ func ParseViewArgs(args []string) (ViewFlags, string, error) {
 
 // RemoveFlags for `gitagger remove <tag>`.
 type RemoveFlags struct {
-	Confirm bool
-	Verbose bool
-	Help    bool
-	Path    string
+	Confirm  bool
+	NoRemote bool
+	Verbose  bool
+	Help     bool
+	Path     string
 }
 
-// ParseRemoveArgs parses one tag plus -c/--confirm, -v/--verbose and -p/--path.
+// ParseRemoveArgs parses one tag plus -c/--confirm, -n/--no-remote,
+// -v/--verbose and -p/--path.
 func ParseRemoveArgs(args []string) (RemoveFlags, string, error) {
 	var f RemoveFlags
 	tag := ""
@@ -229,6 +231,8 @@ func ParseRemoveArgs(args []string) (RemoveFlags, string, error) {
 			f.Help = true
 		case a == "-c" || a == "--confirm":
 			f.Confirm = true
+		case a == "-n" || a == "--no-remote":
+			f.NoRemote = true
 		case a == "-v" || a == "--verbose":
 			f.Verbose = true
 		case a == "-p" && i+1 < len(args):

@@ -299,5 +299,5 @@ func cmdRemove(args []string) error {
 	if err != nil {
 		return err
 	}
-	return icmd.RunRemove(dir, tag, f.Confirm, f.Verbose)
+	return icmd.RunRemove(dir, tag, f.Confirm, f.NoRemote, f.Verbose)
 }

@@ -200,10 +200,11 @@ var commandHelp = map[string]cmdHelp{
 	},
 	"remove": {
 		"Remove a tag locally and on the remote.",
-		"remove <tag> [-c]",
-		[]string{"gitagger remove v1.2.3", "gitagger remove v1.2.3 --confirm"},
+		"remove <tag> [-c] [-n]",
+		[]string{"gitagger remove v1.2.3", "gitagger remove v1.2.3 --confirm", "gitagger remove v1.2.3 --no-remote"},
 		[]string{
 			"-c --confirm     Remove without asking for confirmation.",
+			"-n --no-remote   Remove only the local tag, keep the remote one.",
 			"-v --verbose     Also show the remote URL.",
 			"-p --path <dir>  Operate in another directory.",
 			"-h --help        Print the help text for a command.",

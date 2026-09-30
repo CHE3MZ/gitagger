@@ -8,6 +8,7 @@ import (
 
 	"github.com/CHE3MZ/gitagger/internal/cmd"
 	"github.com/CHE3MZ/gitagger/internal/git"
+	"github.com/CHE3MZ/gitagger/internal/style"
 )
 
 func TestParseViewArgs(t *testing.T) {
@@ -39,11 +40,49 @@ func TestParseRemoveArgs(t *testing.T) {
 	if err != nil || !f.Confirm {
 		t.Fatalf("ParseRemoveArgs --confirm = %+v,%v", f, err)
 	}
+	f, tag, err = cmd.ParseRemoveArgs([]string{"v1.2.3", "-n"})
+	if err != nil || tag != "v1.2.3" || !f.NoRemote {
+		t.Fatalf("ParseRemoveArgs -n = %+v,%q,%v", f, tag, err)
+	}
+	f, _, err = cmd.ParseRemoveArgs([]string{"--no-remote", "v1.2.3"})
+	if err != nil || !f.NoRemote {
+		t.Fatalf("ParseRemoveArgs --no-remote = %+v,%v", f, err)
+	}
 	if _, _, err := cmd.ParseRemoveArgs([]string{"v1", "v2"}); err == nil {
 		t.Errorf("two tags should fail")
 	}
 	if _, _, err := cmd.ParseRemoveArgs([]string{"v1", "--force"}); err == nil {
 		t.Errorf("--force is not a remove flag and should fail")
+	}
+}
+
+func TestRemovePrompt(t *testing.T) {
+	full := cmd.RemovePrompt(false)
+	if !strings.Contains(full, "remove this tag") {
+		t.Errorf("full prompt = %q, want mention of removing the tag", full)
+	}
+	local := cmd.RemovePrompt(true)
+	if !strings.Contains(local, "locally only") {
+		t.Errorf("local-only prompt = %q, want mention of locally only", local)
+	}
+	if full == local {
+		t.Errorf("prompts should differ, both = %q", full)
+	}
+	for _, p := range []string{full, local} {
+		for _, want := range []string{"y", "n", "[", "]", "/"} {
+			if !strings.Contains(p, want) {
+				t.Errorf("prompt %q should contain %q", p, want)
+			}
+		}
+	}
+}
+
+func TestConfirmHint(t *testing.T) {
+	hint := style.ConfirmHint()
+	for _, want := range []string{"y", "n", "[", "]", "/"} {
+		if !strings.Contains(hint, want) {
+			t.Errorf("ConfirmHint() = %q, want it to contain %q", hint, want)
+		}
 	}
 }
 
@@ -148,7 +187,7 @@ func TestRunRemoveConfirmed(t *testing.T) {
 	if err := git.CreateTag(dir, "v1.0.0", "", false); err != nil {
 		t.Fatal(err)
 	}
-	if err := cmd.RunRemove(dir, "v1.0.0", true, false); err != nil {
+	if err := cmd.RunRemove(dir, "v1.0.0", true, false, false); err != nil {
 		t.Fatalf("confirmed remove should pass: %v", err)
 	}
 	tags, err := git.ListTags(dir)
@@ -164,14 +203,14 @@ func TestRunRemoveConfirmed(t *testing.T) {
 
 func TestRunRemoveMissing(t *testing.T) {
 	dir := initRepo(t)
-	err := cmd.RunRemove(dir, "v9.9.9", true, false)
+	err := cmd.RunRemove(dir, "v9.9.9", true, false, false)
 	if err == nil {
 		t.Fatalf("remove of missing tag should fail")
 	}
 	if cmd.CodeOf(err) != 1 {
 		t.Fatalf("missing tag should exit 1, got %d", cmd.CodeOf(err))
 	}
-	if err := cmd.RunRemove(dir, "", true, false); err == nil {
+	if err := cmd.RunRemove(dir, "", true, false, false); err == nil {
 		t.Fatalf("remove without a tag should fail")
 	} else if cmd.CodeOf(err) != 3 {
 		t.Fatalf("missing arg should exit 3, got %d", cmd.CodeOf(err))
@@ -188,7 +227,7 @@ func TestRunRemovePrompt(t *testing.T) {
 		t.Fatal(err)
 	}
 	cmd.Stdin = strings.NewReader("n\n")
-	if err := cmd.RunRemove(dir, "v1.0.0", false, false); err != nil {
+	if err := cmd.RunRemove(dir, "v1.0.0", false, false, false); err != nil {
 		t.Fatalf("declined remove should pass as a no-op: %v", err)
 	}
 	tags, err := git.ListTags(dir)
@@ -201,7 +240,7 @@ func TestRunRemovePrompt(t *testing.T) {
 
 	// Empty answer also aborts.
 	cmd.Stdin = strings.NewReader("\n")
-	if err := cmd.RunRemove(dir, "v1.0.0", false, false); err != nil {
+	if err := cmd.RunRemove(dir, "v1.0.0", false, false, false); err != nil {
 		t.Fatalf("empty answer should abort cleanly: %v", err)
 	}
 	if tags, _ := git.ListTags(dir); len(tags) != 1 {
@@ -210,7 +249,7 @@ func TestRunRemovePrompt(t *testing.T) {
 
 	// "y" deletes.
 	cmd.Stdin = strings.NewReader("y\n")
-	if err := cmd.RunRemove(dir, "v1.0.0", false, false); err != nil {
+	if err := cmd.RunRemove(dir, "v1.0.0", false, false, false); err != nil {
 		t.Fatalf("confirmed remove should pass: %v", err)
 	}
 	if tags, _ := git.ListTags(dir); len(tags) != 0 {
@@ -230,7 +269,7 @@ func TestRunRemoveRemote(t *testing.T) {
 	if tags, err := git.RemoteTags(dir, "origin"); err != nil || len(tags) != 1 {
 		t.Fatalf("remote tags = %v,%v, want [v1.0.0]", tags, err)
 	}
-	if err := cmd.RunRemove(dir, "v1.0.0", true, false); err != nil {
+	if err := cmd.RunRemove(dir, "v1.0.0", true, false, false); err != nil {
 		t.Fatalf("remove should pass: %v", err)
 	}
 	if tags, _ := git.ListTags(dir); len(tags) != 0 {
@@ -244,6 +283,44 @@ func TestRunRemoveRemote(t *testing.T) {
 		if tg == "v1.0.0" {
 			t.Fatalf("remote tag still present: %v", tags)
 		}
+	}
+}
+
+func TestRunRemoveNoRemote(t *testing.T) {
+	dir := initRepo(t)
+	remoteDir := t.TempDir()
+	mustGit(t, remoteDir, "init", "--bare", "-q")
+	mustGit(t, dir, "remote", "add", "origin", remoteDir)
+	if err := git.CreateTag(dir, "v1.0.0", "", false); err != nil {
+		t.Fatal(err)
+	}
+	mustGit(t, dir, "push", "origin", "v1.0.0")
+	// --no-remote deletes locally but leaves the remote tag alone.
+	if err := cmd.RunRemove(dir, "v1.0.0", true, true, false); err != nil {
+		t.Fatalf("no-remote remove should pass: %v", err)
+	}
+	if tags, _ := git.ListTags(dir); len(tags) != 0 {
+		t.Fatalf("local tag still present: %v", tags)
+	}
+	tags, err := git.RemoteTags(dir, "origin")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(tags) != 1 || tags[0] != "v1.0.0" {
+		t.Fatalf("remote tag should survive --no-remote: %v", tags)
+	}
+	// The local-only prompt path works too.
+	if err := git.CreateTag(dir, "v1.0.1", "", false); err != nil {
+		t.Fatal(err)
+	}
+	old := cmd.Stdin
+	defer func() { cmd.Stdin = old }()
+	cmd.Stdin = strings.NewReader("y\n")
+	if err := cmd.RunRemove(dir, "v1.0.1", false, true, false); err != nil {
+		t.Fatalf("prompted no-remote remove should pass: %v", err)
+	}
+	if tags, _ := git.ListTags(dir); len(tags) != 0 {
+		t.Fatalf("local tag still present after y: %v", tags)
 	}
 }
 
