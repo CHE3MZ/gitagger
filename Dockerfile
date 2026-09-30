@@ -3,6 +3,7 @@
 # Multi-arch: docker buildx build --platform linux/amd64,linux/arm64 -t gitagger .
 # Run against a repo: docker run --rm -v "$PWD:/repo" -w /repo gitagger [args]
 # Match host file ownership: docker run --user "$(id -u):$(id -g)" ...
+# The host dir must be readable by the container user (chmod -R a+rwX).
 FROM golang:1.23-alpine AS build
 WORKDIR /src
 COPY go.mod go.sum ./

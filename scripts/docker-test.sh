@@ -60,6 +60,8 @@ new_repo() {
     echo hi > "$REPO/f.txt"
     git -C "$REPO" add .
     git -C "$REPO" commit -qm first
+    # mktemp dirs are owner-only: let the container user in.
+    chmod -R a+rwX "$REPO"
 }
 
 write_config() {
@@ -187,12 +189,13 @@ else
 fi
 
 # 11: success hooks run on the container shell.
+# (Explicit flags: bare `dk` would run the image CMD instead of tagging.)
 new_repo
 write_config 'push: false
 on:
   success:
     - run: echo hi > hook-ran'
-if out="$(dk 2>&1)"; then
+if out="$(dk --no-push 2>&1)"; then
     if [ -f "$REPO/hook-ran" ]; then
         pass "success hook"
     else
