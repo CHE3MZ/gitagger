@@ -69,6 +69,10 @@ func filterHooks(h config.Hooks, args []string) config.Hooks {
 				if len(args) == 0 {
 					out = append(out, b)
 				}
+			case "any":
+				if len(args) > 0 {
+					out = append(out, b)
+				}
 			default:
 				if want[name] {
 					out = append(out, b)

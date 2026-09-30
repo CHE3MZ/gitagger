@@ -142,3 +142,39 @@ func TestArgumentNone(t *testing.T) {
 		t.Fatalf("-a release should skip none blocks")
 	}
 }
+
+func TestArgumentAny(t *testing.T) {
+	needSh(t)
+	mkHooks := func() config.Hooks {
+		return config.Hooks{Success: []config.HookBlock{
+			{Argument: "any", Shell: "sh", Run: []string{"echo x > any-ran"}},
+			{Shell: "sh", Run: []string{"echo x > always-ran"}},
+		}}
+	}
+	marker := func(dir, name string) bool {
+		_, err := os.Stat(filepath.Join(dir, name))
+		return err == nil
+	}
+
+	// Bare run: any stays dormant, untagged runs.
+	dir := initRepo(t)
+	o := run.Options{Dir: dir, Scale: "patch", Pre: "stable", Remote: "origin", Push: false,
+		Hooks: mkHooks()}
+	if err := cmd.RunTag(o); err != nil {
+		t.Fatal(err)
+	}
+	if marker(dir, "any-ran") || !marker(dir, "always-ran") {
+		t.Fatalf("bare run should skip any blocks")
+	}
+
+	// Any -a value wakes any blocks, even an unknown name.
+	dir = initRepo(t)
+	o = run.Options{Dir: dir, Scale: "patch", Pre: "stable", Remote: "origin", Push: false,
+		Arguments: []string{"whatever"}, Hooks: mkHooks()}
+	if err := cmd.RunTag(o); err != nil {
+		t.Fatal(err)
+	}
+	if !marker(dir, "any-ran") || !marker(dir, "always-ran") {
+		t.Fatalf("-a whatever should fire any blocks")
+	}
+}

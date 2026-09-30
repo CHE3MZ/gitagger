@@ -111,7 +111,7 @@ jobs:
     permissions:
       contents: write
     # env:
-    #   GH_TOKEN: ${{ github.token }}   # uncomment if your hooks call gh
+    #   GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
         with:

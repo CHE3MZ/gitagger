@@ -118,6 +118,7 @@ func PrintHandbook() {
 	hbDesc("run: one command or a list. Each item runs separately.")
 	hbDesc("argument: <name>. Block runs only with gitagger -a <name>.")
 	hbDesc("argument: none runs only when no arguments are given.")
+	hbDesc("argument: any runs only when any argument is given.")
 	hbDesc("Hooks get GITAGGER_TAG, GITAGGER_PREV, GITAGGER_REMOTE, GITAGGER_PUSHED, GITAGGER_EVENT, GITAGGER_ARGUMENT.")
 
 	hbHeader("NOTES")
