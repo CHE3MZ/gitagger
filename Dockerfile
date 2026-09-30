@@ -15,7 +15,8 @@ RUN CGO_ENABLED=0 go build -trimpath \
 
 # Runtime needs git (tagging shells out to it) and CA certs (https pushes).
 FROM alpine:3
-# hadolint ignore=DL3018 — rolling alpine on purpose: always latest git/certs.
+# Rolling alpine on purpose: always latest git/certs.
+# hadolint ignore=DL3018
 RUN apk add --no-cache git ca-certificates
 COPY --from=build /out/gitagger /usr/local/bin/gitagger
 RUN adduser -D -u 1000 gitagger && mkdir -p /repo
