@@ -119,6 +119,9 @@ func CommandHelp(cmd string) {
 	if cmd == "ls" {
 		cmd = "list"
 	}
+	if cmd == "rm" {
+		cmd = "remove"
+	}
 	if h, ok := commandHelp[cmd]; ok {
 		fmt.Println(style.Gray(h.desc))
 		fmt.Println()
@@ -271,7 +274,7 @@ var commandHelp = map[string]cmdHelp{
 }
 
 // KnownCommands lists every command for `gitagger help [command]`.
-var KnownCommands = []string{"init", "check", "list", "ls", "view", "remove", "help", "handbook", "doctor", "remote", "workflow", "version", "patch", "minor", "major"}
+var KnownCommands = []string{"init", "check", "list", "ls", "view", "remove", "rm", "help", "handbook", "doctor", "remote", "workflow", "version", "patch", "minor", "major"}
 
 // IsCommand reports whether name is a known command.
 func IsCommand(name string) bool {
@@ -287,6 +290,9 @@ func IsCommand(name string) bool {
 func ExampleCount(cmd string) int {
 	if cmd == "ls" {
 		cmd = "list"
+	}
+	if cmd == "rm" {
+		cmd = "remove"
 	}
 	if h, ok := commandHelp[cmd]; ok {
 		return len(h.examples)

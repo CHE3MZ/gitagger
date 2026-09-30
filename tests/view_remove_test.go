@@ -325,7 +325,7 @@ func TestRunRemoveNoRemote(t *testing.T) {
 }
 
 func TestViewRemoveHelp(t *testing.T) {
-	for _, c := range []string{"view", "remove"} {
+	for _, c := range []string{"view", "remove", "rm"} {
 		if !cmd.IsCommand(c) {
 			t.Errorf("IsCommand(%q) = false", c)
 		}
@@ -333,5 +333,8 @@ func TestViewRemoveHelp(t *testing.T) {
 		if n := cmd.ExampleCount(c); n == 0 || n > 3 {
 			t.Errorf("%s has %d examples, want 1-3", c, n)
 		}
+	}
+	if cmd.ExampleCount("rm") != cmd.ExampleCount("remove") {
+		t.Errorf("rm should document the same examples as remove")
 	}
 }

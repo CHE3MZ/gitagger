@@ -11,11 +11,11 @@ import (
 )
 
 // SuggestCandidates are the names did-you-mean searches: every command
-// except the ls alias (list covers it).
+// except the ls/rm aliases (list/remove cover them).
 func SuggestCandidates() []string {
 	var out []string
 	for _, c := range KnownCommands {
-		if c != "ls" {
+		if c != "ls" && c != "rm" {
 			out = append(out, c)
 		}
 	}

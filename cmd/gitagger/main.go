@@ -31,7 +31,7 @@ func runCLI(args []string) error {
 			return cmdSimple(args[1:], "list", icmd.RunList)
 		case "view":
 			return cmdView(args[1:])
-		case "remove":
+		case "remove", "rm":
 			return cmdRemove(args[1:])
 		case "help":
 			return cmdHelp(args[1:])

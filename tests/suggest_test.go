@@ -55,7 +55,7 @@ func TestSuggestProviders(t *testing.T) {
 func TestSuggestCandidatesCoverCommands(t *testing.T) {
 	cands := cmd.SuggestCandidates()
 	for _, c := range cmd.KnownCommands {
-		if c == "ls" {
+		if c == "ls" || c == "rm" {
 			continue
 		}
 		found := false
@@ -69,8 +69,8 @@ func TestSuggestCandidatesCoverCommands(t *testing.T) {
 		}
 	}
 	for _, s := range cands {
-		if s == "ls" {
-			t.Errorf("candidates should not suggest the ls alias")
+		if s == "ls" || s == "rm" {
+			t.Errorf("candidates should not suggest aliases, got %q", s)
 		}
 	}
 }
