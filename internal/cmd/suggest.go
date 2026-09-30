@@ -111,7 +111,7 @@ func SuggestionText(matches []string) string {
 		b.WriteString("\n\nThe most similar commands are\n")
 	}
 	for _, m := range matches {
-		b.WriteString("        " + style.Green(m) + "\n")
+		b.WriteString("        " + style.Bold(style.White(m)) + "\n")
 	}
 	return strings.TrimSuffix(b.String(), "\n")
 }
