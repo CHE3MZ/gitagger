@@ -17,16 +17,38 @@ Just [Install](#installation) it and run `gitagger` and it will integrate with y
 
 ## Installation
 
+### Install with Go 
+
+Requires [Go 1.26](https://go.dev/dl/) or newer:
+
 ```sh
 go install github.com/CHE3MZ/gitagger/cmd/gitagger@latest
 ```
 
-Or grab a ready-made binary from the [releases page](https://github.com/CHE3MZ/gitagger/releases) (Linux, macOS, Windows).
+### Prebuilt binaries
+You can also grab a ready-made binary from the [releases page](https://github.com/CHE3MZ/gitagger/releases) (Linux, macOS, Windows).
 
-For CI, there is a GitHub Action:
+### GitHub Actions
 
 ```yaml
 - uses: CHE3MZ/gitagger@v1
+```
+
+### Docker
+
+```sh
+docker build -t gitagger .
+docker run --rm -v "$PWD:/repo" -w /repo gitagger [args]
+```
+
+### Compile from source
+
+Requires [Go 1.26](https://go.dev/dl/) or newer:
+
+```sh
+git clone https://github.com/CHE3MZ/gitagger.git
+cd gitagger
+go build -o gitagger ./cmd/gitagger
 ```
 
 ## Usage
