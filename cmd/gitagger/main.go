@@ -186,7 +186,7 @@ func cmdWorkflow(args []string) error {
 	switch args[0] {
 	case "-l", "--list":
 		if len(args) > 1 {
-			return icmd.BadArgs("don't know what %q means — try `gitagger workflow --help`", args[1])
+			return icmd.BadArgs("don't know what %q means — try `gitagger workflow --help`%s", args[1], icmd.SuggestionText(icmd.Suggest(strings.TrimLeft(args[1], "-"), icmd.WorkflowSuggestCandidates())))
 		}
 		return icmd.RunWorkflowList()
 		case "-h", "--help":
@@ -195,7 +195,7 @@ func cmdWorkflow(args []string) error {
 	case "init":
 		return cmdWorkflowInit(args[1:])
 	default:
-		return icmd.BadArgs("don't know what %q means — try `gitagger workflow --help`", args[0])
+		return icmd.BadArgs("don't know what %q means — try `gitagger workflow --help`%s", args[0], icmd.SuggestionText(icmd.Suggest(strings.TrimLeft(args[0], "-"), icmd.WorkflowSuggestCandidates())))
 	}
 }
 
@@ -262,7 +262,11 @@ func cmdHelp(args []string) error {
 		return nil
 	}
 	if len(args) > 1 || !icmd.IsCommand(args[0]) {
-		return icmd.BadArgs("don't know what %q means — try `gitagger help`", strings.Join(args, " "))
+		sug := ""
+		if len(args) == 1 {
+			sug = icmd.SuggestionText(icmd.Suggest(args[0], icmd.SuggestCandidates()))
+		}
+		return icmd.BadArgs("don't know what %q means — try `gitagger help`%s", strings.Join(args, " "), sug)
 	}
 	icmd.CommandHelp(args[0])
 	return nil

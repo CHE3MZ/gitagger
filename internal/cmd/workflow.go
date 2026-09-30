@@ -67,7 +67,7 @@ func RunWorkflowList() error {
 func RunWorkflowInit(dir, id string, force, verbose bool) error {
 	w, ok := FindWorkflow(id)
 	if !ok {
-		return BadArgs("don't know workflow %q — try `gitagger workflow --help`", id)
+		return BadArgs("don't know workflow %q — try `gitagger workflow --help`%s", id, SuggestionText(Suggest(id, []string{"gh", "jenkins"})))
 	}
 	path := filepath.Join(dir, w.Target)
 	if st, err := os.Stat(path); err == nil && !st.IsDir() && !force {

@@ -100,7 +100,7 @@ func ParseScale(pos []string) (string, error) {
 			}
 			scale = strings.ToLower(p)
 		default:
-			return "", fmt.Errorf("don't know what %q means — try `gitagger --help`", p)
+			return "", fmt.Errorf("don't know what %q means — try `gitagger --help`%s", p, SuggestionText(Suggest(p, SuggestCandidates())))
 		}
 	}
 	return scale, nil
