@@ -62,18 +62,12 @@ func BoldGreen(s string) string {
 	return "\x1b[1;92m" + s + reset
 }
 
-// BoldRed is a bold red highlight (the "no" in confirmations).
-func BoldRed(s string) string {
-	if !enabled {
-		return s
-	}
-	return "\x1b[1;31m" + s + reset
-}
-
-// ConfirmHint renders a bold [y/n] choice: green y, red n.
-// Use it for every confirmation prompt so they all look the same.
+// ConfirmHint renders a bold green [y/n] choice.
+// One color on purpose: red would imply no is dangerous, which is
+// backwards on a destructive prompt. Use it for every confirmation
+// prompt so they all look the same.
 func ConfirmHint() string {
-	return Bold("[") + BoldGreen("y") + Bold("/") + BoldRed("n") + Bold("]")
+	return BoldGreen("[y/n]")
 }
 
 // Error formats an error line.
