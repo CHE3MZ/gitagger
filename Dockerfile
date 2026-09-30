@@ -4,7 +4,7 @@
 # Run against a repo: docker run --rm -v "$PWD:/repo" -w /repo gitagger [args]
 # Match host file ownership: docker run --user "$(id -u):$(id -g)" ...
 # The host dir must be readable by the container user (chmod -R a+rwX).
-FROM golang:1.23-alpine AS build
+FROM golang:1.26-alpine AS build
 WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download
