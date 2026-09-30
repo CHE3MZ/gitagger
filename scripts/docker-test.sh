@@ -68,6 +68,17 @@ write_config() {
 
 say "==> image: $IMAGE"
 
+# 0: the mount is really there (diagnostic, always logged).
+new_repo
+if out="$(docker run --rm --entrypoint ls -v "$REPO:/repo" "$IMAGE" -la /repo 2>&1)"; then
+    case "$out" in
+        *.git*) pass "mount" ;;
+        *) fail "mount contents: $out" ;;
+    esac
+else
+    fail "mount listing exits nonzero: $out"
+fi
+
 # 1: version smoke.
 if out="$(docker run --rm "$IMAGE" version 2>&1)"; then
     case "$out" in *gitagger*) pass "version" ;; *) fail "version output: $out" ;; esac
@@ -84,14 +95,14 @@ fi
 
 # 3: fresh repo roundtrip — container writes the tag into the mount.
 new_repo
-if dk --no-push >/dev/null 2>&1; then
+if out="$(dk --no-push 2>&1)"; then
     if [ "$(git -C "$REPO" tag --list)" = "v1.0.0" ]; then
         pass "fresh tag v1.0.0"
     else
         fail "tags after run: $(git -C "$REPO" tag --list)"
     fi
 else
-    fail "fresh tag run exits nonzero"
+    fail "fresh tag run exits nonzero: $out"
 fi
 
 # 4: list + view see it.
@@ -119,27 +130,27 @@ else
 fi
 
 # 6: interactive confirm path (piped y deletes).
-if printf 'y\n' | docker run --rm -i -v "$REPO:/repo" -w /repo "$IMAGE" remove v1.0.0 >/dev/null 2>&1; then
+if out="$(printf 'y\n' | docker run --rm -i -v "$REPO:/repo" -w /repo "$IMAGE" remove v1.0.0 2>&1)"; then
     if [ -z "$(git -C "$REPO" tag --list)" ]; then
         pass "prompted remove"
     else
         fail "tag still present after y"
     fi
 else
-    fail "prompted remove exits nonzero"
+    fail "prompted remove exits nonzero: $out"
 fi
 
 # 7: -c removes without asking.
 new_repo
 git -C "$REPO" tag v1.0.0
-if dk remove v1.0.0 -c >/dev/null 2>&1; then
+if out="$(dk remove v1.0.0 -c 2>&1)"; then
     if [ -z "$(git -C "$REPO" tag --list)" ]; then
         pass "confirm remove"
     else
         fail "tag still present after -c"
     fi
 else
-    fail "confirm remove exits nonzero"
+    fail "confirm remove exits nonzero: $out"
 fi
 
 # 8: missing tag exits 1.
@@ -165,14 +176,14 @@ fi
 # 10: config is respected (pre flavor).
 new_repo
 write_config "pre: rc"
-if dk --no-push >/dev/null 2>&1; then
+if out="$(dk --no-push 2>&1)"; then
     if [ "$(git -C "$REPO" tag --list)" = "v1.0.0-rc" ]; then
         pass "config pre rc"
     else
         fail "tags after run: $(git -C "$REPO" tag --list)"
     fi
 else
-    fail "config run exits nonzero"
+    fail "config run exits nonzero: $out"
 fi
 
 # 11: success hooks run on the container shell.
@@ -181,33 +192,33 @@ write_config 'push: false
 on:
   success:
     - run: echo hi > hook-ran'
-if dk >/dev/null 2>&1; then
+if out="$(dk 2>&1)"; then
     if [ -f "$REPO/hook-ran" ]; then
         pass "success hook"
     else
-        fail "hook marker missing"
+        fail "hook marker missing (output: $out)"
     fi
 else
-    fail "hook run exits nonzero"
+    fail "hook run exits nonzero: $out"
 fi
 
 # 12: check validates the config.
-if dk check -v >/dev/null 2>&1; then
+if out="$(dk check -v 2>&1)"; then
     pass "check"
 else
-    fail "check exits nonzero"
+    fail "check exits nonzero: $out"
 fi
 
 # 13: arbitrary UID works (mounted repos are owned by someone else).
 new_repo
-if dk --no-push >/dev/null 2>&1; then
+if setup_out="$(dk --no-push 2>&1)"; then
     if out="$(docker run --rm --user 1001:1001 -v "$REPO:/repo" -w /repo "$IMAGE" list 2>&1)"; then
         case "$out" in *v1.0.0*) pass "arbitrary uid" ;; *) fail "uid list output: $out" ;; esac
     else
-        fail "arbitrary uid exits nonzero"
+        fail "arbitrary uid exits nonzero: $out"
     fi
 else
-    fail "uid setup run exits nonzero"
+    fail "uid setup run exits nonzero: $setup_out"
 fi
 
 say ""
