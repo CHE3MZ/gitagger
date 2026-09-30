@@ -186,6 +186,50 @@ func DeleteTag(dir, tag string) error {
 	return err
 }
 
+// DeleteRemoteTag removes a tag from the remote (push --delete).
+func DeleteRemoteTag(dir, remote, tag string) error {
+	_, err := run(dir, 60*time.Second, "push", "--delete", remote, tag)
+	return err
+}
+
+// TagInfo describes one local tag for `gitagger view`.
+type TagInfo struct {
+	Name    string // tag name as stored under refs/tags/
+	Kind    string // "annotated" or "lightweight"
+	Message string // tag message, "" for lightweight tags
+	Commit  string // full SHA of the commit the tag points at
+	Date    string // creation date (tagger date, or commit date when lightweight)
+}
+
+// InspectTag returns details for a local tag, or an error when missing.
+func InspectTag(dir, tag string) (TagInfo, error) {
+	tag = strings.TrimSpace(tag)
+	if tag == "" {
+		return TagInfo{}, fmt.Errorf("no tag given")
+	}
+	ref := "refs/tags/" + tag
+	kind, err := runDefault(dir, "cat-file", "-t", ref)
+	if err != nil {
+		return TagInfo{}, fmt.Errorf("no tag %q in this project", tag)
+	}
+	info := TagInfo{Name: tag, Kind: "lightweight"}
+	if kind == "tag" {
+		info.Kind = "annotated"
+		// contents is only a tag message for annotated tags —
+		// on lightweight tags it would echo the commit message.
+		if msg, err := runDefault(dir, "for-each-ref", "--format=%(contents)", ref); err == nil {
+			info.Message = strings.TrimSpace(msg)
+		}
+	}
+	if commit, err := runDefault(dir, "rev-list", "-n", "1", tag); err == nil {
+		info.Commit = commit
+	}
+	if date, err := runDefault(dir, "for-each-ref", "--format=%(creatordate:iso8601)", ref); err == nil {
+		info.Date = date
+	}
+	return info, nil
+}
+
 // HeadAheadCount counts HEAD commits since baseTag (exclusive).
 // Empty baseTag counts all HEAD commits (fresh repo distance).
 func HeadAheadCount(dir, baseTag string) (int, error) {

@@ -29,6 +29,10 @@ func runCLI(args []string) error {
 			return cmdSimple(args[1:], "check", icmd.RunCheck)
 		case "list", "ls":
 			return cmdSimple(args[1:], "list", icmd.RunList)
+		case "view":
+			return cmdView(args[1:])
+		case "remove":
+			return cmdRemove(args[1:])
 		case "help":
 			return cmdHelp(args[1:])
 		case "handbook":
@@ -262,4 +266,38 @@ func cmdHelp(args []string) error {
 	}
 	icmd.CommandHelp(args[0])
 	return nil
+}
+
+func cmdView(args []string) error {
+	f, tag, err := icmd.ParseViewArgs(args)
+	if err != nil {
+		return icmd.BadArgs("%s", err.Error())
+	}
+	if f.Help {
+		icmd.CommandHelp("view")
+		return nil
+	}
+	cwd, _ := os.Getwd()
+	dir, err := icmd.ResolveDir(cwd, f.Path)
+	if err != nil {
+		return err
+	}
+	return icmd.RunView(dir, tag, f.Verbose)
+}
+
+func cmdRemove(args []string) error {
+	f, tag, err := icmd.ParseRemoveArgs(args)
+	if err != nil {
+		return icmd.BadArgs("%s", err.Error())
+	}
+	if f.Help {
+		icmd.CommandHelp("remove")
+		return nil
+	}
+	cwd, _ := os.Getwd()
+	dir, err := icmd.ResolveDir(cwd, f.Path)
+	if err != nil {
+		return err
+	}
+	return icmd.RunRemove(dir, tag, f.Confirm, f.Verbose)
 }

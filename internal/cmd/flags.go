@@ -171,3 +171,82 @@ func ParseRemoteArgs(args []string) (RemoteFlags, string, error) {
 	}
 	return f, name, nil
 }
+
+// ViewFlags for `gitagger view <tag>`.
+type ViewFlags struct {
+	Verbose bool
+	Help    bool
+	Path    string
+}
+
+// ParseViewArgs parses one tag plus -h/--help, -v/--verbose and -p/--path.
+func ParseViewArgs(args []string) (ViewFlags, string, error) {
+	var f ViewFlags
+	tag := ""
+	for i := 0; i < len(args); i++ {
+		a := args[i]
+		switch {
+		case a == "-h" || a == "--help":
+			f.Help = true
+		case a == "-v" || a == "--verbose":
+			f.Verbose = true
+		case a == "-p" && i+1 < len(args):
+			i++
+			f.Path = args[i]
+		case strings.HasPrefix(a, "--path="):
+			f.Path = strings.TrimPrefix(a, "--path=")
+		case a == "--path" && i+1 < len(args):
+			i++
+			f.Path = args[i]
+		case strings.HasPrefix(a, "-"):
+			return f, "", fmt.Errorf("unknown flag %q — try `gitagger view --help`", a)
+		default:
+			if tag != "" {
+				return f, "", fmt.Errorf("pick just one tag — try `gitagger view --help`")
+			}
+			tag = a
+		}
+	}
+	return f, tag, nil
+}
+
+// RemoveFlags for `gitagger remove <tag>`.
+type RemoveFlags struct {
+	Confirm bool
+	Verbose bool
+	Help    bool
+	Path    string
+}
+
+// ParseRemoveArgs parses one tag plus -c/--confirm, -v/--verbose and -p/--path.
+func ParseRemoveArgs(args []string) (RemoveFlags, string, error) {
+	var f RemoveFlags
+	tag := ""
+	for i := 0; i < len(args); i++ {
+		a := args[i]
+		switch {
+		case a == "-h" || a == "--help":
+			f.Help = true
+		case a == "-c" || a == "--confirm":
+			f.Confirm = true
+		case a == "-v" || a == "--verbose":
+			f.Verbose = true
+		case a == "-p" && i+1 < len(args):
+			i++
+			f.Path = args[i]
+		case strings.HasPrefix(a, "--path="):
+			f.Path = strings.TrimPrefix(a, "--path=")
+		case a == "--path" && i+1 < len(args):
+			i++
+			f.Path = args[i]
+		case strings.HasPrefix(a, "-"):
+			return f, "", fmt.Errorf("unknown flag %q — try `gitagger remove --help`", a)
+		default:
+			if tag != "" {
+				return f, "", fmt.Errorf("pick just one tag — try `gitagger remove --help`")
+			}
+			tag = a
+		}
+	}
+	return f, tag, nil
+}

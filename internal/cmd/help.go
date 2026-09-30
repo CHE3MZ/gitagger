@@ -66,6 +66,8 @@ var commands = []commandRow{
 	{"init", "       [--flags]       Generates a .gitagger.yml file"},
 	{"check", "      [--flags]       Checks if your .gitagger.yml config is valid"},
 	{"list", "       [--flags]       Shows all tags"},
+	{"view", "       [--flags]       Show details for one tag"},
+	{"remove", "     [--flags]       Remove a tag locally and on the remote"},
 	{"help", "       [--flags]       Print this help text"},
 	{"handbook", "   [--flags]       Show the .gitagger.yml handbook"},
 	{"doctor", "     [--flags]       Audit local vs remote tag health status"},
@@ -186,6 +188,27 @@ var commandHelp = map[string]cmdHelp{
 			"-h --help        Print the help text for a command.",
 		},
 	},
+	"view": {
+		"Show details for one tag.",
+		"view <tag> [-v]",
+		[]string{"gitagger view v1.2.3"},
+		[]string{
+			"-v --verbose     Also show the remote URL.",
+			"-p --path <dir>  Operate in another directory.",
+			"-h --help        Print the help text for a command.",
+		},
+	},
+	"remove": {
+		"Remove a tag locally and on the remote.",
+		"remove <tag> [-c]",
+		[]string{"gitagger remove v1.2.3", "gitagger remove v1.2.3 --confirm"},
+		[]string{
+			"-c --confirm     Remove without asking for confirmation.",
+			"-v --verbose     Also show the remote URL.",
+			"-p --path <dir>  Operate in another directory.",
+			"-h --help        Print the help text for a command.",
+		},
+	},
 	"help": {
 		"Print this help text.",
 		"help [command]",
@@ -247,7 +270,7 @@ var commandHelp = map[string]cmdHelp{
 }
 
 // KnownCommands lists every command for `gitagger help [command]`.
-var KnownCommands = []string{"init", "check", "list", "ls", "help", "handbook", "doctor", "remote", "workflow", "version", "patch", "minor", "major"}
+var KnownCommands = []string{"init", "check", "list", "ls", "view", "remove", "help", "handbook", "doctor", "remote", "workflow", "version", "patch", "minor", "major"}
 
 // IsCommand reports whether name is a known command.
 func IsCommand(name string) bool {
