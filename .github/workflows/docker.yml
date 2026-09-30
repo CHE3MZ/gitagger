@@ -1,0 +1,29 @@
+name: Docker
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  docker:
+    name: build + container tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - name: lint Dockerfile
+        run: docker run --rm -v "$PWD:/work" -w /work hadolint/hadolint:v2.12.0 Dockerfile
+      - name: build image (amd64, tested below)
+        run: docker buildx build --platform linux/amd64 -t gitagger:test --load .
+      - name: prove arm64 builds
+        run: docker buildx build --platform linux/arm64 .
+      - name: container tests (logs kept)
+        run: sh scripts/docker-test.sh gitagger:test
+      - name: upload docker logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-test-logs
+          path: logs/docker-test.txt

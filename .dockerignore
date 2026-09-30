@@ -1,0 +1,5 @@
+# Keep the build context small: the binary builds from Go sources only.
+.git
+build
+dist
+logs
