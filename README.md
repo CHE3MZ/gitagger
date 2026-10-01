@@ -41,6 +41,8 @@ You can also grab a ready-made binary from the [releases page](https://github.co
 - uses: CHE3MZ/gitagger@v1
 ```
 
+[![Marketplace](https://img.shields.io/badge/Marketplace-181717?style=social&logo=github)](https://github.com/marketplace/actions/gitagger)
+
 ### ➙ Docker
 
 <img src="assets/installation-methods/docker.png" alt="install-docker" width="176" />
