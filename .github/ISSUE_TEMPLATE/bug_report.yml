@@ -1,0 +1,68 @@
+name: Bug report
+description: Something broken? Tell us what happened.
+title: "[bug]: "
+labels: ["bug"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please check the existing issues first — yours might already be known.
+        Paste terminal output with `NO_COLOR=1` (e.g. `NO_COLOR=1 gitagger check -v`) so logs stay readable.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you run, and what went wrong?
+      placeholder: |
+        Ran `gitagger minor` in a repo with two tags, expected v1.3.0, got an error instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps, starting from an empty repo if possible.
+      placeholder: |
+        1. git init, one commit
+        2. git tag v1.2.3
+        3. gitagger minor
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+      description: What should have happened, and what happened instead (exact output helps).
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: gitagger version
+      description: Output of `gitagger version`.
+      placeholder: gitagger v1.0.11
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: OS
+      options:
+        - Linux
+        - macOS
+        - Windows
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: Config
+      description: Contents of `.gitagger.yml` if you have one. Redact any secrets in hooks first.
+      render: yaml
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Relevant output (run with NO_COLOR=1 for clean text).
+      render: shell

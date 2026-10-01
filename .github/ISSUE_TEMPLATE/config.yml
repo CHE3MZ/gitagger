@@ -1,0 +1,3 @@
+# Issue template chooser. Free-form issues stay enabled for anything
+# that fits neither form — questions, discussions, vague ideas.
+blank_issues_enabled: true
