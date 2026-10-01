@@ -1,0 +1,53 @@
+name: Build
+
+# Cross-compile every release platform on every push so a
+# Windows/macOS-only breakage fails here, not at release time.
+# Binaries are kept as artifacts (same flags as scripts/build-*).
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: build (${{ matrix.goos }}/${{ matrix.goarch }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            suffix: ""
+          - goos: linux
+            goarch: arm64
+            suffix: ""
+          - goos: windows
+            goarch: amd64
+            suffix: .exe
+          - goos: windows
+            goarch: arm64
+            suffix: .exe
+          - goos: darwin
+            goarch: amd64
+            suffix: ""
+          - goos: darwin
+            goarch: arm64
+            suffix: ""
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: build
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 0
+        run: go build -trimpath -o "build/gitagger-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.suffix }}" ./cmd/gitagger
+      - name: upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitagger-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: build/gitagger-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.suffix }}
