@@ -1,6 +1,10 @@
-*.DS_Store
-/gitagger.exe
-/gitagger
 logs/
 dist/
 build/
+
+.vscode/
+.idea/
+.env
+
+*.exe
+*.DS_Store
