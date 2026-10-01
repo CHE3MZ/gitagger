@@ -1,0 +1,36 @@
+# Dependabot: monthly, grouped, one quiet PR per ecosystem at most.
+# Titles use the repo's `chore:` prefix so the PR-title check stays green.
+# Note: the hadolint pin inside docker.yml is a run: line, which the
+# docker ecosystem does not scan — that one stays manual.
+version: 2
+updates:
+  - package-ecosystem: gomod
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: chore
+    groups:
+      gomod-deps:
+        patterns:
+          - "*"
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: chore
+    groups:
+      actions:
+        patterns:
+          - "*"
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: chore
+    groups:
+      docker:
+        patterns:
+          - "*"

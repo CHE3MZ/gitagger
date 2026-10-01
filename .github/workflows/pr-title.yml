@@ -1,0 +1,35 @@
+name: PR title
+
+# Conventional titles only (see CONTRIBUTING.md). PRs only — there is no
+# dispatch here on purpose: with no PR there is nothing to validate.
+# pull_request_target (not pull_request) so forks are checked too.
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+
+jobs:
+  lint:
+    name: conventional title
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    steps:
+      - uses: amannn/action-semantic-pull-request@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # Repo convention (tweak: is ours, the rest are standard).
+          types: |
+            feat
+            fix
+            tweak
+            chore
+            docs
+            test
+            refactor
+          requireScope: false
