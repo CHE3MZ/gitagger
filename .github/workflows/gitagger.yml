@@ -35,6 +35,21 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - uses: CHE3MZ/gitagger@v1
+      - id: gitagger
+        uses: CHE3MZ/gitagger@v1
         with:
           args: ${{ inputs.bump }}
+    outputs:
+      tag: ${{ steps.gitagger.outputs.tag }}
+
+  publish:
+    needs: tag
+    if: needs.tag.outputs.tag != ''
+    uses: ./.github/workflows/ghcr-docker.yml
+    with:
+      tag: ${{ needs.tag.outputs.tag }}
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
