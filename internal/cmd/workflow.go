@@ -104,6 +104,16 @@ const ghWorkflow = `name: Gitagger
 
 on:
   workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Tag bump type'
+        required: false
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
 
 jobs:
   tag:
@@ -121,9 +131,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - uses: CHE3MZ/gitagger@v1
-        # with:
-        #   args: minor
-        #   version: vN.N.N
+        with:
+          args: ${{ inputs.bump }}
 `
 
 const jenkinsWorkflow = `pipeline {
