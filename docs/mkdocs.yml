@@ -21,6 +21,8 @@ nav:
   - Help:
     - FAQ & troubleshooting: help/faq.md
     - Contributing: help/contributing.md
+  - Legal:
+    - Licensing: legal/LICENSE.md
 
 theme:
   name: mkdocs
