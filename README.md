@@ -15,6 +15,23 @@ Just [Install](#installation) it and run `gitagger` and it will integrate with y
 
 ### Full documentation [**here!**](https://che3mz.github.io/gitagger/)
 
+## Features
+
+### ➙ Cross Platform
+<img src="assets/features/platforms.png" alt="features-platforms" width="176" />
+
+Gitagger is available on Windows, MacOS and Linux!
+
+### ➙ Hooks
+<img src="assets/features/hooks.png" alt="features-hooks" width="176" />
+
+You can make gitagger run basic hooks via the .gitagger.yml file! you can check out this projects own config and usage of hooks [here!](.gitagger.yml)
+
+### ➙ Integrations
+<img src="assets/features/integrations.png" alt="features-integrations" width="176" />
+
+Gitagger has native integrations for GitHub Actions, Docker and Jenkins!
+
 ## Installation
 
 ### ➙ Install with Go 
