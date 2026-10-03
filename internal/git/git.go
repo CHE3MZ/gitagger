@@ -186,6 +186,51 @@ func DeleteTag(dir, tag string) error {
 	return err
 }
 
+// Clone copies a repo to a new directory (separate .git, safe to delete).
+func Clone(src, dst string) error {
+	_, err := run("", 120*time.Second, "clone", "-q", src, dst)
+	return err
+}
+
+// RemoteNames lists configured remote names (empty when none).
+func RemoteNames(dir string) ([]string, error) {
+	out, err := runDefault(dir, "remote")
+	if err != nil {
+		return nil, err
+	}
+	var names []string
+	for _, l := range strings.Split(out, "\n") {
+		if n := strings.TrimSpace(l); n != "" {
+			names = append(names, n)
+		}
+	}
+	return names, nil
+}
+
+// RemoveRemote deletes a remote by name.
+func RemoveRemote(dir, name string) error {
+	_, err := runDefault(dir, "remote", "remove", name)
+	return err
+}
+
+// SetIdentity sets repo-local author identity (sandbox commits).
+func SetIdentity(dir, email, name string) error {
+	if _, err := runDefault(dir, "config", "user.email", email); err != nil {
+		return err
+	}
+	if _, err := runDefault(dir, "config", "user.name", name); err != nil {
+		return err
+	}
+	_, err := runDefault(dir, "config", "commit.gpgsign", "false")
+	return err
+}
+
+// CommitEmpty makes an empty commit (probe commit for sandbox runs).
+func CommitEmpty(dir, msg string) error {
+	_, err := runDefault(dir, "commit", "--allow-empty", "-qm", msg)
+	return err
+}
+
 // DeleteRemoteTag removes a tag from the remote (push --delete).
 func DeleteRemoteTag(dir, remote, tag string) error {
 	_, err := run(dir, 60*time.Second, "push", "--delete", remote, tag)

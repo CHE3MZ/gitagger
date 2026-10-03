@@ -33,6 +33,8 @@ func runCLI(args []string) error {
 			return cmdView(args[1:])
 		case "remove", "rm":
 			return cmdRemove(args[1:])
+		case "test":
+			return cmdTest(args[1:])
 		case "help":
 			return cmdHelp(args[1:])
 		case "handbook":
@@ -304,4 +306,22 @@ func cmdRemove(args []string) error {
 		return err
 	}
 	return icmd.RunRemove(dir, tag, f.Confirm, f.NoRemote, f.Verbose)
+}
+
+func cmdTest(args []string) error {
+	f, err := icmd.ParseTestArgs(args)
+	if err != nil {
+		return icmd.BadArgs("%s", err.Error())
+	}
+	if f.Help {
+		icmd.CommandHelp("test")
+		return nil
+	}
+	cwd, _ := os.Getwd()
+	dir, err := icmd.ResolveDir(cwd, f.Path)
+	if err != nil {
+		return err
+	}
+	_, err = icmd.RunTest(dir, f.Keep, f.Verbose)
+	return err
 }

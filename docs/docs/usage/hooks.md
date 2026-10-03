@@ -33,6 +33,7 @@ Every hook gets:
 | `GITAGGER_PREV` | The previous tag (empty on first tag) |
 | `GITAGGER_REMOTE` | The push remote |
 | `GITAGGER_PUSHED` | `true`/`false` |
+| `GITAGGER_DRY_RUN` | `true` inside `gitagger test`, `false` otherwise |
 | `GITAGGER_EVENT` | The lifecycle event |
 | `GITAGGER_ARGUMENT` | Comma-joined `-a` values |
 

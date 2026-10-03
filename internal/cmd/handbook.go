@@ -119,7 +119,7 @@ func PrintHandbook() {
 	hbDesc("argument: <name>. Block runs only with gitagger -a <name>.")
 	hbDesc("argument: none runs only when no arguments are given.")
 	hbDesc("argument: any runs only when any argument is given.")
-	hbDesc("Hooks get GITAGGER_TAG, GITAGGER_PREV, GITAGGER_REMOTE, GITAGGER_PUSHED, GITAGGER_EVENT, GITAGGER_ARGUMENT.")
+	hbDesc("Hooks get GITAGGER_TAG, GITAGGER_PREV, GITAGGER_REMOTE, GITAGGER_PUSHED, GITAGGER_DRY_RUN, GITAGGER_EVENT, GITAGGER_ARGUMENT.")
 
 	hbHeader("NOTES")
 	fmt.Println(style.Gray("     Config files: ./.gitagger.yml, ./.gitagger.yaml, ./.gitagger (first found wins)."))

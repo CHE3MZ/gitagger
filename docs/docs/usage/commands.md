@@ -39,6 +39,12 @@ Common flags: `--pre rc|beta|build|nightly`, `--format auto|triple|double|single
 | `remove <tag> -c` | Remove without asking |
 | `remove <tag> -n` | Remove only the local tag, keep the remote one |
 
+## Testing
+
+| Command | What it does |
+|---|---|
+| `test [--keep]` | Clone to a temp sandbox (remotes stripped), run the full tag flow with hooks, print results, delete the sandbox |
+
 ## Setup
 
 | Command | What it does |

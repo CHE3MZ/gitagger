@@ -30,6 +30,7 @@ type Options struct {
 	Verbose      bool
 	Hooks        config.Hooks
 	Arguments    []string
+	TestMode     bool // sandbox test run: hooks see GITAGGER_DRY_RUN=true
 }
 
 // FromConfig applies flag overrides onto loaded config.

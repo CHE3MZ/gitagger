@@ -1,0 +1,58 @@
+name: Test command
+
+# Exercises `gitagger test` end to end on every OS: sandbox tags get
+# created in a temp clone while the real repo must stay untouched.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  sandbox:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Build sandbox repo
+        shell: bash
+        run: |
+          rm -rf sandbox
+          mkdir -p sandbox
+          cd sandbox
+          git init -q
+          git config user.email "ci@example.com"
+          git config user.name "ci"
+          git config commit.gpgsign false
+          echo hi > f.txt
+          git add .
+          git commit -qm first
+          git tag v1.0.0
+          printf 'push: false\non:\n  success:\n    - run: echo hi > sandbox-marker\n' > .gitagger.yml
+          git add .gitagger.yml
+          git commit -qm config
+      - name: Build gitagger
+        shell: bash
+        run: |
+          exe=""
+          if [ "$RUNNER_OS" = "Windows" ]; then exe=".exe"; fi
+          go build -trimpath -o "gt$exe" ./cmd/gitagger
+      - name: Run gitagger test
+        shell: bash
+        run: |
+          exe=""
+          if [ "$RUNNER_OS" = "Windows" ]; then exe=".exe"; fi
+          ./gt$exe test -p sandbox
+      - name: Assert repo untouched
+        shell: bash
+        run: |
+          [ "$(git -C sandbox tag --list)" = "v1.0.0" ] || { echo "real repo tags changed:"; git -C sandbox tag --list; exit 1; }
+          [ ! -f sandbox/sandbox-marker ] || { echo "hook marker leaked into the real repo"; exit 1; }
+          echo "real repo untouched, sandbox cleaned up"

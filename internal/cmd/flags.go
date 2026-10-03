@@ -254,3 +254,39 @@ func ParseRemoveArgs(args []string) (RemoveFlags, string, error) {
 	}
 	return f, tag, nil
 }
+
+// TestFlags for `gitagger test`.
+type TestFlags struct {
+	Keep    bool
+	Verbose bool
+	Help    bool
+	Path    string
+}
+
+// ParseTestArgs parses -k/--keep, -v/--verbose and -p/--path.
+// Test takes no positionals: anything else is an error.
+func ParseTestArgs(args []string) (TestFlags, error) {
+	var f TestFlags
+	for i := 0; i < len(args); i++ {
+		a := args[i]
+		switch {
+		case a == "-h" || a == "--help":
+			f.Help = true
+		case a == "-k" || a == "--keep":
+			f.Keep = true
+		case a == "-v" || a == "--verbose":
+			f.Verbose = true
+		case a == "-p" && i+1 < len(args):
+			i++
+			f.Path = args[i]
+		case strings.HasPrefix(a, "--path="):
+			f.Path = strings.TrimPrefix(a, "--path=")
+		case a == "--path" && i+1 < len(args):
+			i++
+			f.Path = args[i]
+		default:
+			return f, fmt.Errorf("unknown flag %q — try `gitagger test --help`", a)
+		}
+	}
+	return f, nil
+}

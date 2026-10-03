@@ -92,11 +92,16 @@ func hookEnv(o run.Options, plan run.Plan, pushed bool) map[string]string {
 	if pushed {
 		pushedStr = "true"
 	}
+	dryStr := "false"
+	if o.TestMode {
+		dryStr = "true"
+	}
 	return map[string]string{
 		"GITAGGER_TAG":      plan.Next,
 		"GITAGGER_PREV":     plan.Prev,
 		"GITAGGER_REMOTE":   o.Remote,
 		"GITAGGER_PUSHED":   pushedStr,
+		"GITAGGER_DRY_RUN":  dryStr,
 		"GITAGGER_ARGUMENT": strings.Join(o.Arguments, ","),
 	}
 }
