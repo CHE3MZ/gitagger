@@ -68,20 +68,26 @@ You can also grab a ready-made binary from the [releases page](https://github.co
 <img src="assets/installation-methods/docker.png" alt="install-docker" width="176" />
 
 ```sh
-docker build -t gitagger .
-docker run --rm -v "$PWD:/repo" -w /repo gitagger [args]
+docker pull ghcr.io/che3mz/gitagger:latest
 ```
 
 ### ➙ Compile from source
 
 <img src="assets/installation-methods/source.png" alt="install-source" width="176" />
 
-Requires [Go 1.26](https://go.dev/dl/) or newer:
+#### Requires [Go 1.26](https://go.dev/dl/) or newer:
 
 ```sh
 git clone https://github.com/CHE3MZ/gitagger.git
 cd gitagger
 go build -o gitagger ./cmd/gitagger
+```
+
+#### Building the Container Image:
+
+```sh
+docker build -t gitagger .
+docker run --rm -v "$PWD:/repo" -w /repo gitagger [args]
 ```
 
 ## Usage
