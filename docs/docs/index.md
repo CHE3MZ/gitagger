@@ -16,7 +16,7 @@ gitagger --dry-run       # peek first, change nothing
 - **Follows your convention.** Triple (`v1.2.3`), double (`v1.2`), single (`v7`), date (`v2026.10.04`), even `master-<sha>` styles — detected from your history by majority vote. No flags needed for the common case.
 - **Safe by default.** Refuses to double-tag HEAD, checks the remote for collisions before pushing (with `doctor`), stays graceful offline, never force-pushes unless you say `-f`.
 - **Hooks included.** Run shell commands on `start`, `success`, `failure`, and `finish` — releases, notifications, whatever your flow needs.
-- **One binary, everywhere.** Linux, macOS, Windows, Docker, and a GitHub Action. No runtime, no dependencies.
+- **One binary, everywhere.** Linux, macOS, Windows, Docker, and a GitHub Actions. No runtime, no dependencies.
 
 ## Start here
 

@@ -1,4 +1,4 @@
-# GitHub Action
+# GitHub Actions
 
 Tag from CI with the marketplace action:
 

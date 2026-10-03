@@ -43,7 +43,7 @@ docker run --rm -v "$PWD:/repo" -w /repo gitagger [args]
 
 Match host file ownership with `--user "$(id -u):$(id -g)"`. The mounted directory must be readable by the container user.
 
-## GitHub Action
+## GitHub Actions
 
 <img src="../assets/installation-methods/actions.png" alt="GitHub Actions" width="64" />
 
@@ -51,7 +51,7 @@ Match host file ownership with `--user "$(id -u):$(id -g)"`. The mounted directo
 - uses: CHE3MZ/gitagger@v1
 ```
 
-See the [GitHub Action guide](../automation/github-action.md) for inputs (`args`, `version`, `working-directory`) and details.
+See the [GitHub Actions guide](../automation/github-action.md) for inputs (`args`, `version`, `working-directory`) and details.
 
 ## Next step
 
