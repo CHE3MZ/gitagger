@@ -71,6 +71,8 @@ You can also grab a ready-made binary from the [releases page](https://github.co
 docker pull ghcr.io/che3mz/gitagger:latest
 ```
 
+[![Github Packages](https://img.shields.io/badge/Packages_Registry-181717?style=social&logo=github)](https://github.com/che3mz/gitagger/pkgs/container/gitagger/)
+
 ### ➙ Compile from source
 
 <img src="assets/installation-methods/source.png" alt="install-source" width="176" />
