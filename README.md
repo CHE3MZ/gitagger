@@ -82,13 +82,13 @@ Full docs are coming later — for now, `gitagger help <command>` tells you what
 
 ## Development
 
-### Contributing
+#### Contributing
 If you'd like to contribute to the project you can check out the contribution guide [**here!**](CONTRIBUTING.md)
 
-### TODO
+#### TODO
 The TODO tasks for this project are defined in the TODO.md file [**here!**](TODO.md)
 
-### State
+#### State
 Gitagger is still pretty early in development and not super polished, but it'll get better with time.
 
 ## License
