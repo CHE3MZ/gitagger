@@ -1,0 +1,68 @@
+name: Platforms
+
+# Full Go suite plus a real per-command CLI smoke on every OS, so a
+# Windows- or macOS-only break fails here instead of in users' hands.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  platforms:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: full test suite
+        shell: bash
+        run: |
+          mkdir -p logs
+          go vet ./...
+          go test ./... -count=1 2>&1 | tee "logs/go-test-${{ matrix.os }}.txt"
+          test "${PIPESTATUS[0]}" -eq 0
+      - name: CLI smoke (every command)
+        shell: bash
+        run: |
+          exe=""
+          if [ "$RUNNER_OS" = "Windows" ]; then exe=".exe"; fi
+          go build -trimpath -o "gt$exe" ./cmd/gitagger
+          rm -rf smoke && mkdir smoke && cd smoke
+          git init -q
+          git config user.email "ci@example.com"
+          git config user.name "ci"
+          git config commit.gpgsign false
+          echo hi > f.txt
+          git add . && git commit -qm first
+          ../gt$exe version
+          ../gt$exe help view
+          ../gt$exe rm --help
+          ../gt$exe --dry-run
+          ../gt$exe --no-push -m hello
+          ../gt$exe list | grep -qx "v1.0.0"
+          ../gt$exe view v1.0.0
+          ../gt$exe init
+          ../gt$exe check -v
+          ../gt$exe doctor
+          ../gt$exe handbook > /dev/null
+          ../gt$exe workflow init gh
+          [ -f .github/workflows/gitagger.yml ] || exit 1
+          ../gt$exe workflow init jenkins
+          [ -f .jenkins/gitagger.jenkinsfile ] || exit 1
+          if ../gt$exe remote --show; then echo "remote without remote should fail"; exit 1; fi
+          if ../gt$exe hlp; then echo "typo should fail"; exit 1; fi
+          if ../gt$exe view v9.9.9; then echo "missing tag should fail"; exit 1; fi
+          ../gt$exe test
+          ../gt$exe remove v1.0.0 -c
+          [ -z "$(git tag --list)" ] || { echo "tag not removed"; exit 1; }
+      - name: upload platform logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: platform-logs-${{ matrix.os }}
+          path: logs/
