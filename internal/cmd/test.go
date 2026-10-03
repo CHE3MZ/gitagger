@@ -25,9 +25,9 @@ func RunTest(dir string, keep, verbose bool) (string, error) {
 	if err != nil {
 		return "", Generic("couldn't make a sandbox (%v)", err)
 	}
-	// Best-effort cleanup on every path except an explicit keep.
+	cleaned := false
 	defer func() {
-		if keep {
+		if keep || cleaned {
 			return
 		}
 		if err := os.RemoveAll(tmp); err != nil {
@@ -35,7 +35,7 @@ func RunTest(dir string, keep, verbose bool) (string, error) {
 		}
 	}()
 	fmt.Println(style.Dim("sandbox: " + tmp))
-	fmt.Println(style.Warn("hooks run for real in the sandbox (GITAGGER_DRY_RUN=true)"))
+	fmt.Println(style.Warn("hooks run for real in the sandbox, this machine is about to execute the hooks"))
 	// Clones carry committed files only: uncommitted changes (including
 	// the config) stay behind. Say so instead of testing stale state.
 	if st, err := git.StatusPorcelain(dir); err == nil && strings.TrimSpace(st) != "" {
@@ -73,12 +73,23 @@ func RunTest(dir string, keep, verbose bool) (string, error) {
 	}
 	o.Push = false
 	o.TestMode = true
-	if runErr := RunTag(o); runErr != nil {
-		return "", runErr
-	}
+	fmt.Println(style.Bold("logs (from sandbox run):"))
+	runErr := RunTag(o)
+	out := ""
 	if keep {
 		fmt.Println(style.Dim("kept sandbox at " + tmp))
-		return tmp, nil
+		out = tmp
+	} else {
+		fmt.Println(style.Bold("deleting sandbox clone..."))
+		if err := os.RemoveAll(tmp); err != nil {
+			fmt.Println(style.Warn(fmt.Sprintf("couldn't delete sandbox %s (%v)", tmp, err)))
+		}
+		cleaned = true
 	}
-	return "", nil
+	if runErr != nil {
+		fmt.Println(style.Bold(style.Red("Failure! Test run failed.")))
+		return out, runErr
+	}
+	fmt.Println(style.Bold(style.Green("Done! Test ran successfully.")))
+	return out, nil
 }
