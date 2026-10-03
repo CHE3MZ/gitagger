@@ -44,7 +44,7 @@ jobs:
           ../gt$exe rm --help
           ../gt$exe --dry-run
           ../gt$exe --no-push -m hello
-          ../gt$exe list | grep -qx "v1.0.0"
+          NO_COLOR=1 ../gt$exe list | grep -qx "v1.0.0"
           ../gt$exe view v1.0.0
           ../gt$exe init
           ../gt$exe check -v
