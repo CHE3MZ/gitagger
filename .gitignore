@@ -1,6 +1,7 @@
 logs/
 dist/
 build/
+docs/site/
 
 .vscode/
 .idea/

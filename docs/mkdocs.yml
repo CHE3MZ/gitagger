@@ -1,0 +1,44 @@
+site_name: Gitagger
+site_description: Automate Git Tags with one command!
+site_author: CHE3MZ
+site_url: https://che3mz.github.io/gitagger/
+repo_url: https://github.com/CHE3MZ/gitagger
+
+theme:
+  name: mkdocs
+  custom_dir: theme
+  language: en
+  logo: assets/icon.png
+  favicon: assets/icon.png
+  icon: {}
+  font:
+    text: Roboto
+    code: Roboto Mono
+  static_templates:
+    - 404.html
+  palette:
+    - scheme: default
+      primary: red
+      accent: red
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: red
+      accent: red
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - footnotes
