@@ -4,6 +4,24 @@ site_author: CHE3MZ
 site_url: https://che3mz.github.io/gitagger/
 repo_url: https://github.com/CHE3MZ/gitagger
 
+nav:
+  - Home: index.md
+  - Getting started:
+    - Installation: getting-started/installation.md
+    - Your first tag: getting-started/first-tag.md
+  - Usage:
+    - Commands: usage/commands.md
+    - Tagging: usage/tagging.md
+    - Configuration: usage/configuration.md
+    - Hooks: usage/hooks.md
+  - Automation:
+    - GitHub Action: automation/github-action.md
+    - Generated workflows: automation/workflows.md
+    - Docker: automation/docker.md
+  - Help:
+    - FAQ & troubleshooting: help/faq.md
+    - Contributing: help/contributing.md
+
 theme:
   name: mkdocs
   custom_dir: theme
