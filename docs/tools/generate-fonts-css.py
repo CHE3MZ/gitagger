@@ -1,9 +1,17 @@
 #!/usr/bin/env python3
-"""Regenerate docs/theme/assets/stylesheets/fonts.css from font files.
+"""Regenerate local-font assets from font files.
 
-Scans docs/theme/assets/fonts/ for .ttf/.otf/.woff/.woff2 and emits one
-@font-face block per file, so every font dropped in that folder becomes
-usable via docs/mkdocs.yml:
+Scans docs/theme/assets/fonts/ for .ttf/.otf/.woff/.woff2 and emits:
+
+- docs/theme/assets/stylesheets/fonts.css — one @font-face block per file
+  (small fonts are inlined as base64 data URIs so first paint already
+  uses the real glyphs — no swap, no rewrap, no scrollbar flicker)
+- docs/theme/partials/fonts-preload.html — <link rel="preload"> per file
+  that stayed on disk (inlined ones need none)
+- syncs the ``local_fonts`` list in docs/theme/main.html so the theme
+  skips the (dead) Google Fonts request for bundled families
+
+Every font dropped in that folder then becomes usable via docs/mkdocs.yml:
 
     theme:
       font:
@@ -19,15 +27,31 @@ No third-party dependencies — only the stdlib.
 
 from __future__ import annotations
 
+import base64
+import json
+import re
 import struct
 import sys
 from pathlib import Path
+
+# Fonts at or below this size are inlined into fonts.css as base64 data URIs,
+# so the glyphs arrive with the render-blocking stylesheet and first paint
+# already uses the real font: no swap, no line-rewrap, no scrollbar flicker
+# on tab navigation. Larger fonts stay as files + <link rel="preload">.
+INLINE_LIMIT = 102_400
 
 FORMAT_BY_SUFFIX = {
     ".ttf": "truetype",
     ".otf": "opentype",
     ".woff": "woff",
     ".woff2": "woff2",
+}
+
+MIME_BY_SUFFIX = {
+    ".ttf": "font/ttf",
+    ".otf": "font/otf",
+    ".woff": "font/woff",
+    ".woff2": "font/woff2",
 }
 
 # Filename hints -> (weight, style). Checked case-insensitively.
@@ -159,8 +183,8 @@ def _guess_from_filename(stem: str) -> tuple[int, str]:
     return weight, style
 
 
-def font_face(font_path: Path) -> tuple[str, str]:
-    """Return (family, @font-face block) for one font file."""
+def font_face(font_path: Path) -> tuple[str, str, bool]:
+    """Return (family, @font-face block, inlined) for one font file."""
     suffix = font_path.suffix.lower()
     css_format = FORMAT_BY_SUFFIX[suffix]
     data = font_path.read_bytes()
@@ -186,24 +210,63 @@ def font_face(font_path: Path) -> tuple[str, str]:
     if not family:
         family = _fallback_family(font_path.stem)
 
+    if len(data) <= INLINE_LIMIT:
+        mime = MIME_BY_SUFFIX[suffix]
+        blob = base64.b64encode(data).decode("ascii")
+        src = f'url("data:{mime};base64,{blob}") format("{css_format}")'
+        inlined = True
+    else:
+        src = f'url("../fonts/{font_path.name}") format("{css_format}")'
+        inlined = False
+
     block = (
         "@font-face {\n"
         f'  font-family: "{family}";\n'
-        f'  src: url("../fonts/{font_path.name}") format("{css_format}");\n'
+        f"  src: {src};\n"
         f"  font-weight: {weight};\n"
         f"  font-style: {style};\n"
-        "  font-display: swap;\n"
+        # block (not swap): paint nothing until the font is ready
+        # instead of flashing the fallback font on every navigation.
+        # Inlined fonts are ready with the stylesheet, so this is instant.
+        "  font-display: block;\n"
         "}"
     )
-    return family, block
+    return family, block, inlined
+
+
+def sync_main_html(theme_dir: Path, families: list[str]) -> None:
+    """Rewrite the ``local_fonts`` list in theme main.html (best effort)."""
+    main_html = theme_dir / "main.html"
+    if not main_html.is_file():
+        return
+    wanted = json.dumps(sorted(set(families)), ensure_ascii=False)
+    text = main_html.read_text(encoding="utf-8")
+    updated, count = re.subn(
+        r"{%\s*set\s+local_fonts\s*=\s*\[.*?\]\s*%}",
+        "{%% set local_fonts = %s %%}" % wanted,
+        text,
+        count=1,
+        flags=re.DOTALL,
+    )
+    if count:
+        main_html.write_text(updated, encoding="utf-8")
+        print(f"synced local_fonts in {main_html}: {wanted}")
+    else:
+        print(
+            f"note: no local_fonts list found in {main_html}, "
+            "Google Fonts requests are not skipped for local families",
+            file=sys.stderr,
+        )
 
 
 def main() -> int:
     here = Path(__file__).resolve()
     # .../docs/tools/generate-fonts-css.py -> .../docs/
     docs_dir = here.parent.parent
-    fonts_dir = docs_dir / "theme" / "assets" / "fonts"
-    css_path = docs_dir / "theme" / "assets" / "stylesheets" / "fonts.css"
+    theme_dir = docs_dir / "theme"
+    fonts_dir = theme_dir / "assets" / "fonts"
+    css_path = theme_dir / "assets" / "stylesheets" / "fonts.css"
+    preload_path = theme_dir / "partials" / "fonts-preload.html"
 
     if not fonts_dir.is_dir():
         print(f"fonts dir not found: {fonts_dir}", file=sys.stderr)
@@ -220,14 +283,18 @@ def main() -> int:
 
     faces: list[str] = []
     families: list[str] = []
+    kept_files: list[Path] = []
+    inlined: list[bool] = []
     for path in files:
         try:
-            family, block = font_face(path)
+            family, block, inline = font_face(path)
         except OSError as exc:
             print(f"skip {path.name}: {exc}", file=sys.stderr)
             continue
         faces.append(block)
         families.append(family)
+        kept_files.append(path)
+        inlined.append(inline)
 
     example = families[0] if families else "Eager Naturalist"
     header = (
@@ -247,8 +314,31 @@ def main() -> int:
     css_path.write_text(header + "\n" + "\n\n".join(faces) + "\n", encoding="utf-8")
 
     print(f"wrote {css_path} ({len(faces)} font(s)):")
-    for path, family in zip(files, families):
-        print(f"  {path.name} -> \"{family}\"")
+    for path, family, inline in zip(kept_files, families, inlined):
+        how = "inlined" if inline else "file"
+        print(f"  {path.name} -> \"{family}\" ({how})")
+
+    # Preload hints for the fonts that stayed as files (inlined ones ride
+    # along with the stylesheet, so preloading them would double-fetch).
+    # This partial is included from main.html.
+    # NOTE: the {{ ... | url }} bits below are Jinja for MkDocs, not
+    # Python — they are written through verbatim.
+    lines = [
+        "{# Local font preloads — generated by docs/tools/generate-fonts-css.py, do not edit by hand. #}"
+    ]
+    for path, inline in zip(kept_files, inlined):
+        if inline:
+            continue
+        mime = MIME_BY_SUFFIX[path.suffix.lower()]
+        lines.append(
+            "<link rel=\"preload\" href=\"{{ 'assets/fonts/%s' | url }}\""
+            " as=\"font\" type=\"%s\" crossorigin>" % (path.name, mime)
+        )
+    preload_path.parent.mkdir(parents=True, exist_ok=True)
+    preload_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"wrote {preload_path} ({len(lines) - 1} preload(s))")
+
+    sync_main_html(theme_dir, families)
     return 0
 
 

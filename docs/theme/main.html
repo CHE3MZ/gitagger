@@ -1,8 +1,16 @@
 {#-
-  Theme override: load locally bundled fonts from assets/fonts/
-  on top of the default (Google) fonts. Any .ttf/.otf/.woff/.woff2
-  dropped in assets/fonts/ with a matching @font-face entry in
-  assets/stylesheets/fonts.css becomes usable via mkdocs.yml:
+  Theme override: serve fonts bundled in assets/fonts/ instead of
+  flashing the fallback font on every navigation.
+
+  - Preloads local font files (small ones are inlined into the CSS as
+    data URIs) so they arrive before first paint.
+  - Loads assets/stylesheets/fonts.css (@font-face, font-display: block).
+  - Skips the Google Fonts request for bundled families (it would 404
+    and only delay first paint); remote families still load from Google.
+
+  Workflow: drop .ttf/.otf/.woff/.woff2 in assets/fonts/, run
+  `python docs/tools/generate-fonts-css.py`, then reference the family
+  in mkdocs.yml:
 
     theme:
       font:
@@ -11,7 +19,43 @@
 -#}
 {% extends "base.html" %}
 
-{% block fonts %}
+{% block libs %}
   {{ super() }}
+  {# Apply JS-dependent state before first paint: without this, the search
+     bar/button stay hidden (.no-js rules) and sidebars render at the wrong
+     height until the deferred bundle runs, so elements visibly pop/shift
+     on every tab navigation. #}
+  <script>document.documentElement.classList.replace("no-js","js")</script>
+{% endblock %}
+
+{% block header %}
+  {{ super() }}
+  {# Check the stored palette radio and reveal its toggle label right away.
+     The deferred bundle repeats this, but doing it during parsing keeps
+     the theme toggle from popping in late on every navigation. #}
+  <script>(function(){try{var p=__md_get("__palette"),s=p&&p.color&&p.color.scheme,q=s?document.querySelector('input[name=__palette][data-md-color-scheme="'+s+'"]'):null,i=q||document.querySelector("#__palette_0");if(i){i.checked=true;var l=i.nextElementSibling;if(l&&l.tagName==="LABEL"){l.removeAttribute("hidden");}}}catch(e){}})();</script>
+{% endblock %}
+
+{% block fonts %}
+  {% include "partials/fonts-preload.html" ignore missing %}
   <link rel="stylesheet" href="{{ 'assets/stylesheets/fonts.css' | url }}">
+  {% if config.theme.font != false %}
+    {% set text = config.theme.font.text | d("Roboto", true) %}
+    {% set code = config.theme.font.code | d("Roboto Mono", true) %}
+    {# Managed by docs/tools/generate-fonts-css.py — do not edit by hand. #}
+    {% set local_fonts = ["Eager Naturalist"] %}
+    {% if text in local_fonts and code in local_fonts %}
+      <style>:root{--md-text-font:"{{ text }}";--md-code-font:"{{ code }}"}</style>
+    {% elif text in local_fonts %}
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family={{ code | replace(' ', '+') }}:400,400i,700,700i&display=fallback">
+      <style>:root{--md-text-font:"{{ text }}";--md-code-font:"{{ code }}"}</style>
+    {% elif code in local_fonts %}
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family={{ text | replace(' ', '+') }}:300,300i,400,400i,700,700i&display=fallback">
+      <style>:root{--md-text-font:"{{ text }}";--md-code-font:"{{ code }}"}</style>
+    {% else %}
+      {{ super() }}
+    {% endif %}
+  {% endif %}
 {% endblock %}

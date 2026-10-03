@@ -13,7 +13,7 @@ Just [Install](#installation) it and run `gitagger` and it will integrate with y
 
 ![demo](assets/demo.gif)
 
-### Full documentation is coming soon!
+### Full documentation [**here!**](https://che3mz.github.io/gitagger/)
 
 ## Installation
 
