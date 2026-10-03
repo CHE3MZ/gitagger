@@ -12,8 +12,8 @@ theme:
   favicon: assets/icon.png
   icon: {}
   font:
-    text: Roboto
-    code: Roboto Mono
+    text: Eager Naturalist
+    code: SF Mono
   static_templates:
     - 404.html
   palette:

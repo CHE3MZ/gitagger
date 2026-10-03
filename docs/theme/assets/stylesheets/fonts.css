@@ -1,0 +1,19 @@
+/* Local fonts bundled with the theme.
+ *
+ * Generated from docs/theme/assets/fonts/ — do not edit by hand.
+ * Re-run `python docs/tools/generate-fonts-css.py` after adding/removing
+ * font files. Then use the Family name in docs/mkdocs.yml:
+ *
+ *   theme:
+ *     font:
+ *       text: Eager Naturalist   # body font
+ *       code: Roboto Mono        # code font (or another local family)
+ */
+
+@font-face {
+  font-family: "Eager Naturalist";
+  src: url("../fonts/eager.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
