@@ -26,3 +26,7 @@ gitagger --dry-run       # peek first, change nothing
 - Something broken? [FAQ & troubleshooting](help/faq.md).
 
 ![demo](assets/demo.gif)
+
+## License
+
+You can check out the licensing for the project [**here!**](legal\LICENSE.md)
