@@ -3,7 +3,7 @@
 ## Section
 
 - [ ] add a proper demo gif and other readme related improvements.
-- [ ] add docker hub (or github container registry) release for the container.
+- [x] add github container registry (ghcr) releases.
 - [ ] add package manager releases for:
   - [ ] releases for apt.
   - [ ] releases for apk.
