@@ -2,6 +2,7 @@ logs/
 dist/
 build/
 docs/site/
+/test-proj/
 
 .vscode/
 .idea/
