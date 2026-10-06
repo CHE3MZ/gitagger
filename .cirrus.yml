@@ -1,0 +1,12 @@
+build_task:
+  persistent_worker: {}
+  script:
+    - scripts\build-windows.bat
+    - sh scripts\build-linux.sh
+    - sh scripts\build-macos.sh
+
+ops_task:
+  persistent_worker: {}
+  script:
+    - scripts\ops\go-bugcheck.sh
+    - scripts\ops\go-seccheck.sh
