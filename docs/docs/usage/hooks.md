@@ -1,6 +1,6 @@
 # Hooks
 
-Shell commands at lifecycle events: `start` runs first, `success` after tagging, `failure` on errors, `finish` always (both outcomes). Each event takes one block or a list of blocks.
+Shell commands at lifecycle events: `start` runs first, `success` after tagging (and before pushing — a failing success hook rolls the tag back and nothing is pushed), `failure` on errors, `finish` always (both outcomes). Each event takes one block or a list of blocks.
 
 ```yaml
 on:

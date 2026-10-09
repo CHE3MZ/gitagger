@@ -105,7 +105,7 @@ func PrintHandbook() {
 
 	hbHeader("HOOKS")
 	hbKey("on:")
-	hbDesc("Shell commands at lifecycle events: start runs first, success after tagging, failure on errors, finish always.")
+	hbDesc("Shell commands at lifecycle events: start runs first, success after tagging and before pushing, failure on errors, finish always.")
 	hbExample(
 		"on:",
 		"  failure:",

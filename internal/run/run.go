@@ -63,12 +63,13 @@ func FromConfig(dir string, cfg config.Resolved, o Options) Options {
 
 // Plan is the computed next tag.
 type Plan struct {
-	Prev     string
-	Next     string
-	Format   detect.Format
-	VPrefix  bool
-	Detected bool // true when format came from auto-detect
-	Existing map[string]bool
+	Prev      string
+	Next      string
+	Format    detect.Format
+	VPrefix   bool
+	Detected  bool // true when format came from auto-detect
+	Existing  map[string]bool
+	PrevRef   string // object Next already points at ("" when the tag is new)
 }
 
 // ComputePlan inspects tags and returns the next tag (no side effects).
@@ -140,7 +141,11 @@ func ComputePlan(o Options) (Plan, error) {
 	if err != nil {
 		return Plan{}, err
 	}
-	return Plan{Prev: prev, Next: nextTag, Format: format, VPrefix: vPrefix, Detected: detected, Existing: existing}, nil
+	var prevRef string
+	if existing[nextTag] {
+		prevRef = git.RefTarget(o.Dir, nextTag)
+	}
+	return Plan{Prev: prev, Next: nextTag, Format: format, VPrefix: vPrefix, Detected: detected, Existing: existing, PrevRef: prevRef}, nil
 }
 
 // PushOutcome is the remote safety sequence result.

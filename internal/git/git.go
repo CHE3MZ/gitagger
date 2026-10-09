@@ -237,6 +237,22 @@ func DeleteRemoteTag(dir, remote, tag string) error {
 	return err
 }
 
+// RefTarget returns the exact object a ref points at ("" when missing).
+// Unlike rev-list it does not peel: annotated tags yield the tag object.
+func RefTarget(dir, ref string) string {
+	out, err := runDefault(dir, "rev-parse", ref)
+	if err != nil {
+		return ""
+	}
+	return out
+}
+
+// UpdateRef points a ref at an object (rollback restores overwritten tags).
+func UpdateRef(dir, ref, sha string) error {
+	_, err := runDefault(dir, "update-ref", ref, sha)
+	return err
+}
+
 // TagInfo describes one local tag for `gitagger view`.
 type TagInfo struct {
 	Name    string // tag name as stored under refs/tags/

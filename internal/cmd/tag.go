@@ -65,9 +65,18 @@ func RunTag(o run.Options) error {
 	}
 	fmt.Printf("%s %s\n", style.Green("created tag"), style.BoldGreen(plan.Next))
 
+	// Success hooks gate the push: a tag whose hooks fail is incomplete,
+	// so it is rolled back and never pushed. (Push failures below still
+	// keep the local tag — offline tagging must survive a dead remote.)
+	if err := RunHooks(o.Dir, "success", o.Hooks.Success, hookEnv(o, plan, false), o.Verbose, os.Stdout, os.Stderr); err != nil {
+		serr := Generic("tag %s created but success hook failed (%v)", plan.Next, err)
+		rollbackTag(o, plan)
+		return runFailureHooks(o, plan, false, serr)
+	}
+
 	if !o.Push {
 		fmt.Println(style.Dim("kept locally (-n). push later with `git push " + o.Remote + " " + plan.Next + "`"))
-		return runDoneHooks(o, plan, false)
+		return runFinishHooks(o, plan, false)
 	}
 
 	outcome, err := run.EnsurePush(o, plan.Next)
@@ -83,7 +92,26 @@ func RunTag(o run.Options) error {
 	} else {
 		fmt.Println(style.Warn(outcome.Skipped))
 	}
-	return runDoneHooks(o, plan, outcome.Pushed)
+	return runFinishHooks(o, plan, outcome.Pushed)
+}
+
+// rollbackTag undoes a tag this run created after its success hooks
+// failed, so broken tags are never pushed or kept. When -f overwrote
+// an existing tag, the previous target is restored instead.
+func rollbackTag(o run.Options, plan run.Plan) {
+	if plan.PrevRef != "" {
+		if err := git.UpdateRef(o.Dir, "refs/tags/"+plan.Next, plan.PrevRef); err != nil {
+			fmt.Println(style.Warn(fmt.Sprintf("couldn't restore tag %s (%v)", plan.Next, err)))
+			return
+		}
+		fmt.Println(style.Dim(fmt.Sprintf("restored tag %s (rolled back)", plan.Next)))
+		return
+	}
+	if err := git.DeleteTag(o.Dir, plan.Next); err != nil {
+		fmt.Println(style.Warn(fmt.Sprintf("couldn't remove tag %s (%v)", plan.Next, err)))
+		return
+	}
+	fmt.Println(style.Dim(fmt.Sprintf("removed tag %s (rolled back)", plan.Next)))
 }
 
 // hookEnv builds hook environment for the current plan.
@@ -120,13 +148,10 @@ func runFailureHooks(o run.Options, plan run.Plan, pushed bool, err error) error
 	return err
 }
 
-// runDoneHooks runs success hooks, then finish hooks.
-// A failing success hook still runs failure hooks first (try/catch/finally).
-func runDoneHooks(o run.Options, plan run.Plan, pushed bool) error {
+// runFinishHooks runs finish hooks only (success already ran).
+// A failing finish hook is reported, never re-triggered.
+func runFinishHooks(o run.Options, plan run.Plan, pushed bool) error {
 	env := hookEnv(o, plan, pushed)
-	if err := RunHooks(o.Dir, "success", o.Hooks.Success, env, o.Verbose, os.Stdout, os.Stderr); err != nil {
-		return runFailureHooks(o, plan, pushed, Generic("tag %s created but success hook failed (%v)", plan.Next, err))
-	}
 	if err := RunHooks(o.Dir, "finish", o.Hooks.Finish, env, o.Verbose, os.Stdout, os.Stderr); err != nil {
 		return Generic("tag %s created but finish hook failed (%v)", plan.Next, err)
 	}
