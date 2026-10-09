@@ -1,6 +1,6 @@
 # Hooks
 
-Shell commands at lifecycle events: `start` runs first, `success` after tagging (and before pushing — a failing success hook rolls the tag back and nothing is pushed), `failure` on errors, `finish` always (both outcomes). Each event takes one block or a list of blocks.
+Shell commands at lifecycle events: `start` runs first, `success` after tagging and pushing, `failure` on errors, `finish` always (both outcomes). Each event takes one block or a list of blocks.
 
 ```yaml
 on:
@@ -39,7 +39,7 @@ Every hook gets:
 
 ## Failure semantics
 
-A failing `success` hook still runs the `failure` hooks first (try/catch/finally), then reports the original error. A failing `failure`/`finish` hook is reported, never re-triggered — hooks can't loop forever.
+A failing `success` hook still runs the `failure` hooks first (try/catch/finally), then reports the original error. The failed tag does not survive: it is removed locally, and a tag pushed by this run is removed from the remote too (an overwritten remote tag is restored instead). A failing `failure`/`finish` hook is reported, never re-triggered — hooks can't loop forever.
 
 !!! tip "Changelogs and releases"
     Hooks compose with outside tools: run your release script or changelog generator as a `success` hook (it gets `$GITAGGER_TAG` and friends) instead of asking gitagger to own changelogs.

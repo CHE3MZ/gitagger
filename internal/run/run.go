@@ -152,8 +152,9 @@ func ComputePlan(o Options) (Plan, error) {
 
 // PushOutcome is the remote safety sequence result.
 type PushOutcome struct {
-	Pushed  bool
-	Skipped string // human reason when not pushed
+	Pushed    bool
+	Skipped   string // human reason when not pushed
+	RemoteSHA string // object the tag pointed at remotely before pushing ("" when absent)
 }
 
 // EnsurePush runs the remote checks: configured? reachable? collision?
@@ -175,7 +176,7 @@ func EnsurePush(o Options, tag string) (PushOutcome, error) {
 	if err := git.PushTag(o.Dir, o.Remote, tag, o.Force || o.Unsafe); err != nil {
 		return PushOutcome{Pushed: false}, fmt.Errorf("push failed — tag %s kept locally (%v)", tag, err)
 	}
-	return PushOutcome{Pushed: true}, nil
+	return PushOutcome{Pushed: true, RemoteSHA: git.RemoteTagSHA(ls, tag)}, nil
 }
 
 // DoctorGate is the optional pre-tag remote check (doctor: true in config).

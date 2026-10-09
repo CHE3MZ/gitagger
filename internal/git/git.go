@@ -142,6 +142,20 @@ func RemoteHasTag(lsRemoteOut, tag string) bool {
 	return false
 }
 
+// RemoteTagSHA extracts the exact object a tag points at on the remote
+// from `git ls-remote --tags` output ("" when absent). Peel (^{}) lines
+// are ignored so annotated tags resolve to the tag object itself.
+func RemoteTagSHA(lsRemoteOut, tag string) string {
+	want := "refs/tags/" + tag
+	for _, line := range strings.Split(lsRemoteOut, "\n") {
+		fields := strings.Fields(strings.TrimSpace(line))
+		if len(fields) >= 2 && fields[1] == want {
+			return fields[0]
+		}
+	}
+	return ""
+}
+
 // ParseRemoteTags extracts tag names from `git ls-remote --tags` output.
 // Peel lines (`refs/tags/v1^{}`) map to the same tag and are deduplicated.
 func ParseRemoteTags(lsRemoteOut string) []string {
@@ -343,6 +357,17 @@ func PushTag(dir, remote, tag string, force bool) error {
 	args := []string{"push", remote, tag}
 	if force {
 		args = []string{"push", "--force", remote, tag}
+	}
+	_, err := run(dir, 60*time.Second, args...)
+	return err
+}
+
+// PushRef pushes a local object to a remote ref (rollback restores
+// overwritten remote tags without touching anything else).
+func PushRef(dir, remote, src, dst string, force bool) error {
+	args := []string{"push", remote, src + ":" + dst}
+	if force {
+		args = []string{"push", "--force", remote, src + ":" + dst}
 	}
 	_, err := run(dir, 60*time.Second, args...)
 	return err

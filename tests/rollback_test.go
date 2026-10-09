@@ -187,3 +187,35 @@ func TestUnsafeBypassesRequireClean(t *testing.T) {
 		t.Fatalf("tags = %v, want one tag despite dirty tree", tags)
 	}
 }
+
+func TestRollbackRestoresRemoteOverwrite(t *testing.T) {
+	dir := initRepo(t)
+	remoteDir := t.TempDir()
+	mustGit(t, remoteDir, "init", "--bare", "-q")
+	mustGit(t, dir, "remote", "add", "origin", remoteDir)
+	if err := git.CreateTag(dir, "v1.0.0", "", false); err != nil {
+		t.Fatal(err)
+	}
+	mustGit(t, dir, "push", "origin", "v1.0.0")
+	oldSHA, err := git.FullSHA(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	mustGit(t, dir, "commit", "--allow-empty", "-qm", "second")
+	// Local tag gone (never fetched), remote kept: the forced run recreates
+	// v1.0.0 on the new commit and force-pushes over the remote one, so a
+	// hook failure must restore the remote side to the old commit.
+	mustGit(t, dir, "tag", "-d", "v1.0.0")
+	o := tagOptions(dir, true)
+	if err := cmd.RunTag(o); err == nil {
+		t.Fatalf("failing hook should fail the run")
+	}
+	if tags, _ := git.ListTags(dir); len(tags) != 0 {
+		t.Fatalf("local tags = %v, want rolled back to none", tags)
+	}
+	out := mustGit(t, dir, "ls-remote", "origin", "refs/tags/v1.0.0")
+	fields := strings.Fields(out)
+	if len(fields) < 1 || fields[0] != oldSHA {
+		t.Fatalf("remote tag = %q, want restored to %s", out, oldSHA)
+	}
+}

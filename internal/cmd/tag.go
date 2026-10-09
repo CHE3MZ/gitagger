@@ -69,25 +69,9 @@ func RunTag(o run.Options) error {
 	}
 	fmt.Printf("%s %s\n", style.Green("created tag"), style.BoldGreen(plan.Next))
 
-	// Success hooks gate the push: a tag whose hooks fail is incomplete,
-	// so it is rolled back and never pushed. (Push failures below still
-	// keep the local tag — offline tagging must survive a dead remote.)
-	// Unsafe skips all of that: failure hooks still run for observability,
-	// but the tag is kept and pushed anyway.
-	hookErr := RunHooks(o.Dir, "success", o.Hooks.Success, hookEnv(o, plan, false), o.Verbose, os.Stdout, os.Stderr)
-	if hookErr != nil && !o.Unsafe {
-		serr := Generic("tag %s created but success hook failed (%v)", plan.Next, hookErr)
-		rollbackTag(o, plan)
-		return runFailureHooks(o, plan, false, serr)
-	}
-	if hookErr != nil {
-		fmt.Println(style.Warn(fmt.Sprintf("unsafe: ignoring success hook failure (%v)", hookErr)))
-		runFailureHookBlocks(o, plan, false)
-	}
-
 	if !o.Push {
 		fmt.Println(style.Dim("kept locally (-n). push later with `git push " + o.Remote + " " + plan.Next + "`"))
-		return runFinishHooks(o, plan, false)
+		return runDoneHooks(o, plan, false, run.PushOutcome{})
 	}
 
 	outcome, err := run.EnsurePush(o, plan.Next)
@@ -103,7 +87,7 @@ func RunTag(o run.Options) error {
 	} else {
 		fmt.Println(style.Warn(outcome.Skipped))
 	}
-	return runFinishHooks(o, plan, outcome.Pushed)
+	return runDoneHooks(o, plan, outcome.Pushed, outcome)
 }
 
 // rollbackTag undoes a tag this run created after its success hooks
@@ -171,14 +155,51 @@ func runFailureHooks(o run.Options, plan run.Plan, pushed bool, err error) error
 	return err
 }
 
-// runFinishHooks runs finish hooks only (success already ran).
-// A failing finish hook is reported, never re-triggered.
-func runFinishHooks(o run.Options, plan run.Plan, pushed bool) error {
+// runDoneHooks runs success hooks, then finish hooks.
+// A failing success hook still runs failure hooks first (try/catch/finally),
+// then rolls the tag back locally and remotely — unless unsafe, which warns
+// and keeps everything. Push failures below still keep the local tag:
+// offline tagging must survive a dead remote.
+func runDoneHooks(o run.Options, plan run.Plan, pushed bool, outcome run.PushOutcome) error {
 	env := hookEnv(o, plan, pushed)
-	if err := RunHooks(o.Dir, "finish", o.Hooks.Finish, env, o.Verbose, os.Stdout, os.Stderr); err != nil {
+	if err := RunHooks(o.Dir, "success", o.Hooks.Success, env, o.Verbose, os.Stdout, os.Stderr); err != nil {
+		serr := Generic("tag %s created but success hook failed (%v)", plan.Next, err)
+		if o.Unsafe {
+			fmt.Println(style.Warn(fmt.Sprintf("unsafe: ignoring success hook failure (%v)", err)))
+			runFailureHookBlocks(o, plan, pushed)
+		} else {
+			rollbackTag(o, plan)
+			rollbackRemoteTag(o, plan, outcome)
+			return runFailureHooks(o, plan, pushed, serr)
+		}
+	}
+	if err := RunHooks(o.Dir, "finish", o.Hooks.Finish, hookEnv(o, plan, pushed), o.Verbose, os.Stdout, os.Stderr); err != nil {
 		return Generic("tag %s created but finish hook failed (%v)", plan.Next, err)
 	}
 	return nil
+}
+
+// rollbackRemoteTag undoes a push this run made after its success hooks
+// failed. A remote tag that already existed is restored; otherwise the
+// pushed tag is deleted. Skipped when nothing was pushed. Best effort:
+// failures only warn, the original error is what the run returns.
+func rollbackRemoteTag(o run.Options, plan run.Plan, outcome run.PushOutcome) {
+	if !outcome.Pushed {
+		return
+	}
+	if outcome.RemoteSHA != "" {
+		if err := git.PushRef(o.Dir, o.Remote, outcome.RemoteSHA, "refs/tags/"+plan.Next, true); err != nil {
+			fmt.Println(style.Warn(fmt.Sprintf("couldn't restore remote tag %s (%v) — fix it by hand if needed", plan.Next, err)))
+			return
+		}
+		fmt.Println(style.Dim(fmt.Sprintf("restored remote tag %s (rolled back)", plan.Next)))
+		return
+	}
+	if err := git.DeleteRemoteTag(o.Dir, o.Remote, plan.Next); err != nil {
+		fmt.Println(style.Warn(fmt.Sprintf("couldn't remove remote tag %s (%v) — remove it by hand if needed: `git push --delete %s %s`", plan.Next, err, o.Remote, plan.Next)))
+		return
+	}
+	fmt.Println(style.Dim(fmt.Sprintf("removed remote tag %s (rolled back)", plan.Next)))
 }
 
 func greetPlan(o run.Options, plan run.Plan) {
