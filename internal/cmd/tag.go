@@ -29,7 +29,7 @@ func RunTag(o run.Options) error {
 
 	// Doctor gate: with doctor: true, fail early on remote collision
 	// instead of creating a tag that can't push.
-	if o.Doctor && o.Push && !o.DryRun {
+	if o.Doctor && o.Push && !o.DryRun && !o.Unsafe {
 		if err := run.DoctorGate(o, plan.Next); err != nil {
 			return runFailureHooks(o, plan, false, Exists("%s", err.Error()))
 		}
@@ -49,13 +49,17 @@ func RunTag(o run.Options) error {
 		return nil
 	}
 
+	if o.Unsafe {
+		fmt.Println(style.Warn("running with --unsafe: safety checks disabled, pushing anyway"))
+	}
+
 	greetPlan(o, plan)
 
 	if err := RunHooks(o.Dir, "start", o.Hooks.Start, hookEnv(o, plan, false), o.Verbose, os.Stdout, os.Stderr); err != nil {
 		return runFailureHooks(o, plan, false, err)
 	}
 
-	if err := git.CreateTag(o.Dir, plan.Next, o.Message, o.Force); err != nil {
+	if err := git.CreateTag(o.Dir, plan.Next, o.Message, o.Force || o.Unsafe); err != nil {
 		// Local-exists collision without -f is a no-op (exit 2).
 		msg := strings.ToLower(err.Error())
 		if strings.Contains(msg, "already exists") {
@@ -68,10 +72,17 @@ func RunTag(o run.Options) error {
 	// Success hooks gate the push: a tag whose hooks fail is incomplete,
 	// so it is rolled back and never pushed. (Push failures below still
 	// keep the local tag — offline tagging must survive a dead remote.)
-	if err := RunHooks(o.Dir, "success", o.Hooks.Success, hookEnv(o, plan, false), o.Verbose, os.Stdout, os.Stderr); err != nil {
-		serr := Generic("tag %s created but success hook failed (%v)", plan.Next, err)
+	// Unsafe skips all of that: failure hooks still run for observability,
+	// but the tag is kept and pushed anyway.
+	hookErr := RunHooks(o.Dir, "success", o.Hooks.Success, hookEnv(o, plan, false), o.Verbose, os.Stdout, os.Stderr)
+	if hookErr != nil && !o.Unsafe {
+		serr := Generic("tag %s created but success hook failed (%v)", plan.Next, hookErr)
 		rollbackTag(o, plan)
 		return runFailureHooks(o, plan, false, serr)
+	}
+	if hookErr != nil {
+		fmt.Println(style.Warn(fmt.Sprintf("unsafe: ignoring success hook failure (%v)", hookErr)))
+		runFailureHookBlocks(o, plan, false)
 	}
 
 	if !o.Push {
@@ -140,15 +151,21 @@ func hookEnv(o run.Options, plan run.Plan, pushed bool) map[string]string {
 	}
 }
 
-// runFailureHooks runs failure then finish hooks, keeping the original error.
-// Failure hooks only cover post-plan failures (pre-plan errors have no tag
-// context). A failing failure/finish hook is reported, never re-triggered.
-func runFailureHooks(o run.Options, plan run.Plan, pushed bool, err error) error {
+// runFailureHookBlocks runs failure hooks (notifications/cleanup).
+// A failing failure hook is reported, never re-triggered.
+func runFailureHookBlocks(o run.Options, plan run.Plan, pushed bool) {
 	env := hookEnv(o, plan, pushed)
 	if ferr := RunHooks(o.Dir, "failure", o.Hooks.Failure, env, o.Verbose, os.Stdout, os.Stderr); ferr != nil {
 		fmt.Fprintln(os.Stderr, style.Error(fmt.Sprintf("failure hook failed: %v", ferr)))
 	}
-	if ferr := RunHooks(o.Dir, "finish", o.Hooks.Finish, env, o.Verbose, os.Stdout, os.Stderr); ferr != nil {
+}
+
+// runFailureHooks runs failure then finish hooks, keeping the original error.
+// Failure hooks only cover post-plan failures (pre-plan errors have no tag
+// context). A failing failure/finish hook is reported, never re-triggered.
+func runFailureHooks(o run.Options, plan run.Plan, pushed bool, err error) error {
+	runFailureHookBlocks(o, plan, pushed)
+	if ferr := RunHooks(o.Dir, "finish", o.Hooks.Finish, hookEnv(o, plan, pushed), o.Verbose, os.Stdout, os.Stderr); ferr != nil {
 		fmt.Fprintln(os.Stderr, style.Error(fmt.Sprintf("finish hook failed: %v", ferr)))
 	}
 	return err

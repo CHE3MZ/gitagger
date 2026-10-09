@@ -31,6 +31,7 @@ type Options struct {
 	Hooks        config.Hooks
 	Arguments    []string
 	TestMode     bool // sandbox test run: hooks see GITAGGER_DRY_RUN=true
+	Unsafe       bool // skip safety aborts and push anyway (same as -u)
 }
 
 // FromConfig applies flag overrides onto loaded config.
@@ -81,7 +82,7 @@ func ComputePlan(o Options) (Plan, error) {
 	if !git.HeadExists(o.Dir) {
 		return Plan{}, fmt.Errorf("no commits yet — make a commit first")
 	}
-	if o.RequireClean {
+	if o.RequireClean && !o.Unsafe {
 		st, err := git.StatusPorcelain(o.Dir)
 		if err != nil {
 			return Plan{}, err
@@ -168,10 +169,10 @@ func EnsurePush(o Options, tag string) (PushOutcome, error) {
 	if err != nil {
 		return PushOutcome{Pushed: false, Skipped: fmt.Sprintf("remote %q unreachable (offline?) — tag kept locally; run `git push %s %s` later", o.Remote, o.Remote, tag)}, nil
 	}
-	if git.RemoteHasTag(ls, tag) && !o.Force {
+	if git.RemoteHasTag(ls, tag) && !o.Force && !o.Unsafe {
 		return PushOutcome{}, fmt.Errorf("tag %s already exists on remote — use --force to overwrite or run `gitagger doctor`", tag)
 	}
-	if err := git.PushTag(o.Dir, o.Remote, tag, o.Force); err != nil {
+	if err := git.PushTag(o.Dir, o.Remote, tag, o.Force || o.Unsafe); err != nil {
 		return PushOutcome{Pushed: false}, fmt.Errorf("push failed — tag %s kept locally (%v)", tag, err)
 	}
 	return PushOutcome{Pushed: true}, nil
@@ -195,9 +196,9 @@ func DoctorGate(o Options, tag string) error {
 	return nil
 }
 
-// CheckHeadTagged aborts when HEAD already has any tag (unless --force).
+// CheckHeadTagged aborts when HEAD already has any tag (unless --force/--unsafe).
 func CheckHeadTagged(o Options, tag string) error {
-	if o.Force {
+	if o.Force || o.Unsafe {
 		return nil
 	}
 	onHead, err := git.TagsPointingAtHEAD(o.Dir)

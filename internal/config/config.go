@@ -25,6 +25,7 @@ type Resolved struct {
 	RequireClean bool
 	Doctor       bool
 	Verbose      bool
+	Unsafe       bool
 	Message      string
 	Hooks        Hooks
 	Path         string
@@ -141,6 +142,7 @@ type fileConfig struct {
 	RequireClean *YBool         `yaml:"require_clean"`
 	Doctor       *YBool         `yaml:"doctor"`
 	Verbose      *YBool         `yaml:"verbose"`
+	Unsafe       *YBool         `yaml:"unsafe"`
 	Message      string         `yaml:"message"`
 	On           Hooks          `yaml:"on"`
 	Path         string         `yaml:"path"`
@@ -277,6 +279,9 @@ func Load(dir string) (Resolved, string, error) {
 	}
 	if fc.Verbose != nil {
 		cfg.Verbose = bool(*fc.Verbose)
+	}
+	if fc.Unsafe != nil {
+		cfg.Unsafe = bool(*fc.Unsafe)
 	}
 	cfg.Message = fc.Message
 	cfg.Path = fc.Path

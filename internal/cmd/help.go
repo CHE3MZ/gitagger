@@ -80,6 +80,7 @@ var flagRows = []flagRow{
 	{"-n --no-push", "Create tag without pushing.", ""},
 	{"-d --dry-run", "Do A dry-run for testing.", ""},
 	{"-f --force", "Force push to remote or force an action.", ""},
+	{"-u --unsafe", "Skip safety checks and push anyway.", ""},
 	{"-m --message <msg>", "Tag message. (empty by default)", ""},
 	{"-r --require-clean", "Abort if the working tree is dirty.", ""},
 	{"-p --path <dir>", "Operate in another directory.", ""},

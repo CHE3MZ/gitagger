@@ -40,3 +40,5 @@ No auto-detect for custom — explicit is on purpose.
 - **No remote / offline** → keeps the tag locally and tells you the exact `git push` to run later.
 - **`--dry-run`** → prints the plan, changes nothing. Use it liberally.
 - **`doctor: true`** → checks the remote for collisions *before* creating the tag, so a doomed tag never gets created locally.
+- **Failing success hooks** → the tag is rolled back and never pushed.
+- **`--unsafe` / `unsafe: true`** → escape hatch: skips the aborts above, skips rollback, pushes anyway. Loud warnings included. Not written by `init` — add it by hand.

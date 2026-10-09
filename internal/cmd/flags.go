@@ -19,6 +19,7 @@ type TagFlags struct {
 	DryRun       bool
 	RequireClean bool
 	Verbose      bool
+	Unsafe       bool
 	Help         bool
 }
 
@@ -79,6 +80,8 @@ func ParseTagFlags(args []string) (TagFlags, []string, error) {
 			f.Arguments = append(f.Arguments, args[i])
 		case a == "-r" || a == "--require-clean":
 			f.RequireClean = true
+		case a == "-u" || a == "--unsafe":
+			f.Unsafe = true
 		case strings.HasPrefix(a, "-"):
 			return f, pos, fmt.Errorf("unknown flag %q — try `gitagger --help`", a)
 		default:

@@ -121,6 +121,11 @@ func PrintHandbook() {
 	hbDesc("argument: any runs only when any argument is given.")
 	hbDesc("Hooks get GITAGGER_TAG, GITAGGER_PREV, GITAGGER_REMOTE, GITAGGER_PUSHED, GITAGGER_DRY_RUN, GITAGGER_EVENT, GITAGGER_ARGUMENT.")
 
+	hbHeader("UNSAFE")
+	hbKey("unsafe: true | false")
+	hbDesc("Skip safety checks and push anyway. Same as -u. Default: false.")
+	hbDesc("Not written by `gitagger init` — add it by hand if you mean it.")
+
 	hbHeader("NOTES")
 	fmt.Println(style.Gray("     Config files: ./.gitagger.yml, ./.gitagger.yaml, ./.gitagger (first found wins)."))
 	fmt.Println(style.Gray("     Check yours: gitagger check. Validate verbosely: gitagger check -v."))
