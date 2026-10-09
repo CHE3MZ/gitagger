@@ -69,6 +69,7 @@ type Plan struct {
 	VPrefix   bool
 	Detected  bool // true when format came from auto-detect
 	Existing  map[string]bool
+	TagIsNew  bool   // Next did not exist when planned (pure lookup, never fails)
 	PrevRef   string // object Next already points at ("" when the tag is new)
 }
 
@@ -145,7 +146,7 @@ func ComputePlan(o Options) (Plan, error) {
 	if existing[nextTag] {
 		prevRef = git.RefTarget(o.Dir, nextTag)
 	}
-	return Plan{Prev: prev, Next: nextTag, Format: format, VPrefix: vPrefix, Detected: detected, Existing: existing, PrevRef: prevRef}, nil
+	return Plan{Prev: prev, Next: nextTag, Format: format, VPrefix: vPrefix, Detected: detected, Existing: existing, TagIsNew: !existing[nextTag], PrevRef: prevRef}, nil
 }
 
 // PushOutcome is the remote safety sequence result.

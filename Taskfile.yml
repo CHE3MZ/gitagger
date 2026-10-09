@@ -11,3 +11,6 @@ tasks:
   test:
     cmds:
       - \build\\gitagger-windows-amd64.exe help
+  self-release:
+    cmds:
+      - \build\\gitagger-windows-amd64.exe

@@ -96,22 +96,28 @@ func RunTag(o run.Options) error {
 }
 
 // rollbackTag undoes a tag this run created after its success hooks
-// failed, so broken tags are never pushed or kept. When -f overwrote
-// an existing tag, the previous target is restored instead.
+// failed, so broken tags are never pushed or kept. A tag that already
+// existed is restored to its previous target instead; when even that
+// target is unknown the tag is left alone — deleting blindly could
+// destroy something this run did not create.
 func rollbackTag(o run.Options, plan run.Plan) {
-	if plan.PrevRef != "" {
-		if err := git.UpdateRef(o.Dir, "refs/tags/"+plan.Next, plan.PrevRef); err != nil {
-			fmt.Println(style.Warn(fmt.Sprintf("couldn't restore tag %s (%v)", plan.Next, err)))
+	if plan.TagIsNew {
+		if err := git.DeleteTag(o.Dir, plan.Next); err != nil {
+			fmt.Println(style.Warn(fmt.Sprintf("couldn't remove tag %s (%v)", plan.Next, err)))
 			return
 		}
-		fmt.Println(style.Dim(fmt.Sprintf("restored tag %s (rolled back)", plan.Next)))
+		fmt.Println(style.Dim(fmt.Sprintf("removed tag %s (rolled back)", plan.Next)))
 		return
 	}
-	if err := git.DeleteTag(o.Dir, plan.Next); err != nil {
-		fmt.Println(style.Warn(fmt.Sprintf("couldn't remove tag %s (%v)", plan.Next, err)))
+	if plan.PrevRef == "" {
+		fmt.Println(style.Warn(fmt.Sprintf("tag %s predates this run with unknown target — left alone, remove it by hand if needed", plan.Next)))
 		return
 	}
-	fmt.Println(style.Dim(fmt.Sprintf("removed tag %s (rolled back)", plan.Next)))
+	if err := git.UpdateRef(o.Dir, "refs/tags/"+plan.Next, plan.PrevRef); err != nil {
+		fmt.Println(style.Warn(fmt.Sprintf("couldn't restore tag %s (%v)", plan.Next, err)))
+		return
+	}
+	fmt.Println(style.Dim(fmt.Sprintf("restored tag %s (rolled back)", plan.Next)))
 }
 
 // hookEnv builds hook environment for the current plan.
