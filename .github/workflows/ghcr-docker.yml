@@ -49,9 +49,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Resolve publish target
         id: pub
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
         run: |
           {
-            TAG="${{ inputs.tag }}"
+            TAG="$INPUT_TAG"
             if [ -z "$TAG" ] && [ "$GITHUB_REF_TYPE" = "tag" ]; then
               TAG="$GITHUB_REF_NAME"
             fi
