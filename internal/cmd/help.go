@@ -29,14 +29,6 @@ func PrintHelp() {
 	fmt.Println()
 	fmt.Printf("  %s %s %s\n", style.White("gitagger"), style.Green("[command]"), style.Blue("[--flags]"))
 	fmt.Println()
-	fmt.Println(style.Header("EXAMPLES"))
-	fmt.Println()
-	for _, e := range examples {
-		inv, comment, _ := strings.Cut(e, "#")
-		head, rest, _ := strings.Cut(inv, " ")
-		fmt.Printf("  %s%s%s\n", style.White(head), style.Green(" "+rest), style.Gray("#"+comment))
-	}
-	fmt.Println()
 	fmt.Println(style.Header("COMMANDS"))
 	fmt.Println()
 	for _, c := range commands {
@@ -52,14 +44,6 @@ func PrintHelp() {
 type commandRow struct {
 	name string
 	rest string
-}
-
-var examples = []string{
-	"gitagger                   # create a new tag and push",
-	"gitagger patch             # create a new patch tag",
-	"gitagger minor             # create a new minor tag",
-	"gitagger major             # create a new major tag",
-	"gitagger major --pre beta  # create a new major beta tag",
 }
 
 var commands = []commandRow{
