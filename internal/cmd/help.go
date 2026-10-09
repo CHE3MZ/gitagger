@@ -23,7 +23,9 @@ func VersionString() string {
 
 // PrintHelp prints the main help text.
 func PrintHelp() {
-	fmt.Println(style.Bold("automate git tags without the headache."))
+	fmt.Println(style.Bold("┌──────────────┐"))
+	fmt.Println(style.Bold("│ Gitagger CLI │"))
+	fmt.Println(style.Bold("└──────────────┘"))
 	fmt.Println()
 	fmt.Println(style.Header("USAGE"))
 	fmt.Println()
