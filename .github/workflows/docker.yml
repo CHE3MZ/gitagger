@@ -10,9 +10,9 @@ jobs:
     name: build + container tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
+      - uses: actions/checkout@v7
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
       # Optional: set the DOCKER_HUB_AUTH repo variable to 'true' plus
       # DOCKER_HUB_USERNAME + DOCKER_HUB_TOKEN secrets, and pulls use
       # your own quota instead of the shared runner quota. Without them
@@ -33,7 +33,7 @@ jobs:
         run: sh scripts/docker-test.sh gitagger:test
       - name: upload docker logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: docker-test-logs
           path: logs/docker-test.txt
