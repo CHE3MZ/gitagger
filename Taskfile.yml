@@ -1,0 +1,13 @@
+version: '3'
+
+tasks:
+  default:
+    deps:
+      - build
+  build:
+    cmds:
+      - \scripts\\build-windows.bat
+      - task test
+  test:
+    cmds:
+      - \build\\gitagger-windows-amd64.exe help
