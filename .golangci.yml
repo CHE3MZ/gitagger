@@ -22,9 +22,15 @@ linters:
       checks:
         - all
         - -SA1019
+        - -ST1000
     gosec:
       excludes:
         - G115
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - gosec
 
 formatters:
   enable:
