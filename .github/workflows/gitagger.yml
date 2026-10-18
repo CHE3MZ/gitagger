@@ -27,9 +27,16 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-      - name: Install goreleaser
+      - name: Install release tools
         run: |
           go install github.com/goreleaser/goreleaser/v2@latest
+          go install github.com/go-task/task/v3/cmd/task@latest
+          cliff_url=$(curl -fsSL --retry 3 --retry-delay 5 --retry-all-errors https://api.github.com/repos/orhun/git-cliff/releases/latest | grep -o 'https://[^"]*x86_64-unknown-linux-gnu\.tar\.gz' | head -n 1)
+          test -n "$cliff_url"
+          tmp=$(mktemp -d)
+          curl -fsSL --retry 3 --retry-delay 5 --retry-all-errors "$cliff_url" | tar -xz -C "$tmp"
+          mv "$tmp"/git-cliff-*/git-cliff "$(go env GOPATH)/bin/"
+          rm -rf "$tmp"
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
       - name: Set git identity
         run: |
