@@ -179,7 +179,8 @@ func TestHooksFailureAndFinishRun(t *testing.T) {
 	}
 }
 
-func TestHooksSkipOtherOS(t *testing.T) {	needSh(t)
+func TestHooksSkipOtherOS(t *testing.T) {
+	needSh(t)
 	other := "windows"
 	if runtime.GOOS == "windows" {
 		other = "linux"

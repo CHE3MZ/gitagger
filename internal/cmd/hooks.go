@@ -52,6 +52,7 @@ func OsMatches(selector, goos string) bool {
 	}
 	return !matched
 }
+
 // filterHooks keeps untagged blocks, blocks matching given arguments, and
 // "none" blocks when no arguments were given (all case-insensitive).
 func filterHooks(h config.Hooks, args []string) config.Hooks {

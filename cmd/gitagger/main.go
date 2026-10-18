@@ -191,9 +191,9 @@ func cmdWorkflow(args []string) error {
 			return icmd.BadArgs("don't know what %q means — try `gitagger workflow --help`%s", args[1], icmd.SuggestionText(icmd.Suggest(strings.TrimLeft(args[1], "-"), icmd.WorkflowSuggestCandidates())))
 		}
 		return icmd.RunWorkflowList()
-		case "-h", "--help":
-			icmd.CommandHelp("workflow")
-			return nil
+	case "-h", "--help":
+		icmd.CommandHelp("workflow")
+		return nil
 	case "init":
 		return cmdWorkflowInit(args[1:])
 	default:
@@ -243,7 +243,8 @@ func cmdWorkflowInit(args []string) error {
 	return icmd.RunWorkflowInit(dir, id, force, verbose)
 }
 
-func cmdVersion(args []string) error {	if len(args) > 0 {
+func cmdVersion(args []string) error {
+	if len(args) > 0 {
 		if args[0] == "-h" || args[0] == "--help" {
 			icmd.CommandHelp("version")
 			return nil

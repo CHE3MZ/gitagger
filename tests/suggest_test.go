@@ -13,8 +13,8 @@ func TestSuggestTypos(t *testing.T) {
 	cases := map[string]string{
 		"hlp": "help", "hepl": "help", "HLP": "help",
 		"chek": "check", "lst": "list", "vie": "view",
-		"remov": "remove", "docter": "doctor", "versoin": "version",
-		"handbok": "handbook", "minro": "minor", "mjor": "major",
+		"remov": "remove", "docter": "doctor", "versoin": "version", //nolint:misspell // misspelled on purpose
+		"handbok": "handbook", "minro": "minor", "mjor": "major", //nolint:misspell // misspelled on purpose
 		"inti": "init", "remtoe": "remote",
 	}
 	for in, want := range cases {
