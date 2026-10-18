@@ -535,7 +535,9 @@ verbose: false
 # their output with newlines; a failing command aborts before tagging.
 # API: message:, cmds:, cmd:, shell:, os:
 # EXAMPLE: message: { cmds: [ "echo one", { cmd: "echo two", shell: bash } ] }
-message: ""
+message:
+  cmds:
+    - cmd: echo ""
 
 # Hooks run shell commands at lifecycle events: start, success etc.
 # Each event takes one block or a list. os defaults to all.
