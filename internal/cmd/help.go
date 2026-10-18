@@ -61,6 +61,7 @@ var commands = []commandRow{
 	{"remote", "     [--flags]       Change the remote URL the tag will get pushed to"},
 	{"workflow", "   [--flags]       Generate CI workflow files"},
 	{"version", "    [--flags]       Show the build version"},
+	{"next", "       [--flags]       Show the tag the next real run would create"},
 	{"patch", "      [--flags]       New tag addition by    0.0.X"},
 	{"minor", "      [--flags]       New tag rounding to    0.X.0"},
 	{"major", "      [--flags]       New tag rounding to    X.0.0"},
@@ -267,13 +268,25 @@ var commandHelp = map[string]cmdHelp{
 			"-h --help    Print the help text for a command.",
 		},
 	},
+	"next": {
+		"Show the tag the next real run would create.",
+		"next [scale] [--flags]",
+		[]string{"gitagger next", "gitagger next minor", "gitagger next --pre rc"},
+		[]string{
+			"--pre <flavor>   Predict with this prerelease flavor.",
+			"--format <style> Predict with this tag style.",
+			"-v --verbose     Also show how the next tag was computed.",
+			"-p --path <dir>  Operate in another directory.",
+			"-h --help        Print the help text for a command.",
+		},
+	},
 	"patch": {"New tag addition by    0.0.X.", "patch [--flags]", []string{"gitagger patch", "gitagger patch --pre rc", "gitagger patch -m \"fix login\" -n"}, tagFlags},
 	"minor": {"New tag rounding to    0.X.0.", "minor [--flags]", []string{"gitagger minor", "gitagger minor --pre beta", "gitagger minor -d"}, tagFlags},
 	"major": {"New tag rounding to    X.0.0.", "major [--flags]", []string{"gitagger major", "gitagger major --pre rc", "gitagger major --format date"}, tagFlags},
 }
 
 // KnownCommands lists every command for `gitagger help [command]`.
-var KnownCommands = []string{"init", "check", "list", "ls", "view", "remove", "rm", "test", "help", "handbook", "doctor", "remote", "workflow", "version", "patch", "minor", "major"}
+var KnownCommands = []string{"init", "check", "list", "ls", "view", "remove", "rm", "test", "help", "handbook", "doctor", "remote", "workflow", "version", "next", "patch", "minor", "major"}
 
 // IsCommand reports whether name is a known command.
 func IsCommand(name string) bool {

@@ -47,6 +47,8 @@ func runCLI(args []string) error {
 			return cmdRemote(args[1:])
 		case "workflow":
 			return cmdWorkflow(args[1:])
+		case "next":
+			return cmdNext(args[1:])
 		case "patch", "minor", "major":
 			return cmdTag(args[0], args[1:])
 		case "-h", "--help":
@@ -273,6 +275,35 @@ func cmdHelp(args []string) error {
 	}
 	icmd.CommandHelp(args[0])
 	return nil
+}
+
+func cmdNext(args []string) error {
+	f, pos, err := icmd.ParseTagFlags(args)
+	if err != nil {
+		return icmd.BadArgs("%s", err.Error())
+	}
+	if f.Help {
+		icmd.CommandHelp("next")
+		return nil
+	}
+	scale, err := icmd.ParseScale(pos)
+	if err != nil {
+		return icmd.BadArgs("%s", err.Error())
+	}
+	cwd, _ := os.Getwd()
+	dir, err := icmd.ResolveDir(cwd, f.Path)
+	if err != nil {
+		return err
+	}
+	cfg, _, err := config.Load(dir)
+	if err != nil {
+		return icmd.BadArgs("%s", err.Error())
+	}
+	o, err := icmd.BuildOptions(dir, cfg, scale, f)
+	if err != nil {
+		return err
+	}
+	return icmd.RunNext(o)
 }
 
 func cmdView(args []string) error {

@@ -26,6 +26,7 @@ Common flags: `--pre rc|beta|build|nightly`, `--format auto|triple|double|single
 
 | Command | What it does |
 |---|---|
+| `next [scale]` | The tag the next real run would create — creates nothing |
 | `list` (`ls`) | All tags, oldest first |
 | `view <tag>` | Name, type (annotated/lightweight), message, commit, date |
 | `check [-v]` | Is `.gitagger.yml` valid? (`-v` shows resolved values) |
