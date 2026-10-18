@@ -2,6 +2,12 @@
 # Fail fast: a broken build or upload must never move the marketplace tags.
 set -eu
 
+# Sandbox test runs (gitagger test) set GITAGGER_DRY_RUN=true: never release there.
+if [ "${GITAGGER_DRY_RUN:-false}" = "true" ]; then
+  echo "Dry run (gitagger test) - skipping the release."
+  exit 0
+fi
+
 # Correctly capture the latest git tag into the variable
 echo "Getting the latest tag..."
 taglatest=$(git describe --tags --abbrev=0)
