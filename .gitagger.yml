@@ -10,7 +10,7 @@ doctor: true
 verbose: false
 message:
   cmds:
-    - cmd: echo ""
+    - echo "release $(gitagger next)"
 on:
   failure:
     - shell: sh
