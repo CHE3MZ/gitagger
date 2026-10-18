@@ -64,4 +64,5 @@ jobs:
         shell: bash
         run: |
           [ "${{ steps.tag.outputs.tag }}" = "v1.0.0" ] || { echo "expected v1.0.0, got '${{ steps.tag.outputs.tag }}'"; exit 1; }
-          git -C sandbox tag --list | grep -qx "v1.0.0"
+          tags=$(git -C sandbox tag --list)
+          grep -qx "v1.0.0" <<< "$tags"
