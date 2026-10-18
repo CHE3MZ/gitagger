@@ -65,6 +65,35 @@ func windowsShell(look func(string) (string, error)) (string, []string, error) {
 	return "", nil, fmt.Errorf("no shell found (want pwsh, powershell, cmd or bash on PATH)")
 }
 
+// resolveShell maps a config shell name to its binary and leading args,
+// and verifies the binary exists on PATH.
+func resolveShell(shell string) (string, []string, error) {
+	bin, prefix, err := shellRunner(shell)
+	if err != nil {
+		return "", nil, err
+	}
+	if _, err := exec.LookPath(bin); err != nil {
+		return "", nil, fmt.Errorf("%s not on PATH", bin)
+	}
+	return bin, prefix, nil
+}
+
+// runShellCommand runs one command string through an already resolved
+// shell, with env exported on top of the current environment. Callers add
+// their own context to the returned error.
+func runShellCommand(dir, bin string, prefix []string, command string, env map[string]string, stdout, stderr io.Writer) error {
+	args := append(append([]string{}, prefix...), command)
+	// #nosec G204 — binary is a fixed shell from the allowlist above,
+	// never user input; the command string goes to the shell as data,
+	// exactly like running it by hand.
+	cmd := exec.Command(bin, args...)
+	cmd.Dir = dir
+	cmd.Env = append(os.Environ(), mapEnv(env)...)
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+	return cmd.Run()
+}
+
 // OsMatches reports whether an os: selector targets a GOOS value.
 // The selector is one platform or a comma list ("macos, linux").
 // "macos" is accepted for Go's "darwin"; empty means all platforms.
@@ -143,25 +172,13 @@ func RunHooks(dir, event string, blocks []config.HookBlock, env map[string]strin
 			}
 			continue
 		}
-		bin, prefix, err := shellRunner(shell)
+		bin, prefix, err := resolveShell(shell)
 		if err != nil {
-			return GenericErr(err)
-		}
-		if _, err := exec.LookPath(bin); err != nil {
-			return Generic("hook needs %q (%s not on PATH)", bin, bin)
+			return Generic("hook %v", err)
 		}
 		for _, c := range b.Run {
 			_, _ = fmt.Fprintln(stdout, style.Dim(fmt.Sprintf("run [%s]: %s", bin, c)))
-			args := append(append([]string{}, prefix...), c)
-			// #nosec G204 — binary is a fixed shell from the allowlist
-			// above, never user input; the command string goes to the
-			// shell as data, exactly like running it by hand.
-			cmd := exec.Command(bin, args...)
-			cmd.Dir = dir
-			cmd.Env = append(os.Environ(), mapEnv(full)...)
-			cmd.Stdout = stdout
-			cmd.Stderr = stderr
-			if err := cmd.Run(); err != nil {
+			if err := runShellCommand(dir, bin, prefix, c, full, stdout, stderr); err != nil {
 				return Generic("hook %q failed (%v)", c, err)
 			}
 		}

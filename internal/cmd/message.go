@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"os/exec"
 	"runtime"
 	"strings"
 
@@ -28,27 +27,15 @@ func resolveMessage(o run.Options, plan run.Plan) (string, error) {
 			}
 			continue
 		}
-		bin, prefix, err := shellRunner(c.Shell)
+		bin, prefix, err := resolveShell(c.Shell)
 		if err != nil {
-			return "", GenericErr(err)
-		}
-		if _, err := exec.LookPath(bin); err != nil {
-			return "", Generic("message command needs %q (%s not on PATH)", bin, bin)
+			return "", Generic("message command %v", err)
 		}
 		if o.Verbose {
 			fmt.Println(style.Dim(fmt.Sprintf("message [%s]: %s", bin, c.Cmd)))
 		}
-		args := append(append([]string{}, prefix...), c.Cmd)
-		// #nosec G204 — binary is a fixed shell from the allowlist
-		// above, never user input; the command string goes to the
-		// shell as data, exactly like running it by hand.
-		cmd := exec.Command(bin, args...)
-		cmd.Dir = o.Dir
-		cmd.Env = append(os.Environ(), mapEnv(env)...)
 		var out bytes.Buffer
-		cmd.Stdout = &out
-		cmd.Stderr = os.Stderr
-		if err := cmd.Run(); err != nil {
+		if err := runShellCommand(o.Dir, bin, prefix, c.Cmd, env, &out, os.Stderr); err != nil {
 			return "", Generic("message command %q failed (%v)", c.Cmd, err)
 		}
 		parts = append(parts, strings.TrimRight(out.String(), "\r\n"))

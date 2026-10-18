@@ -424,16 +424,25 @@ func Validate(c Resolved) error {
 	return validateHooks(c.Hooks)
 }
 
+// checkShellOS validates a shell name and os selector; where names the
+// thing being checked (e.g. "message command", "success hook").
+func checkShellOS(shell, os, where string) error {
+	if !validShells[shell] {
+		return fmt.Errorf("bad shell %q in %s (want sh|bash|pwsh|batch)", shell, where)
+	}
+	for _, o := range splitOS(os) {
+		if !validHookOS[o] {
+			return fmt.Errorf("bad os %q in %s (want linux|macos|windows)", os, where)
+		}
+	}
+	return nil
+}
+
 // validateMessageCmds checks shells, platforms, and commands.
 func validateMessageCmds(cmds []MsgCmd) error {
 	for _, c := range cmds {
-		if !validShells[c.Shell] {
-			return fmt.Errorf("bad shell %q in message command (want sh|bash|pwsh|batch)", c.Shell)
-		}
-		for _, o := range splitOS(c.OS) {
-			if !validHookOS[o] {
-				return fmt.Errorf("bad os %q in message command (want linux|macos|windows)", c.OS)
-			}
+		if err := checkShellOS(c.Shell, c.OS, "message command"); err != nil {
+			return err
 		}
 		if strings.TrimSpace(c.Cmd) == "" {
 			return fmt.Errorf("message has an empty command")
@@ -464,13 +473,8 @@ func validateHooks(h Hooks) error {
 			if b.Argument != "" && !validArgumentName(b.Argument) {
 				return fmt.Errorf("bad argument %q in %s hook (want [a-zA-Z0-9_-]+)", b.Argument, ev.name)
 			}
-			if !validShells[b.Shell] {
-				return fmt.Errorf("bad shell %q in %s hook (want sh|bash|pwsh|batch)", b.Shell, ev.name)
-			}
-			for _, o := range splitOS(b.OS) {
-				if !validHookOS[o] {
-					return fmt.Errorf("bad os %q in %s hook (want linux|macos|windows)", b.OS, ev.name)
-				}
+			if err := checkShellOS(b.Shell, b.OS, ev.name+" hook"); err != nil {
+				return err
 			}
 			if len(b.Run) == 0 {
 				return fmt.Errorf("%s hook block has no run commands", ev.name)
