@@ -4,6 +4,8 @@ tasks:
   default:
     cmds:
       - task: build
+      - task: build-site
+        ignore_error: true
       - task: lint
         ignore_error: true
       - task: scan
@@ -44,3 +46,6 @@ tasks:
   ls-tags:
     cmds:
       - gitagger ls
+  build-site:
+    cmds:
+      - cd docs && mkdocs build
