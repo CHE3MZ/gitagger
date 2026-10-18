@@ -153,7 +153,7 @@ var commandHelp = map[string]cmdHelp{
 		nil,
 		[]string{
 			"-f --force       Overwrite the config file if it exists.",
-			"-c --comment     Write the config with comments kept.",
+			"-c --comment     Write the config with the full comments.",
 			"-p --path <dir>  Operate in another directory.",
 			"-v --verbose     Also show the full path.",
 			"-h --help        Print the help text for a command.",

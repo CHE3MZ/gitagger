@@ -10,7 +10,7 @@ doctor: true
 verbose: false
 message:
   cmds:
-    - cmd: task cliff
+    - cmd: echo ""
 on:
   failure:
     - shell: sh

@@ -49,7 +49,7 @@ Common flags: `--pre rc|beta|build|nightly`, `--format auto|triple|double|single
 
 | Command | What it does |
 |---|---|
-| `init [-f] [--comment] [-p]` | Write `.gitagger.yml` without comments (refuses to overwrite without `-f`; `--comment` keeps the comments) |
+| `init [-f] [--comment] [-p]` | Write `.gitagger.yml` without comments (refuses to overwrite without `-f`; `--comment` writes it with the full comments) |
 | `remote <name>` | Save another push remote into the config |
 | `remote --show` | Show the current remote URL |
 | `workflow` | Generate CI workflow files (see [Workflows](../automation/workflows.md)) |

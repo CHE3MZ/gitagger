@@ -237,7 +237,7 @@ type fileConfig struct {
 // legacyKeys are tolerated but ignored (removed features).
 var legacyKeys = map[string]bool{"version": true, "confirm": true}
 
-// validShells are the only shell names hooks accept.
+// validShells are the only shell names hooks and message commands accept.
 // Empty means the platform default (sh on unix, PowerShell on Windows).
 var validShells = map[string]bool{
 	"": true, "sh": true, "bash": true, "pwsh": true, "batch": true,
@@ -546,7 +546,7 @@ message:
 # (pwsh, then Windows PowerShell, falling back to cmd, then bash).
 # API: on:, start:, success:, failure:, finish:, run:, shell:, os:, argument:
 # EVENTS: start:, success:, failure:, finish: - determine when to run the hook.
-# SHELLS: sh, bash, pwsh, batch - determine what shell type to run the command on.
+# SHELLS: sh, bash, pwsh, batch (= cmd /C, Windows only) - determine what shell type to run the command on.
 # OS: windows, macos, linux - determine what OS type to run the command on.
 # ARGS: you can make Blocks take argument: <name> to run only with gitagger -a <name>.
 # ARGS: use argument: none to prevent a block from running when no arguments are used.

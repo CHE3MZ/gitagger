@@ -19,7 +19,7 @@ on:
 | Key | Meaning |
 |---|---|
 | `run:` | One command or a list. Each item runs separately. Required. |
-| `shell:` | `sh`, `bash`, `pwsh`, `batch`. Default on unix: `sh`; on Windows: `pwsh`, falling back to Windows PowerShell, then `cmd`, then `bash`. No `system` shell — explicit only. |
+| `shell:` | `sh`, `bash`, `pwsh`, `batch` (= `cmd /C`, Windows only). Default on unix: `sh -c` (POSIX-guaranteed, no fallback); on Windows: `pwsh`, then Windows PowerShell, then `cmd`, then `bash`. `pwsh` on Windows follows that same chain; `sh`/`bash` run exactly as named. |
 | `os:` | `linux`, `macos`, `windows`. Default: all. Comma lists work (`os: macos, linux`). |
 | `argument:` | Block runs only with `gitagger -a <name>`. Special values: `none` (only when no `-a` given), `any` (only when some `-a` given). |
 
