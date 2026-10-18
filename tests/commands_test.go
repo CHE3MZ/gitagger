@@ -277,9 +277,9 @@ func TestRunInitRefusesOverwrite(t *testing.T) {
 	}
 }
 
-func TestRunInitClean(t *testing.T) {
+func TestRunInitNoComments(t *testing.T) {
 	dir := t.TempDir()
-	if err := cmd.RunInit(dir, false, false, true); err != nil {
+	if err := cmd.RunInit(dir, false, false, false); err != nil {
 		t.Fatal(err)
 	}
 	raw, err := os.ReadFile(filepath.Join(dir, ".gitagger.yml"))
@@ -288,15 +288,39 @@ func TestRunInitClean(t *testing.T) {
 	}
 	for _, line := range strings.Split(string(raw), "\n") {
 		if trimmed := strings.TrimSpace(line); trimmed != "" && strings.HasPrefix(trimmed, "#") {
-			t.Fatalf("clean config should have no comments, got %q", line)
+			t.Fatalf("default config should have no comments, got %q", line)
 		}
 	}
 	cfg, _, err := config.Load(dir)
 	if err != nil {
-		t.Fatalf("clean config should load: %v", err)
+		t.Fatalf("default config should load: %v", err)
 	}
 	if cfg.Scale != "patch" || len(cfg.Hooks.Failure) != 2 {
-		t.Fatalf("clean config should hold defaults + failure hooks: %+v", cfg)
+		t.Fatalf("default config should hold defaults + failure hooks: %+v", cfg)
+	}
+}
+
+func TestRunInitWithComments(t *testing.T) {
+	dir := t.TempDir()
+	if err := cmd.RunInit(dir, false, false, true); err != nil {
+		t.Fatal(err)
+	}
+	raw, err := os.ReadFile(filepath.Join(dir, ".gitagger.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	hasComment := false
+	for _, line := range strings.Split(string(raw), "\n") {
+		if strings.HasPrefix(strings.TrimSpace(line), "#") {
+			hasComment = true
+			break
+		}
+	}
+	if !hasComment {
+		t.Fatalf("config generated with comment should include comments")
+	}
+	if _, _, err := config.Load(dir); err != nil {
+		t.Fatalf("commented config should load: %v", err)
 	}
 }
 

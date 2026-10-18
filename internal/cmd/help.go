@@ -149,11 +149,11 @@ var tagFlags = renderFlagRows(0, 20)
 var commandHelp = map[string]cmdHelp{
 	"init": {
 		"Generates a .gitagger.yml file.",
-		"init [-f] [--clean] [-p]",
+		"init [-f] [--comment] [-p]",
 		nil,
 		[]string{
 			"-f --force       Overwrite the config file if it exists.",
-			"-c --clean       Generate a config without comments.",
+			"-c --comment     Write the config with comments kept.",
 			"-p --path <dir>  Operate in another directory.",
 			"-v --verbose     Also show the full path.",
 			"-h --help        Print the help text for a command.",

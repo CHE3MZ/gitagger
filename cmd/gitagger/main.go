@@ -96,7 +96,7 @@ func cmdTag(scale string, args []string) error {
 }
 
 func cmdInit(args []string) error {
-	force, verbose, clean := false, false, false
+	force, verbose, comment := false, false, false
 	flagPath := ""
 	for i := 0; i < len(args); i++ {
 		a := args[i]
@@ -108,8 +108,8 @@ func cmdInit(args []string) error {
 			verbose = true
 		case a == "-f" || a == "--force":
 			force = true
-		case a == "-c" || a == "--clean":
-			clean = true
+		case a == "-c" || a == "--comment":
+			comment = true
 		case a == "-p" && i+1 < len(args):
 			i++
 			flagPath = args[i]
@@ -127,7 +127,7 @@ func cmdInit(args []string) error {
 	if err != nil {
 		return err
 	}
-	return icmd.RunInit(dir, force, verbose, clean)
+	return icmd.RunInit(dir, force, verbose, comment)
 }
 
 func cmdSimple(args []string, name string, run func(string, bool) error) error {
