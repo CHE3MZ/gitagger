@@ -15,7 +15,6 @@
   - [ ] releases for homebrew.
   - [ ] releases for macports.
 - [ ] look for and fix bugs and code inconsistencies.
-- [ ] fix the git cliff (git changelog) generator and make it work properly and implement it into the release.sh thingy
 
 ## Backlog
 
