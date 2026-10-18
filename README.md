@@ -95,30 +95,22 @@ docker run --rm -v "$PWD:/repo" -w /repo gitagger [args]
 
 ## Usage
 
+<img src="assets/demo-help.svg" alt="demo-help" width="700" />
+
 ```sh
-gitagger                 # next patch tag, pushed if it can be
-gitagger minor           # v1.2.3 -> v1.3.0
-gitagger major --pre rc  # v1.2.3 -> v2.0.0-rc
-gitagger --dry-run       # peek first, change nothing
-gitagger --help          # everything else
+gitagger
+gitagger minor
+gitagger --help
 ```
 
 Want the same settings every time? Run `gitagger init` once, 
 tweak `.gitagger.yml`, then forget about flags.
 running `gitagger` without any arguments will use your new config file.
 
-Full docs are coming later — for now, `gitagger help <command>` tells you what each command does.
+### Full documentation [**here!**](https://che3mz.github.io/gitagger/)
 
-## Development
-
-#### Contributing
+## Contributing
 If you'd like to contribute to the project you can check out the contribution guide [**here!**](CONTRIBUTING.md)
-
-#### TODO
-The TODO tasks for this project are defined in the TODO.md file [**here!**](TODO.md)
-
-#### State
-Gitagger is still pretty early in development and not super polished, but it'll get better with time.
 
 ## License
 

@@ -1,0 +1,164 @@
+<svg height="797.6" width="873.984" xmlns="http://www.w3.org/2000/svg">
+<g transform="translate(32,16)">
+<filter filterUnits="userSpaceOnUse" height="805.6" id="shadow" width="881.984" x="-32" y="-24">
+<feGaussianBlur stdDeviation="12"/>
+</filter>
+<rect fill="#0000004d" filter="url(#shadow)" height="733.6" rx="4" ry="4" width="809.984" x="2" y="6"/>
+<rect fill="#242424" height="733.6" rx="4" ry="4" width="809.984"/>
+<clipPath id="header">
+<rect height="28" width="809.984"/>
+</clipPath>
+<rect clip-path="url(#header)" fill="#383837" height="56" rx="4" ry="4" width="809.984"/>
+<line stroke="#000000c0" stroke-width="0" x1="0" x2="809.984" y1="28" y2="28"/><text dominant-baseline="central" fill="#b3b3b3" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" x="404.992" y="14">gitagger help</text>
+<g>
+<circle cx="14" cy="14" fill="#ff5f56" r="6" stroke="#ff5f56" stroke-width="0.5"/>
+<circle cx="34" cy="14" fill="#ffbd2e" r="6" stroke="#ffbd2e" stroke-width="0.5"/>
+<circle cx="54" cy="14" fill="#28c941" r="6" stroke="#28c941" stroke-width="0.5"/>
+</g>
+<svg class="terminal" font-family="Cascadia Mono, Cascadia Code, JetBrains Mono, Fira Code, Source Code Pro, Consolas, Menlo, Monaco, DejaVu Sans Mono, monospace, Symbols Nerd Font Mono, Eager Naturalist" font-size="14" height="705.6" width="809.984" y="28">
+<svg fill="#ffffff" x="11.2" y="8.4">
+<g>
+<svg height="688.8" viewBox="0 0 56.256 49.2" width="787.584">
+<g stroke-width="0.025"/>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="0">
+<text xml:space="preserve" y="0.947em"><tspan fill="#e6e6e6">$ </tspan><tspan fill="#79c0ff">gitagger</tspan><tspan> </tspan><tspan fill="#e6edf3">help</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="16.8">
+<text xml:space="preserve" y="0.947em"><tspan fill="#ffffff" font-weight="bold">┌──────────────┐</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="33.6">
+<text xml:space="preserve" y="0.947em"><tspan fill="#ffffff" font-weight="bold">│ </tspan><tspan fill="#ffffff" font-weight="bold">Gitagger </tspan><tspan fill="#ffffff" font-weight="bold">CLI </tspan><tspan fill="#ffffff" font-weight="bold">│</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="50.4">
+<text xml:space="preserve" y="0.947em"><tspan fill="#ffffff" font-weight="bold">└──────────────┘</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="84">
+<text xml:space="preserve" y="0.947em"><tspan fill="#e6e6e6" font-weight="bold">USAGE</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="117.6">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#e6e6e6">gitagger </tspan><tspan fill="#35d450">[command] </tspan><tspan fill="#5dc5f8">[--flags]</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="151.2">
+<text xml:space="preserve" y="0.947em"><tspan fill="#e6e6e6" font-weight="bold">COMMANDS</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="184.8">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#35d450">init </tspan><tspan>      </tspan><tspan fill="#616161">[--flags] </tspan><tspan>      </tspan><tspan fill="#616161">Generates </tspan><tspan fill="#616161">a </tspan><tspan fill="#616161">.gitagger.yml </tspan><tspan fill="#616161">file</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="201.6">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#35d450">check </tspan><tspan>     </tspan><tspan fill="#616161">[--flags] </tspan><tspan>      </tspan><tspan fill="#616161">Checks </tspan><tspan fill="#616161">if </tspan><tspan fill="#616161">your </tspan><tspan fill="#616161">.gitagger.yml </tspan><tspan fill="#616161">config </tspan><tspan fill="#616161">is </tspan><tspan fill="#616161">valid</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="218.4">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#35d450">list </tspan><tspan>      </tspan><tspan fill="#616161">[--flags] </tspan><tspan>      </tspan><tspan fill="#616161">Shows </tspan><tspan fill="#616161">all </tspan><tspan fill="#616161">tags</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="235.2">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#35d450">view </tspan><tspan>      </tspan><tspan fill="#616161">[--flags] </tspan><tspan>      </tspan><tspan fill="#616161">Show </tspan><tspan fill="#616161">details </tspan><tspan fill="#616161">for </tspan><tspan fill="#616161">one </tspan><tspan fill="#616161">tag</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="252">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#35d450">remove </tspan><tspan>    </tspan><tspan fill="#616161">[--flags] </tspan><tspan>      </tspan><tspan fill="#616161">Remove </tspan><tspan fill="#616161">a </tspan><tspan fill="#616161">tag </tspan><tspan fill="#616161">locally </tspan><tspan fill="#616161">and </tspan><tspan fill="#616161">on </tspan><tspan fill="#616161">the </tspan><tspan fill="#616161">remote</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="268.8">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#35d450">test </tspan><tspan>      </tspan><tspan fill="#616161">[--flags] </tspan><tspan>      </tspan><tspan fill="#616161">Exercise </tspan><tspan fill="#616161">the </tspan><tspan fill="#616161">tag </tspan><tspan fill="#616161">flow </tspan><tspan fill="#616161">in </tspan><tspan fill="#616161">a </tspan><tspan fill="#616161">disposable </tspan><tspan fill="#616161">clone</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="285.6">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#35d450">help </tspan><tspan>      </tspan><tspan fill="#616161">[--flags] </tspan><tspan>      </tspan><tspan fill="#616161">Print </tspan><tspan fill="#616161">this </tspan><tspan fill="#616161">help </tspan><tspan fill="#616161">text</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="302.4">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#35d450">handbook </tspan><tspan>  </tspan><tspan fill="#616161">[--flags] </tspan><tspan>      </tspan><tspan fill="#616161">Show </tspan><tspan fill="#616161">the </tspan><tspan fill="#616161">.gitagger.yml </tspan><tspan fill="#616161">handbook</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="319.2">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#35d450">doctor </tspan><tspan>    </tspan><tspan fill="#616161">[--flags] </tspan><tspan>      </tspan><tspan fill="#616161">Audit </tspan><tspan fill="#616161">local </tspan><tspan fill="#616161">vs </tspan><tspan fill="#616161">remote </tspan><tspan fill="#616161">tag </tspan><tspan fill="#616161">health </tspan><tspan fill="#616161">status</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="336">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#35d450">remote </tspan><tspan>    </tspan><tspan fill="#616161">[--flags] </tspan><tspan>      </tspan><tspan fill="#616161">Change </tspan><tspan fill="#616161">the </tspan><tspan fill="#616161">remote </tspan><tspan fill="#616161">URL </tspan><tspan fill="#616161">the </tspan><tspan fill="#616161">tag </tspan><tspan fill="#616161">will </tspan><tspan fill="#616161">get </tspan><tspan fill="#616161">pushed </tspan><tspan fill="#616161">to</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="352.8">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#35d450">workflow </tspan><tspan>  </tspan><tspan fill="#616161">[--flags] </tspan><tspan>      </tspan><tspan fill="#616161">Generate </tspan><tspan fill="#616161">CI </tspan><tspan fill="#616161">workflow </tspan><tspan fill="#616161">files</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="369.6">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#35d450">version </tspan><tspan>   </tspan><tspan fill="#616161">[--flags] </tspan><tspan>      </tspan><tspan fill="#616161">Show </tspan><tspan fill="#616161">the </tspan><tspan fill="#616161">build </tspan><tspan fill="#616161">version</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="386.4">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#35d450">next </tspan><tspan>      </tspan><tspan fill="#616161">[--flags] </tspan><tspan>      </tspan><tspan fill="#616161">Show </tspan><tspan fill="#616161">the </tspan><tspan fill="#616161">tag </tspan><tspan fill="#616161">the </tspan><tspan fill="#616161">next </tspan><tspan fill="#616161">real </tspan><tspan fill="#616161">run </tspan><tspan fill="#616161">would </tspan><tspan fill="#616161">create</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="403.2">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#35d450">patch </tspan><tspan>     </tspan><tspan fill="#616161">[--flags] </tspan><tspan>      </tspan><tspan fill="#616161">New </tspan><tspan fill="#616161">tag </tspan><tspan fill="#616161">addition </tspan><tspan fill="#616161">by </tspan><tspan>   </tspan><tspan fill="#616161">0.0.X</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="420">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#35d450">minor </tspan><tspan>     </tspan><tspan fill="#616161">[--flags] </tspan><tspan>      </tspan><tspan fill="#616161">New </tspan><tspan fill="#616161">tag </tspan><tspan fill="#616161">rounding </tspan><tspan fill="#616161">to </tspan><tspan>   </tspan><tspan fill="#616161">0.X.0</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="436.8">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#35d450">major </tspan><tspan>     </tspan><tspan fill="#616161">[--flags] </tspan><tspan>      </tspan><tspan fill="#616161">New </tspan><tspan fill="#616161">tag </tspan><tspan fill="#616161">rounding </tspan><tspan fill="#616161">to </tspan><tspan>   </tspan><tspan fill="#616161">X.0.0</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="470.4">
+<text xml:space="preserve" y="0.947em"><tspan fill="#e6e6e6" font-weight="bold">Flags</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="487.2">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#5dc5f8">--pre</tspan><tspan>                 </tspan><tspan fill="#616161">prerelease </tspan><tspan fill="#616161">flavor: </tspan><tspan fill="#5dc5f8">stable|rc|beta|build|nightly </tspan><tspan fill="#5dc5f8">(default </tspan><tspan fill="#5dc5f8">stable)</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="504">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#5dc5f8">--format</tspan><tspan>              </tspan><tspan fill="#616161">force </tspan><tspan fill="#616161">a </tspan><tspan fill="#616161">style: </tspan><tspan fill="#5dc5f8">auto|triple|double|single|date|sha|sha-num </tspan><tspan fill="#5dc5f8">(default </tspan><tspan fill="#5dc5f8">auto)</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="520.8">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#5dc5f8">-h </tspan><tspan fill="#5dc5f8">--help</tspan><tspan>             </tspan><tspan fill="#616161">Print </tspan><tspan fill="#616161">the </tspan><tspan fill="#616161">help </tspan><tspan fill="#616161">text </tspan><tspan fill="#616161">for </tspan><tspan fill="#616161">a </tspan><tspan fill="#616161">command.</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="537.6">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#5dc5f8">-v </tspan><tspan fill="#5dc5f8">--verbose</tspan><tspan>          </tspan><tspan fill="#616161">Enable </tspan><tspan fill="#616161">verbose </tspan><tspan fill="#616161">mode.</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="554.4">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#5dc5f8">-n </tspan><tspan fill="#5dc5f8">--no-push</tspan><tspan>          </tspan><tspan fill="#616161">Create </tspan><tspan fill="#616161">tag </tspan><tspan fill="#616161">without </tspan><tspan fill="#616161">pushing.</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="571.2">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#5dc5f8">-d </tspan><tspan fill="#5dc5f8">--dry-run</tspan><tspan>          </tspan><tspan fill="#616161">Do </tspan><tspan fill="#616161">A </tspan><tspan fill="#616161">dry-run </tspan><tspan fill="#616161">for </tspan><tspan fill="#616161">testing.</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="588">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#5dc5f8">-f </tspan><tspan fill="#5dc5f8">--force</tspan><tspan>            </tspan><tspan fill="#616161">Force </tspan><tspan fill="#616161">push </tspan><tspan fill="#616161">to </tspan><tspan fill="#616161">remote </tspan><tspan fill="#616161">or </tspan><tspan fill="#616161">force </tspan><tspan fill="#616161">an </tspan><tspan fill="#616161">action.</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="604.8">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#5dc5f8">-u </tspan><tspan fill="#5dc5f8">--unsafe</tspan><tspan>           </tspan><tspan fill="#616161">Skip </tspan><tspan fill="#616161">safety </tspan><tspan fill="#616161">checks </tspan><tspan fill="#616161">and </tspan><tspan fill="#616161">push </tspan><tspan fill="#616161">anyway.</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="621.6">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#5dc5f8">-m </tspan><tspan fill="#5dc5f8">--message </tspan><tspan fill="#5dc5f8">&lt;msg&gt; </tspan><tspan>   </tspan><tspan fill="#616161">Tag </tspan><tspan fill="#616161">message. </tspan><tspan fill="#616161">(empty </tspan><tspan fill="#616161">by </tspan><tspan fill="#616161">default)</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="638.4">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#5dc5f8">-r </tspan><tspan fill="#5dc5f8">--require-clean </tspan><tspan>   </tspan><tspan fill="#616161">Abort </tspan><tspan fill="#616161">if </tspan><tspan fill="#616161">the </tspan><tspan fill="#616161">working </tspan><tspan fill="#616161">tree </tspan><tspan fill="#616161">is </tspan><tspan fill="#616161">dirty.</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="655.2">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#5dc5f8">-p </tspan><tspan fill="#5dc5f8">--path </tspan><tspan fill="#5dc5f8">&lt;dir&gt; </tspan><tspan>      </tspan><tspan fill="#616161">Operate </tspan><tspan fill="#616161">in </tspan><tspan fill="#616161">another </tspan><tspan fill="#616161">directory.</tspan></text>
+</svg>
+<svg height="16.8" overflow="hidden" width="787.584" y="672">
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#5dc5f8">-a </tspan><tspan fill="#5dc5f8">--argument </tspan><tspan fill="#5dc5f8">&lt;name&gt; </tspan><tspan> </tspan><tspan fill="#616161">Enable </tspan><tspan fill="#616161">hooks </tspan><tspan fill="#616161">with </tspan><tspan fill="#616161">this </tspan><tspan fill="#616161">argument.</tspan></text>
+</svg>
+</g>
+</svg>
+</svg>
+<rect fill="none" height="733.6" rx="4" ry="4" stroke="#000000" stroke-width="0" width="809.984"/>
+<rect fill="none" height="732.6" rx="3.5" ry="3.5" stroke="#f0f0f080" stroke-width="0" width="808.984" x="0.5" y="0.5"/>
+</g>
+<style>
+@font-face {
+	font-family: Cascadia Mono;
+	font-weight: 200 700;
+	font-style: normal;
+	src: url(https://fonts.gstatic.com/s/cascadiamono/v5/TUZ2zw5pquJF3iuizJDZYqr1aZIn0E_o8WE.woff2) format('woff2');
+}
+@font-face {
+	font-family: Cascadia Mono;
+	font-weight: 200 700;
+	font-style: normal;
+	src: url(https://fonts.gstatic.com/s/cascadiamono/v5/TUZ2zw5pquJF3iuizJDZYqr1aSgG9WDA-2l5cTc.woff2) format('woff2');
+}
+@font-face {
+	font-family: Cascadia Mono;
+	font-weight: 200 700;
+	font-style: normal;
+	src: url(https://fonts.gstatic.com/s/cascadiamono/v5/TUZ2zw5pquJF3iuizJDZYqr1aZAn0E_o8WFBSA.woff2) format('woff2');
+}
+@font-face {
+	font-family: Cascadia Mono;
+	font-weight: 200 700;
+	font-style: normal;
+	src: url(https://fonts.gstatic.com/s/cascadiamono/v5/TUZ2zw5pquJF3iuizJDZYqr1aZcn0E_o8WFBSA.woff2) format('woff2');
+}
+</style>
+</svg>

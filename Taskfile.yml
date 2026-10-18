@@ -49,3 +49,10 @@ tasks:
   build-site:
     cmds:
       - cd docs && mkdocs build
+  demo-help:
+    cmds:
+      - cmd: termframe --syntax-theme github-dark -o assets/demo-help.svg gitagger help
+  check-links:
+    cmds:
+      - cmd: lychee .
+      - cmd: linkchecker .
