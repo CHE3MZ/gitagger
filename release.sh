@@ -2,11 +2,13 @@
 # Fail fast: a broken build or upload must never move the marketplace tags.
 set -eu
 
-releasenotes="This release was generated with GoReleaser!"
-
 # Correctly capture the latest git tag into the variable
 echo "Getting the latest tag..."
 taglatest=$(git describe --tags --abbrev=0)
+
+# Generate the release notes for that tag with git-cliff
+echo "Generating the release notes with git-cliff..."
+releasenotes=$(RUST_LOG=off git-cliff --latest --strip all)
 
 # Run GoReleaser skipping SCM validation and publishing
 echo "Running Goreleaser..."
