@@ -61,8 +61,9 @@ func TestRunTestBasic(t *testing.T) {
 }
 
 func TestRunTestHooks(t *testing.T) {
+	needSh(t)
 	dir := initRepo(t)
-	writeConfig(t, dir, "push: false\non:\n  success:\n    - run: echo hi > hook-ran\n    - run: echo $GITAGGER_DRY_RUN > dry-marker\n    - run: echo $GITAGGER_TAG > tag-marker\n")
+	writeConfig(t, dir, "push: false\non:\n  success:\n    - shell: sh\n      run: echo hi > hook-ran\n    - shell: sh\n      run: echo $GITAGGER_DRY_RUN > dry-marker\n    - shell: sh\n      run: echo $GITAGGER_TAG > tag-marker\n")
 	// Configs travel with the clone: commit it like a real user would.
 	mustGit(t, dir, "add", ".gitagger.yml")
 	mustGit(t, dir, "commit", "-qm", "config")

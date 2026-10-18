@@ -33,10 +33,10 @@ func resolveMessage(o run.Options, plan run.Plan) (string, error) {
 			return "", GenericErr(err)
 		}
 		if _, err := exec.LookPath(bin); err != nil {
-			return "", Generic("message command needs %q (%s not on PATH)", c.Shell, bin)
+			return "", Generic("message command needs %q (%s not on PATH)", bin, bin)
 		}
 		if o.Verbose {
-			fmt.Println(style.Dim(fmt.Sprintf("message [%s]: %s", c.Shell, c.Cmd)))
+			fmt.Println(style.Dim(fmt.Sprintf("message [%s]: %s", bin, c.Cmd)))
 		}
 		args := append(append([]string{}, prefix...), c.Cmd)
 		// #nosec G204 — binary is a fixed shell from the allowlist

@@ -126,7 +126,7 @@ func PrintHandbook() {
 		"      run:",
 		`        - echo "Oops! Something went wrong..."`,
 	)
-	hbDesc("shell: sh | bash | pwsh | batch. Default: sh.")
+	hbDesc("shell: sh | bash | pwsh | batch. Default: sh on unix, PowerShell on Windows (pwsh, Windows PowerShell, cmd).")
 	hbDesc("os: linux | macos | windows. Default: all. Comma lists work.")
 	hbDesc("run: one command or a list. Each item runs separately.")
 	hbDesc("argument: <name>. Block runs only with gitagger -a <name>.")

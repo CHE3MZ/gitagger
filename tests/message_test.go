@@ -67,8 +67,8 @@ func TestMessageConfigForms(t *testing.T) {
 	if len(cfg.MessageCmds) != 2 {
 		t.Fatalf("MessageCmds = %+v, want 2", cfg.MessageCmds)
 	}
-	if cfg.MessageCmds[0].Cmd != "echo bare" || cfg.MessageCmds[0].Shell != "sh" {
-		t.Fatalf("bare cmd = %+v, want sh default", cfg.MessageCmds[0])
+	if cfg.MessageCmds[0].Cmd != "echo bare" || cfg.MessageCmds[0].Shell != "" {
+		t.Fatalf("bare cmd = %+v, want empty shell (platform default)", cfg.MessageCmds[0])
 	}
 	if cfg.MessageCmds[1].Shell != "bash" || cfg.MessageCmds[1].OS != "linux, macos" {
 		t.Fatalf("block cmd = %+v", cfg.MessageCmds[1])
@@ -122,7 +122,7 @@ func TestMessageCmdsJoin(t *testing.T) {
 func TestMessageCmdsEnv(t *testing.T) {
 	needSh(t)
 	dir := initRepo(t)
-	writeConfig(t, dir, "message:\n  cmds:\n    - echo \"$GITAGGER_EVENT:$GITAGGER_TAG\"\n")
+	writeConfig(t, dir, "message:\n  cmds:\n    - cmd: echo \"$GITAGGER_EVENT:$GITAGGER_TAG\"\n      shell: sh\n")
 	if err := cmd.RunTag(messageOptions(t, dir)); err != nil {
 		t.Fatal(err)
 	}

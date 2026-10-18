@@ -54,7 +54,7 @@ on:
       os: macos, linux
       run:
         - echo "Oops! Something went wrong..."
-    - shell: batch
+    - shell: pwsh
       os: windows
       run:
         - echo "Oops! Something went wrong..."

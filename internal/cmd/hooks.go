@@ -13,23 +13,53 @@ import (
 	"github.com/CHE3MZ/gitagger/internal/style"
 )
 
-// shellRunner maps shell names to binary + leading args.
+// shellRunner maps shell names to binary + leading args. An empty shell
+// means the platform default: sh on unix; on Windows PowerShell (pwsh,
+// then Windows PowerShell), falling back to cmd. The pwsh entry uses the
+// same Windows fallback chain; sh/batch stay explicit.
 func shellRunner(shell string) (string, []string, error) {
+	return shellFor(runtime.GOOS, shell, exec.LookPath)
+}
+
+func shellFor(goos, shell string, look func(string) (string, error)) (string, []string, error) {
 	switch shell {
-	case "", "sh":
+	case "":
+		if goos == "windows" {
+			return windowsShell(look)
+		}
+		return "sh", []string{"-c"}, nil
+	case "sh":
 		return "sh", []string{"-c"}, nil
 	case "bash":
 		return "bash", []string{"-c"}, nil
 	case "pwsh":
+		if goos == "windows" {
+			return windowsShell(look)
+		}
 		return "pwsh", []string{"-Command"}, nil
 	case "batch":
-		if runtime.GOOS != "windows" {
+		if goos != "windows" {
 			return "", nil, fmt.Errorf("shell %q needs Windows", shell)
 		}
 		return "cmd", []string{"/C"}, nil
 	default:
 		return "", nil, fmt.Errorf("unknown shell %q (want sh|bash|pwsh|batch)", shell)
 	}
+}
+
+// windowsShell prefers PowerShell — pwsh, then Windows PowerShell —
+// and falls back to cmd, matching what stock Windows ships.
+func windowsShell(look func(string) (string, error)) (string, []string, error) {
+	if _, err := look("pwsh"); err == nil {
+		return "pwsh", []string{"-Command"}, nil
+	}
+	if _, err := look("powershell"); err == nil {
+		return "powershell", []string{"-Command"}, nil
+	}
+	if _, err := look("cmd"); err == nil {
+		return "cmd", []string{"/C"}, nil
+	}
+	return "", nil, fmt.Errorf("no shell found (want pwsh, powershell or cmd on PATH)")
 }
 
 // OsMatches reports whether an os: selector targets a GOOS value.
@@ -99,9 +129,6 @@ func RunHooks(dir, event string, blocks []config.HookBlock, env map[string]strin
 	}
 	for _, b := range blocks {
 		shell := strings.ToLower(strings.TrimSpace(b.Shell))
-		if shell == "" {
-			shell = "sh"
-		}
 		osName := strings.ToLower(strings.TrimSpace(b.OS))
 		if !OsMatches(osName, runtime.GOOS) {
 			if verbose {
@@ -118,10 +145,10 @@ func RunHooks(dir, event string, blocks []config.HookBlock, env map[string]strin
 			return GenericErr(err)
 		}
 		if _, err := exec.LookPath(bin); err != nil {
-			return Generic("hook needs %q (%s not on PATH)", shell, bin)
+			return Generic("hook needs %q (%s not on PATH)", bin, bin)
 		}
 		for _, c := range b.Run {
-			_, _ = fmt.Fprintln(stdout, style.Dim(fmt.Sprintf("run [%s]: %s", shell, c)))
+			_, _ = fmt.Fprintln(stdout, style.Dim(fmt.Sprintf("run [%s]: %s", bin, c)))
 			args := append(append([]string{}, prefix...), c)
 			// #nosec G204 — binary is a fixed shell from the allowlist
 			// above, never user input; the command string goes to the

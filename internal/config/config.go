@@ -42,8 +42,9 @@ func Defaults() Resolved {
 }
 
 // HookBlock is one shell block: optional argument/shell/os plus commands.
-// Shell defaults to sh, os defaults to all. A block with an argument runs
-// only when that argument is given (-a/--argument).
+// Shell defaults to sh on unix and PowerShell on Windows (pwsh, then
+// Windows PowerShell, falling back to cmd); os defaults to all. A block
+// with an argument runs only when that argument is given (-a/--argument).
 type HookBlock struct {
 	Argument string     `yaml:"argument"`
 	Shell    string     `yaml:"shell"`
@@ -107,7 +108,7 @@ func (s *StringList) UnmarshalYAML(value *yaml.Node) error {
 }
 
 // MsgCmd is one message command: a shell line plus optional shell/os.
-// Shell defaults to sh, os defaults to all platforms.
+// Shell defaults to sh on unix and PowerShell on Windows, like hooks.
 type MsgCmd struct {
 	Cmd   string `yaml:"cmd"`
 	Shell string `yaml:"shell"`
@@ -183,9 +184,6 @@ func decodeMsgCmd(n *yaml.Node) (MsgCmd, error) {
 		return c, fmt.Errorf("bad message command: want a string or {cmd: ...}")
 	}
 	c.Shell = strings.ToLower(strings.TrimSpace(c.Shell))
-	if c.Shell == "" {
-		c.Shell = "sh"
-	}
 	c.OS = strings.ToLower(strings.TrimSpace(c.OS))
 	return c, nil
 }
@@ -239,8 +237,9 @@ type fileConfig struct {
 var legacyKeys = map[string]bool{"version": true, "confirm": true}
 
 // validShells are the only shell names hooks accept.
+// Empty means the platform default (sh on unix, PowerShell on Windows).
 var validShells = map[string]bool{
-	"sh": true, "bash": true, "pwsh": true, "batch": true,
+	"": true, "sh": true, "bash": true, "pwsh": true, "batch": true,
 }
 
 // validHookOS limits blocks to platforms.
@@ -380,14 +379,12 @@ func Load(dir string) (Resolved, string, error) {
 	return cfg, path, nil
 }
 
-// normalizeHooks lowercases shell/os and defaults empty shells to sh.
+// normalizeHooks lowercases shell/os. Empty shells stay empty: the
+// runner picks the platform default (sh on unix, PowerShell on Windows).
 func normalizeHooks(h *Hooks) {
 	for _, list := range []*HookList{&h.Start, &h.Success, &h.Failure, &h.Finish} {
 		for i := range *list {
 			(*list)[i].Shell = strings.ToLower(strings.TrimSpace((*list)[i].Shell))
-			if (*list)[i].Shell == "" {
-				(*list)[i].Shell = "sh"
-			}
 			(*list)[i].OS = strings.ToLower(strings.TrimSpace((*list)[i].OS))
 		}
 	}
@@ -541,7 +538,9 @@ verbose: false
 message: ""
 
 # Hooks run shell commands at lifecycle events: start, success etc.
-# Each event takes one block or a list. shell defaults to sh, os defaults to all.
+# Each event takes one block or a list. os defaults to all.
+# shell defaults to sh on unix; on Windows it defaults to PowerShell
+# (pwsh, then Windows PowerShell, falling back to cmd).
 # API: on:, start:, success:, failure:, finish:, run:, shell:, os:, argument:
 # EVENTS: start:, success:, failure:, finish: - determine when to run the hook.
 # SHELLS: sh, bash, pwsh, batch - determine what shell type to run the command on.
@@ -555,7 +554,7 @@ on:
       os: macos, linux
       run:
         - echo "Oops! Something went wrong..."
-    - shell: batch
+    - shell: pwsh
       os: windows
       run:
         - echo "Oops! Something went wrong..."

@@ -46,8 +46,8 @@ func TestHooksLoadAllForms(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(cfg.Hooks.Start) != 1 || cfg.Hooks.Start[0].Shell != "sh" {
-		t.Fatalf("start = %+v, want 1 sh block (defaulted)", cfg.Hooks.Start)
+	if len(cfg.Hooks.Start) != 1 || cfg.Hooks.Start[0].Shell != "" {
+		t.Fatalf("start = %+v, want 1 empty-shell block (platform default)", cfg.Hooks.Start)
 	}
 	if len(cfg.Hooks.Success) != 2 || cfg.Hooks.Success[1].Shell != "bash" || cfg.Hooks.Success[1].OS != "linux" {
 		t.Fatalf("success = %+v", cfg.Hooks.Success)
@@ -121,8 +121,8 @@ func TestInitTemplateLoads(t *testing.T) {
 	if cfg.Hooks.Failure[0].Shell != "sh" || cfg.Hooks.Failure[0].OS != "macos, linux" {
 		t.Fatalf("default sh failure hook wrong: %+v", cfg.Hooks.Failure[0])
 	}
-	if cfg.Hooks.Failure[1].Shell != "batch" || cfg.Hooks.Failure[1].OS != "windows" {
-		t.Fatalf("default batch failure hook wrong: %+v", cfg.Hooks.Failure[1])
+	if cfg.Hooks.Failure[1].Shell != "pwsh" || cfg.Hooks.Failure[1].OS != "windows" {
+		t.Fatalf("default pwsh failure hook wrong: %+v", cfg.Hooks.Failure[1])
 	}
 }
 
