@@ -1,0 +1,5 @@
+# Match CI: Go and shell files are LF on every platform so gofmt,
+# golangci-lint, and bash behave identically local and remote.
+* text=auto
+*.go text eol=lf
+*.sh text eol=lf
