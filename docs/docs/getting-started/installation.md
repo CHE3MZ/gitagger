@@ -16,7 +16,7 @@ Requires Go 1.26 or newer.
 
 <img src="../../assets/installation-methods/prebuilt.png" alt="Prebuilt binaries" width="256" />
 
-Grab one from the [releases page](https://github.com/CHE3MZ/gitagger/releases) — Linux, macOS, and Windows, amd64 and arm64.
+Grab one from the [releases page](https://github.com/CHE3MZ/gitagger/releases): Linux, macOS, and Windows, on amd64 and arm64.
 
 ## From source
 
@@ -34,7 +34,7 @@ Requires Go 1.26 or newer.
 
 <img src="../../assets/installation-methods/docker.png" alt="Docker" width="256" />
 
-No published image yet — build it yourself (any OCI runtime: docker, podman, nerdctl…):
+No published image yet. Build it yourself (any OCI runtime: docker, podman, nerdctl…):
 
 ```sh
 docker build -t gitagger .

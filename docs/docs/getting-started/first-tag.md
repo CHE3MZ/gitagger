@@ -25,7 +25,7 @@ That creates the tag and pushes it to `origin` when it can (no remote or offline
 
 ## Make it yours
 
-Run `gitagger init` once to write a `.gitagger.yml`, tweak it, then forget about flags — bare `gitagger` uses your config from then on. See [Configuration](../usage/configuration.md).
+Run `gitagger init` once to write a `.gitagger.yml`, tweak it, then forget about flags: bare `gitagger` uses your config from then on. See [Configuration](../usage/configuration.md).
 
 ## Useful next commands
 

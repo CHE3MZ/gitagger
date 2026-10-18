@@ -1,6 +1,6 @@
 # Docker
 
-No published image yet — build it yourself (any OCI runtime: docker, podman, nerdctl…):
+No published image yet. Build it yourself (any OCI runtime: docker, podman, nerdctl…):
 
 ```sh
 docker build -t gitagger .
@@ -11,7 +11,7 @@ Multi-arch: `docker buildx build --platform linux/amd64,linux/arm64 -t gitagger 
 
 ## Notes
 
-- The image is non-root (`gitagger` user) with `git` and CA certificates installed — everything tagging needs, nothing else.
+- The image is non-root (`gitagger` user) with just `git` and CA certificates installed, which is all tagging needs.
 - It reads the mounted repo's `.gitagger.yml` like the binary does; all flags work the same.
 - Match host file ownership with `--user "$(id -u):$(id -g)"`, and make sure the mounted directory is readable by the container user.
 

@@ -1,6 +1,6 @@
 # Configuration
 
-`gitagger init` writes a `.gitagger.yml` (recognized siblings: `.gitagger.yaml`, `.gitagger` — first found wins). Everything is optional. Precedence: **flags > config > defaults**. Run `gitagger check -v` to see the resolved values, or `gitagger handbook` for this same reference in your terminal.
+`gitagger init` writes a `.gitagger.yml` (recognized siblings: `.gitagger.yaml`, `.gitagger`; first found wins). Everything is optional. Precedence: **flags > config > defaults**. Run `gitagger check -v` to see the resolved values, or `gitagger handbook` for this same reference in your terminal.
 
 ```yaml
 # Tag size for triple/double/single styles.
@@ -58,4 +58,4 @@ on:
 ```
 
 !!! note "Strict but forgiving"
-    Unknown config keys are an error (typos under known sections too) — except retired keys (`version:`, `confirm:`), which still load fine. A broken config aborts before anything mutates; a missing file just means defaults.
+    Unknown config keys are an error (typos under known sections too), except retired keys (`version:`, `confirm:`), which still load fine. A broken config aborts before anything mutates; a missing file just means defaults.

@@ -2,7 +2,7 @@
 
 # Gitagger
 
-**Automate git tags without the headache.** Run `gitagger` and it figures out your tag format, creates the next tag, and pushes it — or sets one up for you if you have none yet.
+**Automate git tags without the headache.** Run `gitagger` and it figures out your tag format, creates the next tag, and pushes it, or creates `v1.0.0` for you if you have no tags yet.
 
 ```sh
 gitagger                 # next patch tag, pushed if it can be
@@ -13,10 +13,10 @@ gitagger --dry-run       # peek first, change nothing
 
 ## Why gitagger?
 
-- **Follows your convention.** Triple (`v1.2.3`), double (`v1.2`), single (`v7`), date (`v2026.10.04`), even `master-<sha>` styles — detected from your history by majority vote. No flags needed for the common case.
+- **Follows your convention.** Triple (`v1.2.3`), double (`v1.2`), single (`v7`), date (`v2026.10.04`), even `master-<sha>` styles, detected from your history by majority vote. No flags needed for the common case.
 - **Safe by default.** Refuses to double-tag HEAD, checks the remote for collisions before pushing (with `doctor`), stays graceful offline, never force-pushes unless you say `-f`.
-- **Hooks included.** Run shell commands on `start`, `success`, `failure`, and `finish` — releases, notifications, whatever your flow needs.
-- **One binary, everywhere.** Linux, macOS, Windows, Docker, and a GitHub Actions. No runtime, no dependencies.
+- **Hooks included.** Run shell commands on `start`, `success`, `failure`, and `finish`: releases, notifications, whatever your flow needs.
+- **One binary, everywhere.** Linux, macOS, Windows, Docker, and a GitHub Action. It's a single binary with no runtime or dependencies.
 
 ## Start here
 
@@ -29,4 +29,4 @@ gitagger --dry-run       # peek first, change nothing
 
 ## License
 
-You can check out the licensing for the project [**here!**](legal\LICENSE.md)
+gitagger is licensed under the [Apache License 2.0](legal/LICENSE.md).
