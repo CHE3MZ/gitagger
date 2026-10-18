@@ -27,11 +27,13 @@ type Resolved struct {
 	Verbose      bool
 	Unsafe       bool
 	Message      string
+	MessageCmds  []MsgCmd
 	Hooks        Hooks
 	Path         string
 }
 
-// Defaults: patch, stable, auto, origin, push on. Everything else off/empty.
+// Defaults returns the baseline config: patch, stable, auto, origin,
+// push on. Everything else off or empty.
 func Defaults() Resolved {
 	return Resolved{
 		Scale: "patch", Pre: "stable", Format: "auto",
@@ -104,6 +106,90 @@ func (s *StringList) UnmarshalYAML(value *yaml.Node) error {
 	return fmt.Errorf("want a string or list of strings")
 }
 
+// MsgCmd is one message command: a shell line plus optional shell/os.
+// Shell defaults to sh, os defaults to all platforms.
+type MsgCmd struct {
+	Cmd   string `yaml:"cmd"`
+	Shell string `yaml:"shell"`
+	OS    string `yaml:"os"`
+}
+
+// MessageCfg is the message: key. A scalar is literal text; a mapping
+// with cmds: runs commands and joins their output into the message.
+type MessageCfg struct {
+	Text string
+	Cmds []MsgCmd
+}
+
+// UnmarshalYAML accepts `message: "text"` or `message: {cmds: [...]}`.
+// Inside cmds each item is a bare command or a {cmd, shell, os} block.
+// Unknown keys are rejected so typos fail loudly.
+func (m *MessageCfg) UnmarshalYAML(value *yaml.Node) error {
+	switch value.Kind {
+	case yaml.ScalarNode:
+		if value.Tag == "!!null" {
+			return nil
+		}
+		m.Text = value.Value
+		return nil
+	case yaml.MappingNode:
+		for i := 0; i+1 < len(value.Content); i += 2 {
+			key := value.Content[i].Value
+			if key != "cmds" {
+				return fmt.Errorf("unknown message key %q (want cmds)", key)
+			}
+			seq := value.Content[i+1]
+			if seq.Tag == "!!null" {
+				continue
+			}
+			if seq.Kind != yaml.SequenceNode {
+				return fmt.Errorf("message.cmds wants a list of commands")
+			}
+			if len(seq.Content) == 0 {
+				return fmt.Errorf("message.cmds is empty")
+			}
+			for _, item := range seq.Content {
+				c, err := decodeMsgCmd(item)
+				if err != nil {
+					return err
+				}
+				m.Cmds = append(m.Cmds, c)
+			}
+		}
+		return nil
+	default:
+		return fmt.Errorf("bad message: want text or {cmds: [...]}")
+	}
+}
+
+// decodeMsgCmd accepts a bare command string or a {cmd, shell, os} block.
+func decodeMsgCmd(n *yaml.Node) (MsgCmd, error) {
+	var c MsgCmd
+	switch n.Kind {
+	case yaml.ScalarNode:
+		c.Cmd = n.Value
+	case yaml.MappingNode:
+		for i := 0; i+1 < len(n.Content); i += 2 {
+			switch n.Content[i].Value {
+			case "cmd", "shell", "os":
+			default:
+				return c, fmt.Errorf("unknown message command key %q (want cmd|shell|os)", n.Content[i].Value)
+			}
+		}
+		if err := n.Decode(&c); err != nil {
+			return c, err
+		}
+	default:
+		return c, fmt.Errorf("bad message command: want a string or {cmd: ...}")
+	}
+	c.Shell = strings.ToLower(strings.TrimSpace(c.Shell))
+	if c.Shell == "" {
+		c.Shell = "sh"
+	}
+	c.OS = strings.ToLower(strings.TrimSpace(c.OS))
+	return c, nil
+}
+
 // Hooks holds lifecycle hooks. finish runs always (success and failure).
 type Hooks struct {
 	Start   HookList       `yaml:"start"`
@@ -143,7 +229,7 @@ type fileConfig struct {
 	Doctor       *YBool         `yaml:"doctor"`
 	Verbose      *YBool         `yaml:"verbose"`
 	Unsafe       *YBool         `yaml:"unsafe"`
-	Message      string         `yaml:"message"`
+	Message      MessageCfg     `yaml:"message"`
 	On           Hooks          `yaml:"on"`
 	Path         string         `yaml:"path"`
 	Extra        map[string]any `yaml:",inline"`
@@ -283,7 +369,8 @@ func Load(dir string) (Resolved, string, error) {
 	if fc.Unsafe != nil {
 		cfg.Unsafe = bool(*fc.Unsafe)
 	}
-	cfg.Message = fc.Message
+	cfg.Message = fc.Message.Text
+	cfg.MessageCmds = fc.Message.Cmds
 	cfg.Path = fc.Path
 	cfg.Hooks = fc.On
 	normalizeHooks(&cfg.Hooks)
@@ -333,7 +420,28 @@ func Validate(c Resolved) error {
 	if strings.TrimSpace(c.Remote) == "" {
 		return fmt.Errorf("remote must not be empty")
 	}
+	if err := validateMessageCmds(c.MessageCmds); err != nil {
+		return err
+	}
 	return validateHooks(c.Hooks)
+}
+
+// validateMessageCmds checks shells, platforms, and commands.
+func validateMessageCmds(cmds []MsgCmd) error {
+	for _, c := range cmds {
+		if !validShells[c.Shell] {
+			return fmt.Errorf("bad shell %q in message command (want sh|bash|pwsh|batch)", c.Shell)
+		}
+		for _, o := range splitOS(c.OS) {
+			if !validHookOS[o] {
+				return fmt.Errorf("bad os %q in message command (want linux|macos|windows)", c.OS)
+			}
+		}
+		if strings.TrimSpace(c.Cmd) == "" {
+			return fmt.Errorf("message has an empty command")
+		}
+	}
+	return nil
 }
 
 // validateHooks checks events, shells, platforms, and commands.
@@ -426,6 +534,10 @@ doctor: false
 verbose: false
 
 # Tag message. Empty = lightweight tag, set = annotated tag.
+# Text form is literal. Command form runs shell commands and joins
+# their output with newlines; a failing command aborts before tagging.
+# API: message:, cmds:, cmd:, shell:, os:
+# EXAMPLE: message: { cmds: [ "echo one", { cmd: "echo two", shell: bash } ] }
 message: ""
 
 # Hooks run shell commands at lifecycle events: start, success etc.

@@ -97,6 +97,19 @@ func PrintHandbook() {
 	hbKey(`message: "<text>"`)
 	hbDesc("Tag message. Empty = lightweight tag. Same as -m. Default: empty.")
 	hbExample(`message: "rc1"`)
+	hbKey("message:")
+	hbKey("  cmds:")
+	hbDesc("Command form: runs shell commands and joins their output (newline per command) into the message. Text stays literal; only cmds expand.")
+	hbExample(
+		"message:",
+		"  cmds:",
+		`    - echo "Release $GITAGGER_TAG"`,
+		"    - cmd: git log -1 --format=%s",
+		"      shell: bash",
+		"      os: linux, macos",
+	)
+	hbDesc("cmds: a list. Each item is a command string or a cmd:/shell:/os: block. Other platforms are skipped.")
+	hbDesc("A failing command aborts before the tag is created. Commands get the hook env plus GITAGGER_EVENT=message.")
 
 	hbHeader("PATH")
 	hbKey(`path: "<dir>"`)

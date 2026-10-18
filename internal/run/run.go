@@ -25,6 +25,7 @@ type Options struct {
 	Force        bool
 	DryRun       bool
 	Message      string
+	MessageCmds  []config.MsgCmd
 	RequireClean bool
 	Doctor       bool
 	Verbose      bool
@@ -64,14 +65,14 @@ func FromConfig(dir string, cfg config.Resolved, o Options) Options {
 
 // Plan is the computed next tag.
 type Plan struct {
-	Prev      string
-	Next      string
-	Format    detect.Format
-	VPrefix   bool
-	Detected  bool // true when format came from auto-detect
-	Existing  map[string]bool
-	TagIsNew  bool   // Next did not exist when planned (pure lookup, never fails)
-	PrevRef   string // object Next already points at ("" when the tag is new)
+	Prev     string
+	Next     string
+	Format   detect.Format
+	VPrefix  bool
+	Detected bool // true when format came from auto-detect
+	Existing map[string]bool
+	TagIsNew bool   // Next did not exist when planned (pure lookup, never fails)
+	PrevRef  string // object Next already points at ("" when the tag is new)
 }
 
 // ComputePlan inspects tags and returns the next tag (no side effects).

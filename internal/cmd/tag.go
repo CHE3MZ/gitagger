@@ -59,7 +59,16 @@ func RunTag(o run.Options) error {
 		return runFailureHooks(o, plan, false, err)
 	}
 
-	if err := git.CreateTag(o.Dir, plan.Next, o.Message, o.Force || o.Unsafe); err != nil {
+	msg := o.Message
+	if msg == "" && len(o.MessageCmds) > 0 {
+		m, err := resolveMessage(o, plan)
+		if err != nil {
+			return runFailureHooks(o, plan, false, err)
+		}
+		msg = m
+	}
+
+	if err := git.CreateTag(o.Dir, plan.Next, msg, o.Force || o.Unsafe); err != nil {
 		// Local-exists collision without -f is a no-op (exit 2).
 		msg := strings.ToLower(err.Error())
 		if strings.Contains(msg, "already exists") {
@@ -230,6 +239,12 @@ func printDryRun(o run.Options, plan run.Plan) {
 		fmt.Println(style.Dim("would push to " + o.Remote))
 	} else {
 		fmt.Println(style.Dim("would keep locally (-n)"))
+	}
+	switch {
+	case o.Message != "":
+		fmt.Println(style.Dim(fmt.Sprintf("message: %q", o.Message)))
+	case len(o.MessageCmds) > 0:
+		fmt.Println(style.Dim(fmt.Sprintf("message: (from %d command(s) — not run in dry run)", len(o.MessageCmds))))
 	}
 }
 

@@ -34,7 +34,15 @@ doctor: false
 verbose: false            # same as -v on every run
 
 # Tag message. Empty = lightweight tag, set = annotated tag.
+# Text form is literal. Command form runs shell commands and joins
+# their output with newlines; a failing command aborts before tagging.
 message: ""
+# message:
+#   cmds:
+#     - echo "Release $GITAGGER_TAG"
+#     - cmd: git log -1 --format=%s
+#       shell: bash
+#       os: linux, macos
 
 # Operate in another directory (same as -p).
 path: ""
