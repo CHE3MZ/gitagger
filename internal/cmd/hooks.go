@@ -14,9 +14,9 @@ import (
 )
 
 // shellRunner maps shell names to binary + leading args. An empty shell
-// means the platform default: sh on unix; on Windows PowerShell (pwsh,
-// then Windows PowerShell), falling back to cmd. The pwsh entry uses the
-// same Windows fallback chain; sh/batch stay explicit.
+// means the platform default: sh on unix; on Windows pwsh, then Windows
+// PowerShell, then cmd, then bash. The pwsh entry uses the same Windows
+// fallback chain; sh/batch stay explicit.
 func shellRunner(shell string) (string, []string, error) {
 	return shellFor(runtime.GOOS, shell, exec.LookPath)
 }
@@ -48,7 +48,7 @@ func shellFor(goos, shell string, look func(string) (string, error)) (string, []
 }
 
 // windowsShell prefers PowerShell — pwsh, then Windows PowerShell —
-// and falls back to cmd, matching what stock Windows ships.
+// and falls back to cmd, then bash.
 func windowsShell(look func(string) (string, error)) (string, []string, error) {
 	if _, err := look("pwsh"); err == nil {
 		return "pwsh", []string{"-Command"}, nil
@@ -59,7 +59,10 @@ func windowsShell(look func(string) (string, error)) (string, []string, error) {
 	if _, err := look("cmd"); err == nil {
 		return "cmd", []string{"/C"}, nil
 	}
-	return "", nil, fmt.Errorf("no shell found (want pwsh, powershell or cmd on PATH)")
+	if _, err := look("bash"); err == nil {
+		return "bash", []string{"-c"}, nil
+	}
+	return "", nil, fmt.Errorf("no shell found (want pwsh, powershell, cmd or bash on PATH)")
 }
 
 // OsMatches reports whether an os: selector targets a GOOS value.

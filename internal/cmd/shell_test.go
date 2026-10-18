@@ -47,6 +47,13 @@ func TestShellDefaultWindowsFallsBackToCmd(t *testing.T) {
 	}
 }
 
+func TestShellDefaultWindowsFallsBackToBash(t *testing.T) {
+	bin, prefix, err := shellFor("windows", "", lookOnly("bash"))
+	if err != nil || bin != "bash" || len(prefix) != 1 || prefix[0] != "-c" {
+		t.Fatalf("windows bash fallback = %q %v %v", bin, prefix, err)
+	}
+}
+
 func TestShellDefaultWindowsNoShell(t *testing.T) {
 	if _, _, err := shellFor("windows", "", lookOnly()); err == nil {
 		t.Fatalf("windows with no shell on PATH should fail")

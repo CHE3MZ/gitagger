@@ -43,8 +43,9 @@ func Defaults() Resolved {
 
 // HookBlock is one shell block: optional argument/shell/os plus commands.
 // Shell defaults to sh on unix and PowerShell on Windows (pwsh, then
-// Windows PowerShell, falling back to cmd); os defaults to all. A block
-// with an argument runs only when that argument is given (-a/--argument).
+// Windows PowerShell, falling back to cmd, then bash); os defaults to
+// all. A block with an argument runs only when that argument is given
+// (-a/--argument).
 type HookBlock struct {
 	Argument string     `yaml:"argument"`
 	Shell    string     `yaml:"shell"`
@@ -542,7 +543,7 @@ message:
 # Hooks run shell commands at lifecycle events: start, success etc.
 # Each event takes one block or a list. os defaults to all.
 # shell defaults to sh on unix; on Windows it defaults to PowerShell
-# (pwsh, then Windows PowerShell, falling back to cmd).
+# (pwsh, then Windows PowerShell, falling back to cmd, then bash).
 # API: on:, start:, success:, failure:, finish:, run:, shell:, os:, argument:
 # EVENTS: start:, success:, failure:, finish: - determine when to run the hook.
 # SHELLS: sh, bash, pwsh, batch - determine what shell type to run the command on.
