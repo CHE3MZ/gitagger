@@ -4,32 +4,37 @@ tasks:
   default:
     cmds:
       - task: build
-      - task: build-site
-        ignore_error: true
       - task: lint
-        ignore_error: true
       - task: scan
-        ignore_error: true
   ops:
     desc: Run scripts in scripts/ops
     cmds:
-      - sh scripts/ops/go-bugcheck.sh
-      - sh scripts/ops/go-seccheck.sh
+      - sh scripts/ops/ops.sh
   lint:
     desc: Run golangci-lint.
     cmds:
-      - golangci-lint run ./...
+      - sh scripts/ops/lint.sh
   test:
     desc: Run go tests via script.
     cmds:
       - sh scripts/test.sh
-  scan:
-    desc: Run other ops tools on the repo.
+  other:
+    desc: Run other tasks.
     cmds:
-      - cmd: opengrep scan
-      - cmd: osv-scanner scan .
-      - cmd: gitleaks git . --no-banner
-      - cmd: scorecard --local . --format json | gron
+      - sh scripts/task-other.sh
+  build:
+    cmds:
+      - \scripts\\build-windows.bat
+  build-site:
+    cmds:
+      - cd docs && mkdocs build
+  check-links:
+    cmds:
+      - cmd: lychee .
+  ci:
+    desc: Run all jobs in .ci/jobs
+    cmds:
+      - sh .ci/utility/run-jobs.sh
   cliff:
     desc: Run git cliff
     silent: true
@@ -37,22 +42,16 @@ tasks:
       RUST_LOG: off
     cmds:
       - git-cliff --unreleased --strip all
-  build:
+  scan:
+    desc: Run other ops tools on the repo.
     cmds:
-      - \scripts\\build-windows.bat
+      - cmd: opengrep scan
+      - cmd: osv-scanner scan .
+      - cmd: gitleaks git . --no-banner
+      - cmd: scorecard --local . --format json | gron
   self-release:
     cmds:
       - gitagger
-  ls-tags:
-    cmds:
-      - gitagger ls
-  build-site:
-    cmds:
-      - cd docs && mkdocs build
   demo-help:
     cmds:
       - cmd: termframe --syntax-theme github-dark -o assets/demo-help.svg gitagger help
-  check-links:
-    cmds:
-      - cmd: lychee .
-      - cmd: linkchecker .
