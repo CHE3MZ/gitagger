@@ -25,30 +25,34 @@ nav:
     - Licensing: legal/LICENSE.md
 
 theme:
-  name: mkdocs
-  custom_dir: theme
+  name: "material"
   language: en
   logo: assets/icon.png
   favicon: assets/icon.png
-  icon: {}
   font:
     text: Eager Naturalist
     code: SF Mono
-  static_templates:
-    - 404.html
   palette:
-    - scheme: default
-      primary: red
-      accent: red
+    - media: "(prefers-color-scheme)"
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      primary: custom
+      accent: custom
+      scheme: default
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
-    - scheme: slate
-      primary: red
-      accent: red
+    - media: "(prefers-color-scheme: dark)"
+      primary: custom
+      accent: custom
+      scheme: gitagger
       toggle:
         icon: material/brightness-4
-        name: Switch to light mode
+        name: Switch to system preference
   features:
     - navigation.tabs
     - navigation.sections
@@ -56,6 +60,9 @@ theme:
     - content.code.copy
     - search.suggest
     - search.highlight
+
+extra_css:
+  - assets/stylesheets/extra.css
 
 markdown_extensions:
   - admonition

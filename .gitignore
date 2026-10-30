@@ -1,7 +1,7 @@
 logs/
 dist/
 build/
-docs/site/
+/site/
 /test-proj/
 
 .vscode/

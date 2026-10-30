@@ -1,0 +1,43 @@
+/* Header */
+:root {
+    --md-primary-fg-color: #EF5552;
+    --md-primary-fg-color--dark: #EF5552;
+    --md-primary-fg-color--light: #EF5552;
+}
+
+/* Gitagger color scheme */
+[data-md-color-scheme="gitagger"] {
+
+    /* Background */
+    --md-default-bg-color: #252525;
+    --md-default-bg-color--light: #252525;
+    --md-default-bg-color--lighter: #252525;
+
+    /* Text */
+    --md-default-fg-color: #ffffff;
+    --md-default-fg-color--light: #eeeeee;
+    --md-typeset-color: #ffffff;
+
+    /* Headings */
+    --md-typeset-a-color: #ffffff;
+
+    /* Code blocks */
+    --md-code-bg-color: #353535;
+    --md-code-fg-color: #ffffff;
+
+    /* Header text */
+    --md-primary-bg-color: #ffffff;
+    --md-primary-fg-color: #EF5552;
+}
+
+/* White headings */
+[data-md-color-scheme="terminull"] .md-typeset h1,
+[data-md-color-scheme="terminull"] .md-typeset h2,
+[data-md-color-scheme="terminull"] .md-typeset h3 {
+    color: #ffffff;
+}
+
+/* Table of contents */
+[data-md-color-scheme="terminull"] .md-nav--secondary .md-nav__title {
+    color: #ffffff;
+}

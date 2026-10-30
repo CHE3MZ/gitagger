@@ -3,7 +3,6 @@
 ## Section
 
 - [ ] add a proper demo gif and other readme related improvements.
-- [x] add github container registry (ghcr) releases.
 - [ ] add package manager releases for: ( submit on november 3rd 2026 )
   - [ ] releases for apt.
   - [ ] releases for apk.
@@ -18,7 +17,7 @@
 
 ## Backlog
 
-- [x] add abort logic on fail so gitagger does not push or release broken tags or non-complete tags. add proper abort logic.
+- [☕︎] No Jobs.
 
 ## Template
 

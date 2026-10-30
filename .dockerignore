@@ -3,4 +3,4 @@
 build
 dist
 logs
-docs/site
+/site
