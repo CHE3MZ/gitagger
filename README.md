@@ -110,7 +110,7 @@ running `gitagger` without any arguments will use your new config file.
 ### Full documentation [**here!**](https://che3mz.github.io/gitagger/)
 
 ## Contributing
-If you'd like to contribute to the project you can check out the contribution guide [**here!**](CONTRIBUTING.md)
+If you'd like to contribute to the project you can check out the contribution guide [**here!**](.github/CONTRIBUTING.md)
 
 ## License
 

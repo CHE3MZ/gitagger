@@ -8,7 +8,7 @@ Firstly, thanks for picking this up! The process is intended to be short and eas
 
 Fork the project from [GitHub](https://github.com/CHE3MZ/gitagger/fork),
 
-<img src="assets/guide-images/fork-guide.png" alt="fork-guide" width="256" />
+<img src="../assets/guide-images/fork-guide.png" alt="fork-guide" width="256" />
 
    ```sh
    git clone https://github.com/YOUR_USERNAME/gitagger.git
