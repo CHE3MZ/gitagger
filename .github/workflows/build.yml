@@ -36,8 +36,8 @@ jobs:
             goarch: arm64
             suffix: ""
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
       - name: build
@@ -47,7 +47,7 @@ jobs:
           CGO_ENABLED: 0
         run: go build -trimpath -o "build/gitagger-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.suffix }}" ./cmd/gitagger
       - name: upload binary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gitagger-${{ matrix.goos }}-${{ matrix.goarch }}
           path: build/gitagger-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.suffix }}
