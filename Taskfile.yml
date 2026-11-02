@@ -27,7 +27,7 @@ tasks:
       - \scripts\\build-windows.bat
   build-site:
     cmds:
-      - cd docs && mkdocs build
+      - mkdocs build
   check-links:
     cmds:
       - cmd: lychee .
