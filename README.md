@@ -3,10 +3,9 @@
 # Gitagger
 
 [![CI](https://github.com/CHE3MZ/gitagger/actions/workflows/ci.yml/badge.svg)](https://github.com/CHE3MZ/gitagger/actions/workflows/ci.yml)
-[![Tests](https://github.com/CHE3MZ/gitagger/actions/workflows/action-test.yml/badge.svg)](https://github.com/CHE3MZ/gitagger/actions/workflows/action-test.yml)
 [![Releases](https://github.com/CHE3MZ/gitagger/actions/workflows/release.yml/badge.svg)](https://github.com/CHE3MZ/gitagger/actions/workflows/release.yml)
 [![GitHub release](https://img.shields.io/github/v/release/CHE3MZ/gitagger?display_name=tag&sort=semver&color=32CA55&style=flat&logo=rocket&logoColor=99A0A8&labelColor=373F46&label=Release)](https://github.com/CHE3MZ/gitagger/releases/latest)
-[![Container](https://img.shields.io/github/actions/workflow/status/CHE3MZ/gitagger/ghcr-docker.yml?style=flat&logo=githubactions&logoColor=99A0A8&labelColor=373F46&label=Container&color=32CA55)](https://github.com/CHE3MZ/gitagger/actions/workflows/ghcr-docker.yml)
+[![Container](https://img.shields.io/github/actions/workflow/status/CHE3MZ/gitagger/container.yml?style=flat&logo=githubactions&logoColor=99A0A8&labelColor=373F46&label=Container&color=32CA55)](https://github.com/CHE3MZ/gitagger/actions/workflows/container.yml)
 
 ### Gitagger makes tag creation for git projects *ridiculously* <u> simple and easy! </u>
 
