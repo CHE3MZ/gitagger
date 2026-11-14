@@ -10,7 +10,7 @@ Pick whichever fits. They all give you the same `gitagger` binary.
 go install github.com/CHE3MZ/gitagger/cmd/gitagger@latest
 ```
 
-Requires Go 1.26 or newer.
+Requires Go 1.27 or newer.
 
 ## Prebuilt binaries
 
@@ -28,7 +28,7 @@ cd gitagger
 go build -o gitagger ./cmd/gitagger
 ```
 
-Requires Go 1.26 or newer.
+Requires Go 1.27 or newer.
 
 ## Docker
 

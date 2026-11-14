@@ -38,7 +38,7 @@ Gitagger has native integrations for GitHub Actions, Docker and Jenkins!
 
 <img src="assets/installation-methods/go.png" alt="install-go" width="176" />
 
-Requires [Go 1.26](https://go.dev/dl/) or newer:
+Requires [Go 1.27](https://go.dev/dl/) or newer:
 
 ```sh
 go install github.com/CHE3MZ/gitagger/cmd/gitagger@latest
@@ -77,7 +77,7 @@ docker pull ghcr.io/che3mz/gitagger:latest
 
 <img src="assets/installation-methods/source.png" alt="install-source" width="176" />
 
-#### Requires [Go 1.26](https://go.dev/dl/) or newer:
+#### Requires [Go 1.27](https://go.dev/dl/) or newer:
 
 ```sh
 git clone https://github.com/CHE3MZ/gitagger.git
