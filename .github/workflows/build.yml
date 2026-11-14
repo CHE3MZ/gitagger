@@ -2,7 +2,7 @@ name: Build
 
 # Cross-compile every release platform on every push so a
 # Windows/macOS-only breakage fails here, not at release time.
-# Binaries are kept as artifacts (same flags as scripts/build-*).
+# Binaries are kept as artifacts (same flags as scripts/build.sh).
 
 on:
   push:

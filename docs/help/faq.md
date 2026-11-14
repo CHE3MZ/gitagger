@@ -10,7 +10,7 @@ Someone (or a previous run) already pushed that tag. `gitagger doctor` shows loc
 
 ## It refuses to move a float backwards
 
-`release-action.sh` only moves `vX` / `vX.Y` forward. If it refuses, the new tag doesn't descend from the floats, usually a rewound or stale history. Don't force it blindly: verify the new tip contains everything (`git diff <float> <tip> --stat`), then move floats by hand with `git tag -f` + `git push --force`. Stop rewriting public history; merge forward instead.
+The release workflow only moves `vX` / `vX.Y` forward. If it refuses, the new tag doesn't descend from the floats, usually a rewound or stale history. Don't force it blindly: verify the new tip contains everything (`git diff <float> <tip> --stat`), then move floats by hand with `git tag -f` + `git push --force`. Stop rewriting public history; merge forward instead.
 
 ## It kept the tag locally
 

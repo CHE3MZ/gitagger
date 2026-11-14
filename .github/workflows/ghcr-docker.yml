@@ -1,9 +1,9 @@
 name: GHCR
 
 # Publishes the container image to ghcr.io/che3mz/gitagger.
-# Three ways in: version tags push (semver + latest), a manual dispatch
-# (build only, nothing pushed), or a call from the Gitagger release
-# workflow right after tagging (see .github/workflows/gitagger.yml).
+# Two ways in: version tags push (semver + latest), or a manual dispatch
+# (build only, nothing pushed). Tagging and releases are independent of
+# gitagger: a v tag pushed with trigger-capable credentials fires this.
 # No secrets needed: the runner's own GITHUB_TOKEN logs in.
 # NOTE: the first push creates a PRIVATE package — flip it to public
 # once in Package settings.
@@ -18,12 +18,6 @@ on:
         description: 'Publish this existing tag (empty verifies the build only)'
         required: false
         default: ''
-  workflow_call:
-    inputs:
-      tag:
-        description: 'Release tag to publish (e.g. v1.2.3)'
-        required: true
-        type: string
 
 permissions:
   contents: read

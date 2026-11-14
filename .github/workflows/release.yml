@@ -1,0 +1,66 @@
+name: Release
+
+# Publishes a release for every vX.Y.Z tag push:
+#   - GoReleaser builds and uploads all platform archives
+#   - the marketplace float tags (vX, vX.Y) move to the new tag
+# Tagging stays independent: run gitagger yourself, push the tag, and this
+# workflow picks it up. It never calls, and is never called by, gitagger.
+# Prereleases (vX.Y.Z-rc) publish assets but leave the float tags alone.
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Generate release notes
+        uses: orhun/git-cliff-action@v4
+        env:
+          OUTPUT: RELEASE_NOTES.md
+        with:
+          config: cliff.toml
+          args: --latest --strip all
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v7
+        with:
+          distribution: goreleaser
+          version: '~> v2'
+          args: release --clean --release-notes RELEASE_NOTES.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Move marketplace float tags
+        if: ${{ !contains(github.ref_name, '-') }}
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          # Stable tags only; prereleases already skip this step.
+          if ! printf '%s' "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::$TAG is not vX.Y.Z — floats need semver releases"
+            exit 1
+          fi
+          major=${TAG%%.*}
+          minor=${TAG%.*}
+          for float in "$major" "$minor"; do
+            if git ls-remote --exit-code origin "refs/tags/$float" >/dev/null 2>&1; then
+              git fetch -q origin "tag $float" 2>/dev/null || true
+              if ! git merge-base --is-ancestor "$float" "$TAG" 2>/dev/null; then
+                echo "::error::refusing to move $float backwards ($TAG is not ahead)"
+                exit 1
+              fi
+            fi
+            git tag -f "$float" "$TAG"
+            git push --force origin "$float"
+            echo "moved $float to $TAG"
+          done

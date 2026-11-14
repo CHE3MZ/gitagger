@@ -19,7 +19,3 @@ on:
     - shell: batch
       os: windows
       run: echo "Oops! Something went wrong..."
-  success:
-    - shell: sh
-      os: linux, macos, windows
-      run: sh release.sh

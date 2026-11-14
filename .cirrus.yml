@@ -1,9 +1,7 @@
 build_task:
   persistent_worker: {}
   script:
-    - scripts\build-windows.bat
-    - sh scripts\build-linux.sh
-    - sh scripts\build-macos.sh
+    - sh scripts/build.sh
 
 ops_task:
   persistent_worker: {}
