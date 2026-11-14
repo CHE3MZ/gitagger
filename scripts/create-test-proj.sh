@@ -2,7 +2,7 @@ mkdir -p test-proj
 cd test-proj
 
 echo "clear
-"scripts/build-windows.bat"
+sh scripts/build.sh
 cp "build/gitagger-windows-amd64.exe" "test-proj/gitagger.exe"
 cd test-proj
 touch test.txt

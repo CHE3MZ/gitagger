@@ -1,15 +1,20 @@
 version: '3'
 
+env:
+  RUST_LOG: off
+
 tasks:
   default:
     cmds:
-      - task: build
-      - task: lint
-      - task: scan
+      - task --list
   ops:
-    desc: Run scripts in scripts/ops
+    desc: Run all ops tasks
     cmds:
-      - sh scripts/ops/ops.sh
+      - cmd: sh scripts/ops/ops.sh
+      - task: lint
+      - task: checks
+      - task: secrets
+      - task: scan
   lint:
     desc: Run golangci-lint.
     cmds:
@@ -23,35 +28,60 @@ tasks:
     cmds:
       - sh scripts/task-other.sh
   build:
+    desc: Cross-compile for all platforms.
     cmds:
-      - \scripts\\build-windows.bat
-  build-site:
-    cmds:
-      - mkdocs build
-  check-links:
-    cmds:
-      - cmd: lychee .
+      - sh scripts/build.sh
   ci:
     desc: Run all jobs in .ci/jobs
     cmds:
       - sh .ci/utility/run-jobs.sh
+  demo:
+    cmds:
+      - cmd: termframe --syntax-theme github-dark -o assets/demo-help.svg gitagger help
   cliff:
     desc: Run git cliff
     silent: true
-    env:
-      RUST_LOG: off
     cmds:
       - git-cliff --unreleased --strip all
+  docs:
+    cmds:
+      - mkdocs build --strict
+  check-links:
+    desc: Lint links
+    cmds:
+      - cmd: lychee .
+  check-scripts:
+    desc: Lint scripts
+    ignore_error: true
+    cmds:
+      - cmd: find scripts -type f -name '*.sh' -exec shellcheck {} +
+  check-actions:
+     desc: Lint actions
+     cmds:
+      - cmd: pinact run
+      - cmd: pinact run --update --check
+      - cmd: actionlint
+  checks:
+    desc: Run all checks
+    ignore_error: true
+    cmds:
+      - task: check-links
+      - task: check-scripts
+      - task: check-actions
+  secrets:
+    desc: Run secret scans
+    ignore_error: true
+    cmds:
+      - cmd: trufflehog git file://. --results=verified,unknown --fail
+      - cmd: gitleaks git . --no-banner --verbose
+      - cmd: betterleaks git . --no-banner --verbose
   scan:
-    desc: Run other ops tools on the repo.
+    desc: Run other ops tools on the repo
+    ignore_error: true
     cmds:
       - cmd: opengrep scan
-      - cmd: osv-scanner scan .
-      - cmd: gitleaks git . --no-banner
+      - cmd: osv-scanner scan source --recursive .
+      - cmd: gitleaks git . --no-banner --verbose
+      - cmd: actionlint --verbose
+      - cmd: find scripts -type f -name '*.sh' -exec shellcheck {} +
       - cmd: scorecard --local . --format json | gron
-  self-release:
-    cmds:
-      - gitagger
-  demo-help:
-    cmds:
-      - cmd: termframe --syntax-theme github-dark -o assets/demo-help.svg gitagger help

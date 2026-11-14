@@ -20,18 +20,21 @@
 <g>
 <svg height="688.8" viewBox="0 0 56.256 49.2" width="787.584">
 <g stroke-width="0.025"/>
+<g stroke-width="0.025">
+<path d="M0.251,1.758 H9.125 V4.242 H0.251 Z M0.335,1.842 V4.158 H9.041 V1.842 Z" fill="#ffffff" stroke="#ffffff"/>
+</g>
 </svg>
 <svg height="16.8" overflow="hidden" width="787.584" y="0">
 <text xml:space="preserve" y="0.947em"><tspan fill="#e6e6e6">$ </tspan><tspan fill="#79c0ff">gitagger</tspan><tspan> </tspan><tspan fill="#e6edf3">help</tspan></text>
 </svg>
 <svg height="16.8" overflow="hidden" width="787.584" y="16.8">
-<text xml:space="preserve" y="0.947em"><tspan fill="#ffffff" font-weight="bold">┌──────────────┐</tspan></text>
+<text xml:space="preserve" y="0.947em"></text>
 </svg>
 <svg height="16.8" overflow="hidden" width="787.584" y="33.6">
-<text xml:space="preserve" y="0.947em"><tspan fill="#ffffff" font-weight="bold">│ </tspan><tspan fill="#ffffff" font-weight="bold">Gitagger </tspan><tspan fill="#ffffff" font-weight="bold">CLI </tspan><tspan fill="#ffffff" font-weight="bold">│</tspan></text>
+<text xml:space="preserve" y="0.947em"><tspan>  </tspan><tspan fill="#ffffff" font-weight="bold">Gitagger </tspan><tspan fill="#ffffff" font-weight="bold">CLI </tspan></text>
 </svg>
 <svg height="16.8" overflow="hidden" width="787.584" y="50.4">
-<text xml:space="preserve" y="0.947em"><tspan fill="#ffffff" font-weight="bold">└──────────────┘</tspan></text>
+<text xml:space="preserve" y="0.947em"></text>
 </svg>
 <svg height="16.8" overflow="hidden" width="787.584" y="84">
 <text xml:space="preserve" y="0.947em"><tspan fill="#e6e6e6" font-weight="bold">USAGE</tspan></text>
@@ -141,12 +144,6 @@
 	font-weight: 200 700;
 	font-style: normal;
 	src: url(https://fonts.gstatic.com/s/cascadiamono/v5/TUZ2zw5pquJF3iuizJDZYqr1aZIn0E_o8WE.woff2) format('woff2');
-}
-@font-face {
-	font-family: Cascadia Mono;
-	font-weight: 200 700;
-	font-style: normal;
-	src: url(https://fonts.gstatic.com/s/cascadiamono/v5/TUZ2zw5pquJF3iuizJDZYqr1aSgG9WDA-2l5cTc.woff2) format('woff2');
 }
 @font-face {
 	font-family: Cascadia Mono;
