@@ -16,7 +16,7 @@ func RunCheck(dir string, verbose bool) error {
 		return BadArgs("invalid config: %s", err.Error())
 	}
 	if path == "" {
-		fmt.Println(style.Dim("no .gitagger.yml — using defaults, config is valid."))
+		fmt.Println(style.Dim("no .gitagger.yml; using defaults. Config is valid."))
 		return nil
 	}
 	fmt.Printf("%s %s\n", style.Green("config is valid:"), style.White(path))

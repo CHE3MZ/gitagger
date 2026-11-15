@@ -124,7 +124,7 @@ func PrintHandbook() {
 		"  failure:",
 		"    - shell: sh",
 		"      run:",
-		`        - echo "Oops! Something went wrong..."`,
+		`        - echo "gitagger failed"`,
 	)
 	hbDesc("shell: sh | bash | pwsh | batch (= cmd /C, Windows only). Default: sh on unix, PowerShell on Windows (pwsh, Windows PowerShell, cmd, bash).")
 	hbDesc("os: linux | macos | windows. Default: all. Comma lists work.")
@@ -137,7 +137,7 @@ func PrintHandbook() {
 	hbHeader("UNSAFE")
 	hbKey("unsafe: true | false")
 	hbDesc("Skip safety checks and push anyway. Same as -u. Default: false.")
-	hbDesc("Not written by `gitagger init` — add it by hand if you mean it.")
+	hbDesc("`gitagger init` does not write this key; add it by hand.")
 
 	hbHeader("NOTES")
 	fmt.Println(style.Gray("     Config files: ./.gitagger.yml, ./.gitagger.yaml, ./.gitagger (first found wins)."))

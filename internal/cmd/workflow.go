@@ -1,4 +1,4 @@
-// Workflow generation: CI files that run gitagger for you.
+// Workflow generation: CI files that run gitagger.
 package cmd
 
 import (
@@ -67,7 +67,7 @@ func RunWorkflowList() error {
 func RunWorkflowInit(dir, id string, force, verbose bool) error {
 	w, ok := FindWorkflow(id)
 	if !ok {
-		return BadArgs("don't know workflow %q — try `gitagger workflow --help`%s", id, SuggestionText(Suggest(id, []string{"gh", "jenkins"})))
+		return BadArgs("don't know workflow %q; try `gitagger workflow --help`%s", id, SuggestionText(Suggest(id, []string{"gh", "jenkins"})))
 	}
 	path := filepath.Join(dir, w.Target)
 	if st, err := os.Stat(path); err == nil && !st.IsDir() && !force {
@@ -80,7 +80,7 @@ func RunWorkflowInit(dir, id string, force, verbose bool) error {
 	if w.ID == "jenkins" {
 		content = jenkinsWorkflow
 	}
-	// #nosec G306 — CI files are committed, group-readable is standard.
+	// #nosec G306: CI files are committed, group-readable is standard.
 	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
 		return Generic("couldn't write %s (%v)", path, err)
 	}
@@ -91,7 +91,7 @@ func RunWorkflowInit(dir, id string, force, verbose bool) error {
 	}
 	if config.Find(dir) == "" {
 		cfgPath := filepath.Join(dir, ".gitagger.yml")
-		// #nosec G306 — 0600, same as `gitagger init`.
+		// #nosec G306: 0600, same as `gitagger init`.
 		if err := os.WriteFile(cfgPath, []byte(config.DefaultFileContent()), 0o600); err != nil {
 			return Generic("couldn't write .gitagger.yml (%v)", err)
 		}

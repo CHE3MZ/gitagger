@@ -83,7 +83,7 @@ func ParseTagFlags(args []string) (TagFlags, []string, error) {
 		case a == "-u" || a == "--unsafe":
 			f.Unsafe = true
 		case strings.HasPrefix(a, "-"):
-			return f, pos, fmt.Errorf("unknown flag %q — try `gitagger --help`", a)
+			return f, pos, fmt.Errorf("unknown flag %q; try `gitagger --help`", a)
 		default:
 			pos = append(pos, a)
 		}
@@ -99,11 +99,11 @@ func ParseScale(pos []string) (string, error) {
 		switch strings.ToLower(p) {
 		case "major", "minor", "patch":
 			if scale != "" {
-				return "", fmt.Errorf("pick just one of major|minor|patch")
+				return "", fmt.Errorf("pick one of major|minor|patch")
 			}
 			scale = strings.ToLower(p)
 		default:
-			return "", fmt.Errorf("don't know what %q means — try `gitagger --help`%s", p, SuggestionText(Suggest(p, SuggestCandidates())))
+			return "", fmt.Errorf("don't know what %q means; try `gitagger --help`%s", p, SuggestionText(Suggest(p, SuggestCandidates())))
 		}
 	}
 	return scale, nil
@@ -128,7 +128,7 @@ func ParseCommon(args []string, cmd string) (help, verbose bool, path string, er
 			i++
 			path = args[i]
 		default:
-			return false, false, "", fmt.Errorf("unknown flag %q — try `gitagger %s --help`", a, cmd)
+			return false, false, "", fmt.Errorf("unknown flag %q; try `gitagger %s --help`", a, cmd)
 		}
 	}
 	return help, verbose, path, nil
@@ -164,10 +164,10 @@ func ParseRemoteArgs(args []string) (RemoteFlags, string, error) {
 			i++
 			f.Path = args[i]
 		case strings.HasPrefix(a, "-"):
-			return f, "", fmt.Errorf("unknown flag %q — try `gitagger remote --help`", a)
+			return f, "", fmt.Errorf("unknown flag %q; try `gitagger remote --help`", a)
 		default:
 			if name != "" {
-				return f, "", fmt.Errorf("pick just one remote name")
+				return f, "", fmt.Errorf("pick one remote name")
 			}
 			name = a
 		}
@@ -202,10 +202,10 @@ func ParseViewArgs(args []string) (ViewFlags, string, error) {
 			i++
 			f.Path = args[i]
 		case strings.HasPrefix(a, "-"):
-			return f, "", fmt.Errorf("unknown flag %q — try `gitagger view --help`", a)
+			return f, "", fmt.Errorf("unknown flag %q; try `gitagger view --help`", a)
 		default:
 			if tag != "" {
-				return f, "", fmt.Errorf("pick just one tag — try `gitagger view --help`")
+				return f, "", fmt.Errorf("pick one tag; try `gitagger view --help`")
 			}
 			tag = a
 		}
@@ -247,10 +247,10 @@ func ParseRemoveArgs(args []string) (RemoveFlags, string, error) {
 			i++
 			f.Path = args[i]
 		case strings.HasPrefix(a, "-"):
-			return f, "", fmt.Errorf("unknown flag %q — try `gitagger remove --help`", a)
+			return f, "", fmt.Errorf("unknown flag %q; try `gitagger remove --help`", a)
 		default:
 			if tag != "" {
-				return f, "", fmt.Errorf("pick just one tag — try `gitagger remove --help`")
+				return f, "", fmt.Errorf("pick one tag; try `gitagger remove --help`")
 			}
 			tag = a
 		}
@@ -288,7 +288,7 @@ func ParseTestArgs(args []string) (TestFlags, error) {
 			i++
 			f.Path = args[i]
 		default:
-			return f, fmt.Errorf("unknown flag %q — try `gitagger test --help`", a)
+			return f, fmt.Errorf("unknown flag %q; try `gitagger test --help`", a)
 		}
 	}
 	return f, nil

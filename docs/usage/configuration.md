@@ -33,7 +33,7 @@ doctor: false
 # Show detection details and the plan while working.
 verbose: false            # same as -v on every run
 
-# Tag message. Empty output = lightweight tag; text = annotated tag.
+# Tag message. Empty = lightweight tag; text = annotated tag.
 # Text form is literal. Command form runs shell commands and joins
 # their output with newlines; a failing command aborts before tagging.
 message:
@@ -50,12 +50,12 @@ on:
     - shell: sh
       os: macos, linux
       run:
-        - echo "Oops! Something went wrong..."
+        - echo "gitagger failed"
     - shell: pwsh
       os: windows
       run:
-        - echo "Oops! Something went wrong..."
+        - echo "gitagger failed"
 ```
 
-!!! note "Strict but forgiving"
-    Unknown config keys are an error (typos under known sections too), except retired keys (`version:`, `confirm:`), which still load fine. A broken config aborts before anything mutates; a missing file just means defaults.
+!!! note "Validation"
+    Unknown config keys are an error, including typos under known sections. Retired keys (`version:`, `confirm:`) still load. A broken config aborts before anything changes; a missing file means defaults.

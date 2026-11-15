@@ -1,5 +1,5 @@
 name: 'Gitagger'
-description: 'Automate tag creation for your repository.'
+description: 'Create and push Git tags for your repository.'
 author: CHE3MZ
 branding:
   icon: "git-branch"

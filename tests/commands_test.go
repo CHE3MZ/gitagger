@@ -1,5 +1,5 @@
 // Command-surface tests: check, remote, scale parsing, short flags.
-// All use temp dirs only — never the repo's own .git.
+// All use temp dirs only; never the repo's own .git.
 package tests
 
 import (

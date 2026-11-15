@@ -33,9 +33,9 @@ func AskConfirm(r io.Reader, prompt string) bool {
 // Both share style.ConfirmHint so every [y/n] looks the same.
 func RemovePrompt(localOnly bool) string {
 	if localOnly {
-		return "Are you sure you want to delete this tag locally only? This may cause inconsistencies later. " + style.ConfirmHint()
+		return "remove this tag locally only? the remote tag stays. " + style.ConfirmHint()
 	}
-	return "are you sure you want to remove this tag? " + style.ConfirmHint()
+	return "remove this tag? " + style.ConfirmHint()
 }
 
 // RunRemove deletes tag locally after confirmation, and from the remote
@@ -48,7 +48,7 @@ func RunRemove(dir, tag string, confirm, noRemote, verbose bool) error {
 	}
 	tag = strings.TrimSpace(tag)
 	if tag == "" {
-		return BadArgs("give a tag name — try `gitagger remove --help`")
+		return BadArgs("give a tag name; try `gitagger remove --help`")
 	}
 	if _, err := git.InspectTag(dir, tag); err != nil {
 		return Generic("no tag %q in this project.", tag)
@@ -72,18 +72,18 @@ func RunRemove(dir, tag string, confirm, noRemote, verbose bool) error {
 	remote := EffectiveRemote(dir)
 	if _, err := git.RemoteURL(dir, remote); err != nil {
 		if verbose {
-			fmt.Println(style.Dim(fmt.Sprintf("no remote %q — removed locally only", remote)))
+			fmt.Println(style.Dim(fmt.Sprintf("no remote %q; removed locally only", remote)))
 		}
 		return nil
 	}
 	ls, err := git.LsRemoteTags(dir, remote)
 	if err != nil {
-		fmt.Println(style.Warn(fmt.Sprintf("remote %q unreachable — removed locally only", remote)))
+		fmt.Println(style.Warn(fmt.Sprintf("remote %q unreachable; removed locally only", remote)))
 		return nil
 	}
 	if !git.RemoteHasTag(ls, tag) {
 		if verbose {
-			fmt.Println(style.Dim(fmt.Sprintf("not on remote %q — removed locally only", remote)))
+			fmt.Println(style.Dim(fmt.Sprintf("not on remote %q; removed locally only", remote)))
 		}
 		return nil
 	}

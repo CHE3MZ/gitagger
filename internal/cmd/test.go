@@ -39,7 +39,7 @@ func RunTest(dir string, keep, verbose bool) (string, error) {
 	// Clones carry committed files only: uncommitted changes (including
 	// the config) stay behind. Say so instead of testing stale state.
 	if st, err := git.StatusPorcelain(dir); err == nil && strings.TrimSpace(st) != "" {
-		fmt.Println(style.Dim("uncommitted changes won't reach the sandbox — commit first for full fidelity"))
+		fmt.Println(style.Dim("uncommitted changes won't reach the sandbox; commit first for full fidelity"))
 	}
 
 	if err := git.Clone(dir, tmp); err != nil {
@@ -55,7 +55,7 @@ func RunTest(dir string, keep, verbose bool) (string, error) {
 		}
 	}
 	if names, err = git.RemoteNames(tmp); err != nil || len(names) != 0 {
-		return "", Generic("sandbox still has remotes — refusing to test")
+		return "", Generic("sandbox still has remotes; refusing to test")
 	}
 	if err := git.SetIdentity(tmp, "gitagger-test@example.com", "gitagger-test"); err != nil {
 		return "", GenericErr(err)
@@ -87,9 +87,9 @@ func RunTest(dir string, keep, verbose bool) (string, error) {
 		cleaned = true
 	}
 	if runErr != nil {
-		fmt.Println(style.Bold(style.Red("Failure! Test run failed.")))
+		fmt.Println(style.Bold(style.Red("test run failed")))
 		return out, runErr
 	}
-	fmt.Println(style.Bold(style.Green("Done! Test ran successfully.")))
+	fmt.Println(style.Bold(style.Green("test run passed")))
 	return out, nil
 }

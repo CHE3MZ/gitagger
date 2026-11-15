@@ -26,6 +26,6 @@ See [`jobs/example.sh`](jobs/example.sh) (an example of a temporary container jo
 
 ## Note
 
-> Linux does not currently provide a compatible CLI tool named `container`, so > these jobs do not natively support Linux.
-> Ironically, the jobs themselves run inside Linux containers. Native Linux 
+> Linux does not currently provide a compatible CLI tool named `container`, so these jobs do not natively support Linux.
+> Ironically, the jobs themselves run inside Linux containers. Native Linux
 > support may be added in the future.

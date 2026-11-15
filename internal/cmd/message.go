@@ -42,7 +42,7 @@ func resolveMessage(o run.Options, plan run.Plan) (string, error) {
 	}
 	msg := strings.TrimRight(strings.Join(parts, "\n"), "\r\n")
 	if msg == "" {
-		fmt.Println(style.Warn("message commands produced no output — creating a lightweight tag"))
+		fmt.Println(style.Warn("message commands produced no output; creating a lightweight tag"))
 	}
 	return msg, nil
 }

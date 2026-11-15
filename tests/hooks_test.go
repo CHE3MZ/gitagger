@@ -1,5 +1,5 @@
 // Hooks tests: config loading/validation plus runner and RunTag wiring.
-// Temp dirs only — never the repo's own .git.
+// Temp dirs only; never the repo's own .git.
 package tests
 
 import (

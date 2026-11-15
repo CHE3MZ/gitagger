@@ -47,7 +47,7 @@ func shellFor(goos, shell string, look func(string) (string, error)) (string, []
 	}
 }
 
-// windowsShell prefers PowerShell — pwsh, then Windows PowerShell —
+// windowsShell prefers PowerShell (pwsh, then Windows PowerShell)
 // and falls back to cmd, then bash.
 func windowsShell(look func(string) (string, error)) (string, []string, error) {
 	if _, err := look("pwsh"); err == nil {
@@ -83,7 +83,7 @@ func resolveShell(shell string) (string, []string, error) {
 // their own context to the returned error.
 func runShellCommand(dir, bin string, prefix []string, command string, env map[string]string, stdout, stderr io.Writer) error {
 	args := append(append([]string{}, prefix...), command)
-	// #nosec G204 — binary is a fixed shell from the allowlist above,
+	// #nosec G204: binary is a fixed shell from the allowlist above,
 	// never user input; the command string goes to the shell as data,
 	// exactly like running it by hand.
 	cmd := exec.Command(bin, args...)

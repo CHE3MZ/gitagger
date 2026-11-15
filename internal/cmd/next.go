@@ -18,7 +18,7 @@ func NextTag(o run.Options) (string, error) {
 	return plan.Next, nil
 }
 
-// RunNext prints just that tag, so scripts can grab it. With verbose it
+// RunNext prints only that tag, so scripts can grab it. With verbose it
 // shows how the prediction was computed instead.
 func RunNext(o run.Options) error {
 	plan, err := run.ComputePlan(o)
@@ -30,7 +30,7 @@ func RunNext(o run.Options) error {
 		if plan.Prev != "" {
 			fmt.Println(style.Dim("was: " + plan.Prev))
 		} else {
-			fmt.Println(style.Dim("no tags yet — starting fresh"))
+			fmt.Println(style.Dim("no tags yet; starting fresh"))
 		}
 		fmt.Println(style.Dim("next: " + plan.Next))
 		return nil

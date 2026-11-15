@@ -1,6 +1,6 @@
 // Custom templates: pinned-only formats rendered from a user template.
 // Tokens use <NAME> brackets. Dots, dashes and other literal characters
-// are always plain text — only bracketed names mean something. Bare words
+// are always plain text; only bracketed names mean something. Bare words
 // like SHA without brackets are literal text and can never collide.
 // PRE renders with its dash (`-rc`) or empty for stable: write `<PRE>`,
 // never `-<PRE>` (same suffix rule as triple tags).
@@ -72,7 +72,7 @@ func ValidateTemplate(tmpl string) error {
 		return fmt.Errorf("custom template has stray > in %q", tmpl)
 	}
 	if !seen {
-		return fmt.Errorf("custom template has no tokens — it would create the same tag every time")
+		return fmt.Errorf("custom template has no tokens; it would create the same tag every time")
 	}
 	stripped := tmpl
 	for _, t := range customTokens {
@@ -146,5 +146,5 @@ func custom(req Request, scale, pre string) (string, error) {
 			return cand, nil
 		}
 	}
-	return "", fmt.Errorf("custom template %q collides — add <NUMBER> or use -f", req.Custom)
+	return "", fmt.Errorf("custom template %q collides; add <NUMBER> or use -f", req.Custom)
 }

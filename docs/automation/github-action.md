@@ -50,5 +50,5 @@ jobs:
           args: ${{ inputs.bump }}
 ```
 
-!!! note "History matters"
-    Auto-detect needs history, so check out with `fetch-depth: 0`. The action fetches tags itself as best effort, but a full clone is the reliable setup. The action runs on Linux, macOS, and Windows runners.
+!!! note "Full history required"
+    Auto-detect needs history, so check out with `fetch-depth: 0`. The action fetches tags when it can, but a full clone is the reliable setup. The action runs on Linux, macOS, and Windows runners.

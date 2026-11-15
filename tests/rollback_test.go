@@ -1,4 +1,4 @@
-// Rollback tests: failing success hooks gate the push — the tag is
+// Rollback tests: failing success hooks gate the push; the tag is
 // removed locally (or restored when -f overwrote one) and never pushed.
 package tests
 

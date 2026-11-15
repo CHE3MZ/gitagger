@@ -16,7 +16,7 @@ func RunView(dir, tag string, verbose bool) error {
 		return GenericErr(err)
 	}
 	if strings.TrimSpace(tag) == "" {
-		return BadArgs("give a tag name — try `gitagger view --help`")
+		return BadArgs("give a tag name; try `gitagger view --help`")
 	}
 	info, err := git.InspectTag(dir, tag)
 	if err != nil {
@@ -27,7 +27,7 @@ func RunView(dir, tag string, verbose bool) error {
 	if info.Message != "" {
 		fmt.Printf("message: %s\n", style.White(info.Message))
 	} else {
-		fmt.Println(style.Dim("message: (none — lightweight tag)"))
+		fmt.Println(style.Dim("message: (none, lightweight tag)"))
 	}
 	fmt.Printf("commit: %s\n", style.White(info.Commit))
 	fmt.Printf("date: %s\n", style.White(info.Date))

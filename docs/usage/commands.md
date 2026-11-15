@@ -3,7 +3,7 @@
 Every command supports `-h` / `--help`. Unknown flags are always an error naming the right help text. Typo a command and gitagger suggests the closest match:
 
 ```text
-error: don't know what "hlp" means — try `gitagger --help`
+error: don't know what "hlp" means; try `gitagger --help`
 
 The most similar command is
         help
@@ -36,7 +36,7 @@ Common flags: `--pre rc|beta|build|nightly`, `--format auto|triple|double|single
 
 | Command | What it does |
 |---|---|
-| `remove <tag>` (`rm`) | Asks `are you sure…? [y/n]`, then deletes locally and on the remote when present |
+| `remove <tag>` (`rm`) | Asks `remove this tag? [y/n]`, then deletes locally and on the remote when present |
 | `remove <tag> -c` | Remove without asking |
 | `remove <tag> -n` | Remove only the local tag, keep the remote one |
 

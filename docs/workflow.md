@@ -1,4 +1,4 @@
-# Small Workflow Guide:
+# Workflow guide
 
 * always use conventional commits (conventional commit messages)
 

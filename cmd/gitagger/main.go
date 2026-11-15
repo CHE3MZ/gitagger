@@ -1,5 +1,5 @@
-// Command gitagger automates git tags without the headache.
-// All real work lives in internal/ — this file only parses
+// Command gitagger creates and pushes git tags.
+// All real work lives in internal/; this file only parses
 // flags, loads config, calls internal/cmd, and sets exit codes.
 package main
 
@@ -79,7 +79,7 @@ func cmdTag(scale string, args []string) error {
 	if scale == "" {
 		scale = posScale
 	} else if posScale != "" && posScale != scale {
-		return icmd.BadArgs("pick just one of major|minor|patch")
+		return icmd.BadArgs("pick one of major|minor|patch")
 	}
 	cwd, _ := os.Getwd()
 	dir, err := icmd.ResolveDir(cwd, f.Path)
@@ -121,7 +121,7 @@ func cmdInit(args []string) error {
 			i++
 			flagPath = args[i]
 		default:
-			return icmd.BadArgs("unknown flag %q — try `gitagger init --help`", a)
+			return icmd.BadArgs("unknown flag %q; try `gitagger init --help`", a)
 		}
 	}
 	cwd, _ := os.Getwd()
@@ -190,7 +190,7 @@ func cmdWorkflow(args []string) error {
 	switch args[0] {
 	case "-l", "--list":
 		if len(args) > 1 {
-			return icmd.BadArgs("don't know what %q means — try `gitagger workflow --help`%s", args[1], icmd.SuggestionText(icmd.Suggest(strings.TrimLeft(args[1], "-"), icmd.WorkflowSuggestCandidates())))
+			return icmd.BadArgs("don't know what %q means; try `gitagger workflow --help`%s", args[1], icmd.SuggestionText(icmd.Suggest(strings.TrimLeft(args[1], "-"), icmd.WorkflowSuggestCandidates())))
 		}
 		return icmd.RunWorkflowList()
 	case "-h", "--help":
@@ -199,7 +199,7 @@ func cmdWorkflow(args []string) error {
 	case "init":
 		return cmdWorkflowInit(args[1:])
 	default:
-		return icmd.BadArgs("don't know what %q means — try `gitagger workflow --help`%s", args[0], icmd.SuggestionText(icmd.Suggest(strings.TrimLeft(args[0], "-"), icmd.WorkflowSuggestCandidates())))
+		return icmd.BadArgs("don't know what %q means; try `gitagger workflow --help`%s", args[0], icmd.SuggestionText(icmd.Suggest(strings.TrimLeft(args[0], "-"), icmd.WorkflowSuggestCandidates())))
 	}
 }
 
@@ -226,10 +226,10 @@ func cmdWorkflowInit(args []string) error {
 			i++
 			flagPath = args[i]
 		case strings.HasPrefix(a, "-"):
-			return icmd.BadArgs("unknown flag %q — try `gitagger workflow --help`", a)
+			return icmd.BadArgs("unknown flag %q; try `gitagger workflow --help`", a)
 		default:
 			if id != "" {
-				return icmd.BadArgs("pick just one provider: `gitagger workflow init <gh|jenkins>`")
+				return icmd.BadArgs("pick one provider: `gitagger workflow init <gh|jenkins>`")
 			}
 			id = strings.ToLower(a)
 		}
@@ -251,7 +251,7 @@ func cmdVersion(args []string) error {
 			icmd.CommandHelp("version")
 			return nil
 		}
-		return icmd.BadArgs("unknown flag %q — try `gitagger version --help`", args[0])
+		return icmd.BadArgs("unknown flag %q; try `gitagger version --help`", args[0])
 	}
 	fmt.Println(icmd.VersionString())
 	return nil
@@ -271,7 +271,7 @@ func cmdHelp(args []string) error {
 		if len(args) == 1 {
 			sug = icmd.SuggestionText(icmd.Suggest(args[0], icmd.SuggestCandidates()))
 		}
-		return icmd.BadArgs("don't know what %q means — try `gitagger help`%s", strings.Join(args, " "), sug)
+		return icmd.BadArgs("don't know what %q means; try `gitagger help`%s", strings.Join(args, " "), sug)
 	}
 	icmd.CommandHelp(args[0])
 	return nil

@@ -4,4 +4,4 @@ Short version: small branches, green CI, conventional titles, human review. The 
 
 <img src="../../assets/guide-images/fork-guide.png" alt="Fork guide" width="256" />
 
-**Make sure every workflow is green before opening the PR** (`gh run watch`), and never cut tags or releases: the maintainer handles all of that.
+Every workflow must be green before you open the PR (`gh run watch`). Never cut tags or releases; the maintainer handles those.

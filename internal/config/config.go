@@ -315,7 +315,7 @@ func Load(dir string) (Resolved, string, error) {
 	if path == "" {
 		return cfg, "", nil
 	}
-	// #nosec G304 — path always comes from Find(), which only
+	// #nosec G304: path always comes from Find(), which only
 	// returns our three known filenames (.gitagger.yml/.yaml/.gitagger).
 	raw, err := os.ReadFile(path)
 	if err != nil {
@@ -490,11 +490,11 @@ func validateHooks(h Hooks) error {
 }
 
 // DefaultFileContent is what `gitagger init` writes.
-// Every key is documented — this file is the whole schema.
+// Every key is documented. This file is the whole schema.
 func DefaultFileContent() string {
-	return `# gitagger config — edit me, then just run ` + "`gitagger`" + `.
+	return `# gitagger config. Edit this file, then run ` + "`gitagger`" + `.
 # Everything is optional. Flags beat config, config beats defaults.
-# Run gitagger handbook to view the full handbook for the gitagger config!
+# Run ` + "`gitagger handbook`" + ` for the full config reference.
 
 # Tag size for triple/double/single styles.
 # major | minor | patch
@@ -509,7 +509,7 @@ pre: stable
 format: auto
 
 # Custom tag template. Only used when format is custom above.
-# API: MAJOR MINOR PATCH YEAR MONTH DAY DATE SHA FULLSHA COUNT PRE NUMBER TAG
+# TOKENS: MAJOR MINOR PATCH YEAR MONTH DAY DATE SHA FULLSHA COUNT PRE NUMBER TAG
 # EXAMPLE: "build-<SHA>-v<MAJOR>.<MINOR>.<PATCH>-<DATE><PRE>"
 custom: ""
 
@@ -538,33 +538,33 @@ verbose: false
 # Tag message. Empty = lightweight tag, set = annotated tag.
 # Text form is literal. Command form runs shell commands and joins
 # their output with newlines; a failing command aborts before tagging.
-# API: message:, cmds:, cmd:, shell:, os:
+# KEYS: message:, cmds:, cmd:, shell:, os:
 # EXAMPLE: message: { cmds: [ "echo one", { cmd: "echo two", shell: bash } ] }
 message:
   cmds:
     - cmd: echo ""
 
-# Hooks run shell commands at lifecycle events: start, success etc.
+# Hooks run shell commands at lifecycle events: start, success, failure, finish.
 # Each event takes one block or a list. os defaults to all.
 # shell defaults to sh on unix; on Windows it defaults to PowerShell
 # (pwsh, then Windows PowerShell, falling back to cmd, then bash).
-# API: on:, start:, success:, failure:, finish:, run:, shell:, os:, argument:
-# EVENTS: start:, success:, failure:, finish: - determine when to run the hook.
-# SHELLS: sh, bash, pwsh, batch (= cmd /C, Windows only) - determine what shell type to run the command on.
-# OS: windows, macos, linux - determine what OS type to run the command on.
-# ARGS: you can make Blocks take argument: <name> to run only with gitagger -a <name>.
-# ARGS: use argument: none to prevent a block from running when no arguments are used.
-# ARGS: use argument: any to make a block run, only when an argument is used.
+# KEYS: on:, start:, success:, failure:, finish:, run:, shell:, os:, argument:
+# EVENTS: start, success, failure, finish decide when the hook runs.
+# SHELLS: sh, bash, pwsh, batch (= cmd /C, Windows only).
+# OS: windows, macos, linux.
+# ARGS: a block with argument: <name> runs only with gitagger -a <name>.
+# ARGS: argument: none runs only when no -a is given.
+# ARGS: argument: any runs only when some -a is given.
 on:
   failure:
     - shell: sh
       os: macos, linux
       run:
-        - echo "Oops! Something went wrong..."
+        - echo "gitagger failed"
     - shell: pwsh
       os: windows
       run:
-        - echo "Oops! Something went wrong..."
+        - echo "gitagger failed"
 `
 }
 
@@ -589,13 +589,13 @@ func SetRemote(dir, name string) (string, error) {
 	path := Find(dir)
 	if path == "" {
 		path = filepath.Join(dir, ".gitagger.yml")
-		content := "# gitagger config — edit me, then just run `gitagger`.\nremote: " + name + "\n"
+		content := "# gitagger config. Edit this file, then run `gitagger`.\nremote: " + name + "\n"
 		if err := os.WriteFile(path, []byte(content), 0o600); err != nil {
 			return "", err
 		}
 		return path, nil
 	}
-	// #nosec G304 — path always comes from Find(), which only
+	// #nosec G304: path always comes from Find(), which only
 	// returns our three known filenames (.gitagger.yml/.yaml/.gitagger).
 	raw, err := os.ReadFile(path)
 	if err != nil {
@@ -621,8 +621,8 @@ func SetRemote(dir, name string) (string, error) {
 	if !replaced {
 		lines = append(lines, "remote: "+name)
 	}
-	// #nosec G306 — keeps the config file's existing permissions.
-	// #nosec G703 — path is the Find() result above (fixed basenames only).
+	// #nosec G306: keeps the config file's existing permissions.
+	// #nosec G703: path is the Find() result above (fixed basenames only).
 	if err := os.WriteFile(path, []byte(strings.Join(lines, "\n")), mode); err != nil {
 		return "", err
 	}

@@ -1,5 +1,5 @@
 // Git integration tests: always use temp dirs + the user's git from PATH.
-// They NEVER touch the repo's own .git — every helper takes an explicit dir.
+// They NEVER touch the repo's own .git; every helper takes an explicit dir.
 // If git is missing from PATH, they fail with a friendly error (by design).
 package tests
 
@@ -26,7 +26,7 @@ func mustGit(t *testing.T, dir string, args ...string) string {
 }
 
 // initRepo makes a throwaway repo with one commit.
-// Identity is set repo-local only — never touches global/system config.
+// Identity is set repo-local only; never touches global/system config.
 func initRepo(t *testing.T) string {
 	t.Helper()
 	if err := git.EnsureAvailable(); err != nil {
@@ -95,7 +95,7 @@ func TestNoRemoteKeepsTagLocally(t *testing.T) {
 		t.Fatal(err)
 	}
 	if out.Pushed {
-		t.Fatalf("pushed with no remote — must skip gracefully")
+		t.Fatalf("pushed with no remote; must skip gracefully")
 	}
 	if !strings.Contains(out.Skipped, "no remote") {
 		t.Fatalf("skip reason = %q, want mention of no remote", out.Skipped)
@@ -108,7 +108,7 @@ func TestHeadAlreadyTaggedAborts(t *testing.T) {
 		t.Fatal(err)
 	}
 	o := run.Options{Dir: dir}
-	// Any tag on HEAD aborts (not just collision).
+	// Any tag on HEAD aborts, collision or not.
 	if err := run.CheckHeadTagged(o, "v0.0.1"); err == nil {
 		t.Fatalf("expected abort when HEAD already has v0.0.1")
 	}

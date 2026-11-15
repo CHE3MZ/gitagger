@@ -3,7 +3,7 @@
 ## How the next tag is chosen
 
 1. **Format.** `--format` wins; otherwise `auto` detects it from your last 20 tags by majority vote (ties go to the newest). Fresh repos start at triple with a `v` prefix.
-2. **Previous tag.** The highest version in that format (not just the newest date; back-tagged histories are handled).
+2. **Previous tag.** The highest version in that format, since a newer date can carry an older version. Back-tagged histories are handled.
 3. **Bump.** `major`/`minor`/`patch` from the command line, falling back to config, defaulting to `patch`.
 4. **Flavor.** `--pre` (or config): `stable` means no suffix; otherwise `-rc`, `-beta`, `-build`, `-nightly`. Promoting `v1.2.4-rc` to stable yields `v1.2.4` (no bump); switching flavors swaps the suffix.
 
@@ -30,15 +30,15 @@ format: custom
 custom: "build-<SHA>-v<MAJOR>.<MINOR>.<PATCH>-<DATE><PRE>"
 ```
 
-No auto-detect for custom; explicit is on purpose.
+Custom formats are never auto-detected; set `format: custom` explicitly.
 
-## Safety rails
+## Safety checks
 
-- **HEAD already tagged** → aborts (exit 2) unless `-f`.
-- **Tag exists locally or remotely** → aborts unless `-f` (and never silently overwrites a push).
-- **Dirty tree** → warns and continues, unless `require_clean` is set (then it aborts).
-- **No remote / offline** → keeps the tag locally and tells you the exact `git push` to run later.
-- **`--dry-run`** → prints the plan, changes nothing. Use it liberally.
-- **`doctor: true`** → checks the remote for collisions *before* creating the tag, so a doomed tag never gets created locally.
-- **Failing success hooks** → the tag is rolled back locally and removed from the remote (an overwritten tag is restored instead); nothing broken survives.
-- **`--unsafe` / `unsafe: true`** → escape hatch: skips the aborts above, skips rollback, pushes anyway, and warns loudly. Not written by `init`; add it by hand.
+- **HEAD already tagged:** aborts (exit 2) unless `-f`.
+- **Tag exists locally or remotely:** aborts unless `-f`, and never silently overwrites a push.
+- **Dirty tree:** warns and continues, unless `require_clean` is set (then it aborts).
+- **No remote or offline:** keeps the tag locally and prints the exact `git push` to run later.
+- **`--dry-run`:** prints the plan and changes nothing. Run it first when unsure.
+- **`doctor: true`:** checks the remote for collisions before creating the tag, so a tag that cannot be pushed is never created locally.
+- **Failing success hooks:** the tag is rolled back locally and removed from the remote (an overwritten tag is restored); the original error is reported.
+- **`--unsafe` / `unsafe: true`:** override that skips the aborts above, skips rollback, pushes anyway, and warns. Not written by `init`; add it by hand.

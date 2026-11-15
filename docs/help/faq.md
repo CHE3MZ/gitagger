@@ -14,7 +14,7 @@ The release workflow only moves `vX` / `vX.Y` forward. If it refuses, the new ta
 
 ## It kept the tag locally
 
-No remote (`no remote "origin"`) or unreachable remote (offline?): the tag is created, just not pushed. Run the printed `git push <remote> <tag>` later.
+No remote (`no remote "origin"`) or unreachable remote (offline?): the tag is created but not pushed. Run the printed `git push <remote> <tag>` later.
 
 ## It tagged nothing on a release commit
 
@@ -30,7 +30,7 @@ Unknown tag styles are ignored; with no recognizable tags gitagger starts at tri
 
 ## Typo'd command?
 
-`hlp` and friends get a did-you-mean suggestion with exit code 3. Gibberish gets none.
+`hlp` and friends get a did-you-mean suggestion with exit code 3. Gibberish gets no suggestion.
 
 ## Still stuck?
 

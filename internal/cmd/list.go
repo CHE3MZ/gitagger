@@ -18,7 +18,7 @@ func RunList(dir string, verbose bool) error {
 		return GenericErr(err)
 	}
 	if len(tags) == 0 {
-		fmt.Println(style.Dim("no tags yet — run `gitagger` to make your first one"))
+		fmt.Println(style.Dim("no tags yet; run `gitagger` to make your first one"))
 		return nil
 	}
 	for _, t := range tags {

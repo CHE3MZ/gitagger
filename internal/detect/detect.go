@@ -1,5 +1,5 @@
 // Package detect figures out which tag style a repo already uses,
-// so bare `gitagger` can just follow the convention.
+// so bare `gitagger` can follow the convention.
 package detect
 
 import (

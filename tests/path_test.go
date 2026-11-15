@@ -1,5 +1,5 @@
 // Path tests: -p/--path flag, path: config key, and directory resolution.
-// Temp dirs only — never the repo's own .git.
+// Temp dirs only; never the repo's own .git.
 package tests
 
 import (

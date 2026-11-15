@@ -29,5 +29,5 @@ WORKDIR /repo
 ENTRYPOINT ["gitagger"]
 CMD ["--help"]
 LABEL org.opencontainers.image.title="gitagger" \
-    org.opencontainers.image.description="Automate git tags without the headache." \
+    org.opencontainers.image.description="Create and push Git tags." \
     org.opencontainers.image.source="https://github.com/CHE3MZ/gitagger"

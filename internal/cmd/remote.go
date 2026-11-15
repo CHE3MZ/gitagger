@@ -32,7 +32,7 @@ func RunRemote(dir, name string, show, verbose bool) error {
 		return showRemote(dir, EffectiveRemote(dir), verbose)
 	}
 	if strings.TrimSpace(name) == "" {
-		return BadArgs("give a remote name or use --show — try `gitagger remote --help`")
+		return BadArgs("give a remote name or use --show; try `gitagger remote --help`")
 	}
 	url, err := git.RemoteURL(dir, name)
 	if err != nil {

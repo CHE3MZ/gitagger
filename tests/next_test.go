@@ -1,5 +1,5 @@
 // Numeration tests: pure math, no git, no filesystem except temp dirs.
-// Safe to run anywhere — never touches the repo's own .git.
+// Safe to run anywhere; never touches the repo's own .git.
 package tests
 
 import (

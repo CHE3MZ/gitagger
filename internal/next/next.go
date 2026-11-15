@@ -64,7 +64,7 @@ func Compute(req Request) (string, error) {
 	}
 
 	if req.Format == detect.Auto {
-		return "", fmt.Errorf("format is still auto — detect it first")
+		return "", fmt.Errorf("format is still auto; detect it first")
 	}
 	if req.Format == detect.Custom {
 		return custom(req, scale, pre)

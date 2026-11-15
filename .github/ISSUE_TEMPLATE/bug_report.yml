@@ -7,8 +7,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting. Please check the existing issues first — yours might already be known.
-        Paste terminal output with `NO_COLOR=1` (e.g. `NO_COLOR=1 gitagger check -v`) so logs stay readable.
+        Thanks for reporting. Please check the existing issues first, since yours might already be known.
+        Paste terminal output with `NO_COLOR=1` (for example `NO_COLOR=1 gitagger check -v`) so logs stay readable.
   - type: textarea
     id: what
     attributes:

@@ -34,7 +34,7 @@ Requires Go 1.27 or newer.
 
 <img src="../../assets/installation-methods/docker.png" alt="Docker" width="256" />
 
-No published image yet. Build it yourself (any OCI runtime: docker, podman, nerdctl…):
+No published image yet. Build it yourself (any OCI runtime: docker, podman, nerdctl, and so on):
 
 ```sh
 docker build -t gitagger .

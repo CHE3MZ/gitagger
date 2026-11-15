@@ -1,5 +1,5 @@
-// Help text. Words are the owner's; colors follow the house scheme:
-// gray for info, blue for flags, green for commands, red stays for errors.
+// Help text. Colors: gray for info, blue for flags, green for commands,
+// red for errors.
 package cmd
 
 import (
@@ -49,22 +49,22 @@ type commandRow struct {
 }
 
 var commands = []commandRow{
-	{"init", "       [--flags]       Generates a .gitagger.yml file"},
-	{"check", "      [--flags]       Checks if your .gitagger.yml config is valid"},
-	{"list", "       [--flags]       Shows all tags"},
-	{"view", "       [--flags]       Show details for one tag"},
-	{"remove", "     [--flags]       Remove a tag locally and on the remote"},
-	{"test", "       [--flags]       Exercise the tag flow in a disposable clone"},
-	{"help", "       [--flags]       Print this help text"},
-	{"handbook", "   [--flags]       Show the .gitagger.yml handbook"},
-	{"doctor", "     [--flags]       Audit local vs remote tag health status"},
-	{"remote", "     [--flags]       Change the remote URL the tag will get pushed to"},
-	{"workflow", "   [--flags]       Generate CI workflow files"},
-	{"version", "    [--flags]       Show the build version"},
-	{"next", "       [--flags]       Show the tag the next real run would create"},
-	{"patch", "      [--flags]       New tag addition by    0.0.X"},
-	{"minor", "      [--flags]       New tag rounding to    0.X.0"},
-	{"major", "      [--flags]       New tag rounding to    X.0.0"},
+	{"init", "       [--flags]       Writes a .gitagger.yml file"},
+	{"check", "      [--flags]       Checks that your .gitagger.yml config is valid"},
+	{"list", "       [--flags]       Lists all tags"},
+	{"view", "       [--flags]       Shows details for one tag"},
+	{"remove", "     [--flags]       Removes a tag locally and on the remote"},
+	{"test", "       [--flags]       Runs the tag flow in a disposable clone"},
+	{"help", "       [--flags]       Prints this help text"},
+	{"handbook", "   [--flags]       Shows the .gitagger.yml handbook"},
+	{"doctor", "     [--flags]       Audits local and remote tag health"},
+	{"remote", "     [--flags]       Changes the remote that tags are pushed to"},
+	{"workflow", "   [--flags]       Generates CI workflow files"},
+	{"version", "    [--flags]       Shows the build version"},
+	{"next", "       [--flags]       Shows the tag the next real run would create"},
+	{"patch", "      [--flags]       Bumps the patch number (0.0.X)"},
+	{"minor", "      [--flags]       Bumps the minor number (0.X.0)"},
+	{"major", "      [--flags]       Bumps the major number (X.0.0)"},
 }
 
 type flagRow struct {
@@ -77,15 +77,15 @@ var flagRows = []flagRow{
 	{"--pre", "prerelease flavor:", "stable|rc|beta|build|nightly (default stable)"},
 	{"--format", "force a style:", "auto|triple|double|single|date|sha|sha-num (default auto)"},
 	{"-h --help", "Print the help text for a command.", ""},
-	{"-v --verbose", "Enable verbose mode.", ""},
-	{"-n --no-push", "Create tag without pushing.", ""},
-	{"-d --dry-run", "Do A dry-run for testing.", ""},
-	{"-f --force", "Force push to remote or force an action.", ""},
+	{"-v --verbose", "Show detection details and the plan.", ""},
+	{"-n --no-push", "Create the tag without pushing.", ""},
+	{"-d --dry-run", "Show the plan without making changes.", ""},
+	{"-f --force", "Overwrite existing tags and force-push.", ""},
 	{"-u --unsafe", "Skip safety checks and push anyway.", ""},
-	{"-m --message <msg>", "Tag message. (empty by default)", ""},
+	{"-m --message <msg>", "Tag message (empty by default).", ""},
 	{"-r --require-clean", "Abort if the working tree is dirty.", ""},
 	{"-p --path <dir>", "Operate in another directory.", ""},
-	{"-a --argument <name>", "Enable hooks with this argument.", ""},
+	{"-a --argument <name>", "Run hook blocks that use this argument.", ""},
 }
 
 // renderFlagRows paints one flag block: blue specs and values, gray descs,
@@ -149,7 +149,7 @@ var tagFlags = renderFlagRows(0, 20)
 
 var commandHelp = map[string]cmdHelp{
 	"init": {
-		"Generates a .gitagger.yml file.",
+		"Writes a .gitagger.yml file.",
 		"init [-f] [--comment] [-p]",
 		nil,
 		[]string{
@@ -161,7 +161,7 @@ var commandHelp = map[string]cmdHelp{
 		},
 	},
 	"check": {
-		"Checks if your .gitagger.yml config is valid.",
+		"Checks that your .gitagger.yml config is valid.",
 		"check [-v]",
 		nil,
 		[]string{
@@ -171,7 +171,7 @@ var commandHelp = map[string]cmdHelp{
 		},
 	},
 	"list": {
-		"Shows all tags.",
+		"Lists all tags.",
 		"list [-v]",
 		nil,
 		[]string{
@@ -181,7 +181,7 @@ var commandHelp = map[string]cmdHelp{
 		},
 	},
 	"view": {
-		"Show details for one tag.",
+		"Shows details for one tag.",
 		"view <tag> [-v]",
 		[]string{"gitagger view v1.2.3"},
 		[]string{
@@ -191,7 +191,7 @@ var commandHelp = map[string]cmdHelp{
 		},
 	},
 	"remove": {
-		"Remove a tag locally and on the remote.",
+		"Removes a tag locally and on the remote.",
 		"remove <tag> [-c] [-n]",
 		[]string{"gitagger remove v1.2.3", "gitagger remove v1.2.3 --confirm", "gitagger remove v1.2.3 --no-remote"},
 		[]string{
@@ -203,7 +203,7 @@ var commandHelp = map[string]cmdHelp{
 		},
 	},
 	"test": {
-		"Exercise the tag flow in a disposable clone.",
+		"Runs the tag flow in a disposable clone.",
 		"test [-v] [--keep]",
 		[]string{"gitagger test", "gitagger test --keep"},
 		[]string{
@@ -214,13 +214,13 @@ var commandHelp = map[string]cmdHelp{
 		},
 	},
 	"help": {
-		"Print this help text.",
+		"Prints this help text.",
 		"help [command]",
 		[]string{"gitagger help init"},
 		nil,
 	},
 	"handbook": {
-		"Show the .gitagger.yml handbook.",
+		"Shows the .gitagger.yml handbook.",
 		"handbook",
 		nil,
 		[]string{
@@ -228,7 +228,7 @@ var commandHelp = map[string]cmdHelp{
 		},
 	},
 	"doctor": {
-		"Audit local vs remote tag health status.",
+		"Audits local and remote tag health.",
 		"doctor [-v]",
 		nil,
 		[]string{
@@ -238,7 +238,7 @@ var commandHelp = map[string]cmdHelp{
 		},
 	},
 	"remote": {
-		"Change the remote URL the tag will get pushed to.",
+		"Changes the remote that tags are pushed to.",
 		"remote <name>",
 		[]string{"gitagger remote origin", "gitagger remote upstream", "gitagger remote --show"},
 		[]string{
@@ -249,7 +249,7 @@ var commandHelp = map[string]cmdHelp{
 		},
 	},
 	"workflow": {
-		"Generate CI workflow files.",
+		"Generates CI workflow files.",
 		"workflow init",
 		[]string{"gitagger workflow", "gitagger workflow init gh", "gitagger workflow init jenkins --force"},
 		[]string{
@@ -261,7 +261,7 @@ var commandHelp = map[string]cmdHelp{
 		},
 	},
 	"version": {
-		"Show the build version.",
+		"Shows the build version.",
 		"version",
 		nil,
 		[]string{
@@ -269,7 +269,7 @@ var commandHelp = map[string]cmdHelp{
 		},
 	},
 	"next": {
-		"Show the tag the next real run would create.",
+		"Shows the tag the next real run would create.",
 		"next [scale] [--flags]",
 		[]string{"gitagger next", "gitagger next minor", "gitagger next --pre rc"},
 		[]string{
@@ -280,9 +280,9 @@ var commandHelp = map[string]cmdHelp{
 			"-h --help        Print the help text for a command.",
 		},
 	},
-	"patch": {"New tag addition by    0.0.X.", "patch [--flags]", []string{"gitagger patch", "gitagger patch --pre rc", "gitagger patch -m \"fix login\" -n"}, tagFlags},
-	"minor": {"New tag rounding to    0.X.0.", "minor [--flags]", []string{"gitagger minor", "gitagger minor --pre beta", "gitagger minor -d"}, tagFlags},
-	"major": {"New tag rounding to    X.0.0.", "major [--flags]", []string{"gitagger major", "gitagger major --pre rc", "gitagger major --format date"}, tagFlags},
+	"patch": {"Bumps the patch number (0.0.X).", "patch [--flags]", []string{"gitagger patch", "gitagger patch --pre rc", "gitagger patch -m \"fix login\" -n"}, tagFlags},
+	"minor": {"Bumps the minor number (0.X.0).", "minor [--flags]", []string{"gitagger minor", "gitagger minor --pre beta", "gitagger minor -d"}, tagFlags},
+	"major": {"Bumps the major number (X.0.0).", "major [--flags]", []string{"gitagger major", "gitagger major --pre rc", "gitagger major --format date"}, tagFlags},
 }
 
 // KnownCommands lists every command for `gitagger help [command]`.

@@ -2,7 +2,7 @@
 // Newest-by-date is wrong when history is back-tagged (a newer date can
 // carry an older version), so compare version numbers instead. Ties keep
 // the newest tag. Tags are oldest -> newest. Returns "" when no tag has
-// that format (sha/sha-num have no ordering — use newest overall then).
+// that format (sha/sha-num have no ordering, so use the newest overall).
 package detect
 
 import (

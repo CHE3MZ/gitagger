@@ -5,7 +5,7 @@ name: Container
 # (build only, nothing pushed). Tagging and releases are independent of
 # gitagger: a v tag pushed with trigger-capable credentials fires this.
 # No secrets needed: the runner's own GITHUB_TOKEN logs in.
-# NOTE: the first push creates a PRIVATE package — flip it to public
+# NOTE: the first push creates a PRIVATE package. Flip it to public
 # once in Package settings.
 
 on:

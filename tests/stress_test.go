@@ -1,6 +1,6 @@
 // Format-matrix stress tests: every archetype under auto mode, mixed and
 // all-types histories, pre-release flavors, and the full create-next loop.
-// All end to end in temp repos — never the repo's own .git.
+// All end to end in temp repos; never the repo's own .git.
 package tests
 
 import (

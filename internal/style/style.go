@@ -54,7 +54,7 @@ func White(s string) string { return paint(white, s) }
 // Bold highlights headings and tag names.
 func Bold(s string) string { return paint(bold, s) }
 
-// BoldGreen is a tag name that just got created.
+// BoldGreen is a newly created tag name.
 func BoldGreen(s string) string {
 	if !enabled {
 		return s

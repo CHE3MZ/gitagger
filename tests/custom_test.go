@@ -1,5 +1,5 @@
 // Custom template tests: validation, render matrix, and end to end runs.
-// Temp repos only — never the repo's own .git.
+// Temp repos only; never the repo's own .git.
 package tests
 
 import (

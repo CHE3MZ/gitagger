@@ -47,7 +47,7 @@ jobs:
         run: |
           # Stable tags only; prereleases already skip this step.
           if ! printf '%s' "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "::error::$TAG is not vX.Y.Z — floats need semver releases"
+            echo "::error::$TAG is not vX.Y.Z; floats need semver releases"
             exit 1
           fi
           major=${TAG%%.*}

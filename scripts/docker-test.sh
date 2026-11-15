@@ -2,7 +2,7 @@
 # Functional tests for the gitagger container image.
 # Usage: sh scripts/docker-test.sh [image]   (default: gitagger:test)
 # The image must already exist (CI builds it first with docker buildx).
-# Needs docker + git on PATH. Temp repos only — never the repo's own .git.
+# Needs docker + git on PATH. Temp repos only; never the repo's own .git.
 # Push/remote paths are out of scope here (same binary the Go suite already
 # covers); this proves the container-specific layer: mounts, users, shells,
 # hooks, config, and that git + certs are present at runtime.
@@ -31,7 +31,7 @@ fail() {
 
 need() {
     if ! command -v "$1" >/dev/null 2>&1; then
-        say "missing $1 on PATH — cannot test containers"
+        say "missing $1 on PATH; cannot test containers"
         exit 1
     fi
 }
@@ -42,7 +42,7 @@ if ! docker info >/dev/null 2>&1; then
     exit 1
 fi
 if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
-    say "image $IMAGE not found — build it first (docker build -t $IMAGE .)"
+    say "image $IMAGE not found; build it first (docker build -t $IMAGE .)"
     exit 1
 fi
 
@@ -95,7 +95,7 @@ else
     fail "help exits nonzero"
 fi
 
-# 3: fresh repo roundtrip — container writes the tag into the mount.
+# 3: fresh repo roundtrip; container writes the tag into the mount.
 new_repo
 if out="$(dk --no-push 2>&1)"; then
     if [ "$(git -C "$REPO" tag --list)" = "v1.0.0" ]; then

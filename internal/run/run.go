@@ -58,7 +58,7 @@ func FromConfig(dir string, cfg config.Resolved, o Options) Options {
 	if o.Remote == "" {
 		o.Remote = cfg.Remote
 	}
-	// Push/Force/Message/RequireClean/Doctor/Verbose start from config —
+	// Push/Force/Message/RequireClean/Doctor/Verbose start from config;
 	// BuildOptions applies flag overrides on top.
 	return o
 }
@@ -81,7 +81,7 @@ func ComputePlan(o Options) (Plan, error) {
 		return Plan{}, err
 	}
 	if !git.HeadExists(o.Dir) {
-		return Plan{}, fmt.Errorf("no commits yet — make a commit first")
+		return Plan{}, fmt.Errorf("no commits yet; make a commit first")
 	}
 	if o.RequireClean && !o.Unsafe {
 		st, err := git.StatusPorcelain(o.Dir)
@@ -121,7 +121,7 @@ func ComputePlan(o Options) (Plan, error) {
 	var prev string
 	if len(tags) > 0 {
 		prev = tags[len(tags)-1] // oldest -> newest
-		// Bump the highest version, not just the newest date:
+		// Bump the highest version even when a newer date is lower:
 		// back-tagged histories order versions out of date order.
 		if mp := detect.MaxPrev(tags, format); mp != "" {
 			prev = mp
@@ -165,25 +165,25 @@ func EnsurePush(o Options, tag string) (PushOutcome, error) {
 		return PushOutcome{Pushed: false, Skipped: "push disabled (--no-push)"}, nil
 	}
 	if _, err := git.RemoteURL(o.Dir, o.Remote); err != nil {
-		return PushOutcome{Pushed: false, Skipped: fmt.Sprintf("no remote %q — tag kept locally only", o.Remote)}, nil
+		return PushOutcome{Pushed: false, Skipped: fmt.Sprintf("no remote %q; tag kept locally only", o.Remote)}, nil
 	}
 	ls, err := git.LsRemoteTags(o.Dir, o.Remote)
 	if err != nil {
-		return PushOutcome{Pushed: false, Skipped: fmt.Sprintf("remote %q unreachable (offline?) — tag kept locally; run `git push %s %s` later", o.Remote, o.Remote, tag)}, nil
+		return PushOutcome{Pushed: false, Skipped: fmt.Sprintf("remote %q unreachable (offline?); tag kept locally, run `git push %s %s` later", o.Remote, o.Remote, tag)}, nil
 	}
 	if git.RemoteHasTag(ls, tag) && !o.Force && !o.Unsafe {
-		return PushOutcome{}, fmt.Errorf("tag %s already exists on remote — use --force to overwrite or run `gitagger doctor`", tag)
+		return PushOutcome{}, fmt.Errorf("tag %s already exists on remote; use --force to overwrite or run `gitagger doctor`", tag)
 	}
 	if err := git.PushTag(o.Dir, o.Remote, tag, o.Force || o.Unsafe); err != nil {
-		return PushOutcome{Pushed: false}, fmt.Errorf("push failed — tag %s kept locally (%v)", tag, err)
+		return PushOutcome{Pushed: false}, fmt.Errorf("push failed; tag %s kept locally (%v)", tag, err)
 	}
 	return PushOutcome{Pushed: true, RemoteSHA: git.RemoteTagSHA(ls, tag)}, nil
 }
 
 // DoctorGate is the optional pre-tag remote check (doctor: true in config).
-// It never blocks offline or remote-less repos — those stay graceful.
-// It aborts only when the remote already has this tag, so a collision
-// fails before the local tag is created instead of after.
+// It never blocks offline or remote-less repos. It aborts only when the
+// remote already has this tag, so a collision fails before the local tag
+// is created instead of after.
 func DoctorGate(o Options, tag string) error {
 	if _, err := git.RemoteURL(o.Dir, o.Remote); err != nil {
 		return nil
@@ -193,7 +193,7 @@ func DoctorGate(o Options, tag string) error {
 		return nil
 	}
 	if git.RemoteHasTag(ls, tag) && !o.Force {
-		return fmt.Errorf("doctor: tag %s already exists on remote %q — use -f to overwrite or run `gitagger doctor`", tag, o.Remote)
+		return fmt.Errorf("doctor: tag %s already exists on remote %q; use -f to overwrite or run `gitagger doctor`", tag, o.Remote)
 	}
 	return nil
 }
@@ -213,7 +213,7 @@ func CheckHeadTagged(o Options, tag string) error {
 	if existing, _ := git.ListTags(o.Dir); existing != nil {
 		for _, t := range existing {
 			if t == tag {
-				return fmt.Errorf("tag %s already exists — use --force to overwrite", tag)
+				return fmt.Errorf("tag %s already exists; use --force to overwrite", tag)
 			}
 		}
 	}

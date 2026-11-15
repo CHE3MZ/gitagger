@@ -41,7 +41,7 @@ func RunTag(o run.Options) error {
 	// Dirty-tree warning: warn but allow unless require_clean is set.
 	// ComputePlan already aborted when RequireClean is set.
 	if st, serr := git.StatusPorcelain(o.Dir); serr == nil && strings.TrimSpace(st) != "" {
-		fmt.Println(style.Warn("working tree is dirty — tagging anyway"))
+		fmt.Println(style.Warn("working tree is dirty; tagging anyway"))
 	}
 
 	if o.DryRun {
@@ -72,7 +72,7 @@ func RunTag(o run.Options) error {
 		// Local-exists collision without -f is a no-op (exit 2).
 		msg := strings.ToLower(err.Error())
 		if strings.Contains(msg, "already exists") {
-			return runFailureHooks(o, plan, false, Exists("tag %s already exists — use -f to overwrite", plan.Next))
+			return runFailureHooks(o, plan, false, Exists("tag %s already exists; use -f to overwrite", plan.Next))
 		}
 		return runFailureHooks(o, plan, false, Generic("couldn't create tag %s (%v)", plan.Next, err))
 	}
@@ -100,9 +100,9 @@ func RunTag(o run.Options) error {
 }
 
 // rollbackTag undoes a tag this run created after its success hooks
-// failed, so broken tags are never pushed or kept. A tag that already
+// failed, so failed runs do not leave a tag behind. A tag that already
 // existed is restored to its previous target instead; when even that
-// target is unknown the tag is left alone — deleting blindly could
+// target is unknown the tag is left alone; deleting blindly could
 // destroy something this run did not create.
 func rollbackTag(o run.Options, plan run.Plan) {
 	if plan.TagIsNew {
@@ -114,7 +114,7 @@ func rollbackTag(o run.Options, plan run.Plan) {
 		return
 	}
 	if plan.PrevRef == "" {
-		fmt.Println(style.Warn(fmt.Sprintf("tag %s predates this run with unknown target — left alone, remove it by hand if needed", plan.Next)))
+		fmt.Println(style.Warn(fmt.Sprintf("tag %s predates this run with unknown target; left alone, remove it by hand if needed", plan.Next)))
 		return
 	}
 	if err := git.UpdateRef(o.Dir, "refs/tags/"+plan.Next, plan.PrevRef); err != nil {
@@ -166,9 +166,9 @@ func runFailureHooks(o run.Options, plan run.Plan, pushed bool, err error) error
 
 // runDoneHooks runs success hooks, then finish hooks.
 // A failing success hook still runs failure hooks first (try/catch/finally),
-// then rolls the tag back locally and remotely — unless unsafe, which warns
-// and keeps everything. Push failures below still keep the local tag:
-// offline tagging must survive a dead remote.
+// then rolls the tag back locally and remotely, unless unsafe is set, in
+// which case it warns and keeps everything. Push failures keep the local
+// tag, so offline runs still create the tag.
 func runDoneHooks(o run.Options, plan run.Plan, pushed bool, outcome run.PushOutcome) error {
 	env := hookEnv(o, plan, pushed)
 	if err := RunHooks(o.Dir, "success", o.Hooks.Success, env, o.Verbose, os.Stdout, os.Stderr); err != nil {
@@ -198,14 +198,14 @@ func rollbackRemoteTag(o run.Options, plan run.Plan, outcome run.PushOutcome) {
 	}
 	if outcome.RemoteSHA != "" {
 		if err := git.PushRef(o.Dir, o.Remote, outcome.RemoteSHA, "refs/tags/"+plan.Next, true); err != nil {
-			fmt.Println(style.Warn(fmt.Sprintf("couldn't restore remote tag %s (%v) — fix it by hand if needed", plan.Next, err)))
+			fmt.Println(style.Warn(fmt.Sprintf("couldn't restore remote tag %s (%v); fix it by hand if needed", plan.Next, err)))
 			return
 		}
 		fmt.Println(style.Dim(fmt.Sprintf("restored remote tag %s (rolled back)", plan.Next)))
 		return
 	}
 	if err := git.DeleteRemoteTag(o.Dir, o.Remote, plan.Next); err != nil {
-		fmt.Println(style.Warn(fmt.Sprintf("couldn't remove remote tag %s (%v) — remove it by hand if needed: `git push --delete %s %s`", plan.Next, err, o.Remote, plan.Next)))
+		fmt.Println(style.Warn(fmt.Sprintf("couldn't remove remote tag %s (%v); remove it by hand if needed: `git push --delete %s %s`", plan.Next, err, o.Remote, plan.Next)))
 		return
 	}
 	fmt.Println(style.Dim(fmt.Sprintf("removed remote tag %s (rolled back)", plan.Next)))
@@ -217,14 +217,14 @@ func greetPlan(o run.Options, plan run.Plan) {
 		if plan.Prev != "" {
 			fmt.Println(style.Dim("was: " + plan.Prev))
 		} else {
-			fmt.Println(style.Dim("no tags yet — starting fresh"))
+			fmt.Println(style.Dim("no tags yet; starting fresh"))
 		}
 		fmt.Println(style.Dim("next: " + plan.Next))
 	}
 }
 
 func printDryRun(o run.Options, plan run.Plan) {
-	fmt.Println(style.Header("dry run — nothing created"))
+	fmt.Println(style.Header("dry run: nothing created"))
 	if o.Verbose {
 		fmt.Println(style.Dim(fmt.Sprintf("detected: %s, v-prefix=%v (from history)", plan.Format, plan.VPrefix)))
 		fmt.Println(style.Dim(fmt.Sprintf("hooks: start:%d success:%d failure:%d finish:%d",
@@ -244,7 +244,7 @@ func printDryRun(o run.Options, plan run.Plan) {
 	case o.Message != "":
 		fmt.Println(style.Dim(fmt.Sprintf("message: %q", o.Message)))
 	case len(o.MessageCmds) > 0:
-		fmt.Println(style.Dim(fmt.Sprintf("message: (from %d command(s) — not run in dry run)", len(o.MessageCmds))))
+		fmt.Println(style.Dim(fmt.Sprintf("message: (from %d command(s); not run in dry run)", len(o.MessageCmds))))
 	}
 }
 

@@ -1,6 +1,6 @@
 # Generated workflows
 
-Don't hand-write CI. Generate it:
+Generate the CI file instead of writing it by hand:
 
 ```sh
 gitagger workflow             # overview
@@ -20,4 +20,4 @@ Tags on `workflow_dispatch` using the gitagger action. Needs `contents: write`, 
 Tags via `go install` plus `gitagger`, with the git identity configured. Runs wherever your agent runs.
 
 !!! note "Gitea / Forgejo"
-    Gitea Actions (and Forgejo) speak GitHub-compatible workflow YAML, so the `gh` template works there as-is.
+    Gitea Actions (and Forgejo) accept GitHub-compatible workflow YAML, so the `gh` template works there as-is.

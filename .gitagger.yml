@@ -14,8 +14,8 @@ message:
 on:
   failure:
     - shell: sh
-      os: linux, macos 
-      run: echo "Oops! Something went wrong..."
+      os: linux, macos
+      run: echo "gitagger failed"
     - shell: batch
       os: windows
-      run: echo "Oops! Something went wrong..."
+      run: echo "gitagger failed"

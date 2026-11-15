@@ -2,17 +2,17 @@
 
 ## Proposed changes
 
-<!-- Describe the overall picture of your modifications to help maintainers understand the pull request. PRs are required to be associated to their related issue tickets or feature request. -->
+<!-- Describe what this PR changes and why. Link the related issue or feature request. -->
 
 ### Proof
 
-<!-- How has this been tested? Please describe the tests that you ran to verify your changes. -->
+<!-- How did you test this? List the commands or checks you ran. -->
 
 ## Checklist
 
-<!-- Put an "x" in the boxes that apply. You can also fill these out after creating the PR. If you're unsure about any of them, don't hesitate to ask. We're here to help! This is simply a reminder of what we are going to look for before merging your code. -->
+<!-- Put an "x" in the boxes that apply. You can fill these out after creating the PR. -->
 
 - [ ] Title follows the conventional style (`feat: rm shorthand for remove`)
-- [ ] All checks passed (local tests, gh action workflows, tests etc.) with my changes
-- [ ] I have added tests that prove my fix is effective or that my feature works (if possible)
-- [ ] I have added necessary documentation (if appropriate)
+- [ ] Local tests and GitHub Actions workflows pass with my changes
+- [ ] Tests added for the fix or feature, where practical
+- [ ] Documentation updated where needed

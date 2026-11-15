@@ -1,7 +1,7 @@
 // Package git wraps the user's git from PATH.
 // All functions take an explicit dir and run `git -C <dir> ...`,
 // so tests can use temp dirs and never touch the repo's own .git.
-// If git is not on PATH, every helper returns a friendly error.
+// If git is not on PATH, every helper returns an error saying so.
 package git
 
 import (
@@ -17,7 +17,7 @@ const lookName = "git"
 // EnsureAvailable errors when git cannot be found on PATH.
 func EnsureAvailable() error {
 	if _, err := exec.LookPath(lookName); err != nil {
-		return fmt.Errorf("git not found on PATH — install git and try again")
+		return fmt.Errorf("git not found on PATH; install git and try again")
 	}
 	return nil
 }
@@ -34,7 +34,7 @@ func run(dir string, timeout time.Duration, args ...string) (string, error) {
 		full = append(full, "-C", dir)
 	}
 	full = append(full, args...)
-	// #nosec G204 — binary is fixed to the user's git from PATH
+	// #nosec G204: binary is fixed to the user's git from PATH
 	// (see EnsureAvailable) and args are built internally, never a shell.
 	cmd := exec.CommandContext(ctx, lookName, full...)
 	out, err := cmd.CombinedOutput()
@@ -290,8 +290,8 @@ func InspectTag(dir, tag string) (TagInfo, error) {
 	info := TagInfo{Name: tag, Kind: "lightweight"}
 	if kind == "tag" {
 		info.Kind = "annotated"
-		// contents is only a tag message for annotated tags —
-		// on lightweight tags it would echo the commit message.
+		// %(contents) is only a tag message for annotated tags; on
+		// lightweight tags it would echo the commit message.
 		if msg, err := runDefault(dir, "for-each-ref", "--format=%(contents)", ref); err == nil {
 			info.Message = strings.TrimSpace(msg)
 		}

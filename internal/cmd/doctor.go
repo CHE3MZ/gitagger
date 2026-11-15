@@ -34,7 +34,7 @@ func RunDoctor(dir, remote string, verbose bool) error {
 	}
 	if len(bad) > 0 {
 		fmt.Printf("%s %s\n", style.Red("odd tags:"), style.White(strings.Join(bad, ", ")))
-		fmt.Println(style.Dim("these don't look like triple/double/date/sha — harmless, just ignored"))
+		fmt.Println(style.Dim("these don't look like triple/double/date/sha; they are ignored"))
 	} else {
 		fmt.Println(style.Green("tag styles look clean"))
 	}
@@ -42,7 +42,7 @@ func RunDoctor(dir, remote string, verbose bool) error {
 	// Remote compare (graceful when offline).
 	remoteURL, err := git.RemoteURL(dir, remote)
 	if err != nil {
-		fmt.Println(style.Warn(fmt.Sprintf("no remote %q — nothing to compare", remote)))
+		fmt.Println(style.Warn(fmt.Sprintf("no remote %q; nothing to compare", remote)))
 		printHeadState(dir)
 		return nil
 	}
@@ -50,7 +50,7 @@ func RunDoctor(dir, remote string, verbose bool) error {
 		fmt.Println(style.Dim("remote: " + remoteURL))
 	}
 	if err := git.FetchTags(dir, remote); err != nil {
-		fmt.Println(style.Warn(fmt.Sprintf("couldn't reach %q — skipping remote check", remote)))
+		fmt.Println(style.Warn(fmt.Sprintf("couldn't reach %q; skipping remote check", remote)))
 		printHeadState(dir)
 		return nil
 	}
@@ -58,7 +58,7 @@ func RunDoctor(dir, remote string, verbose bool) error {
 
 	remoteTags, err := git.RemoteTags(dir, remote)
 	if err != nil {
-		fmt.Println(style.Warn("couldn't list remote tags — skipping compare"))
+		fmt.Println(style.Warn("couldn't list remote tags; skipping compare"))
 		printHeadState(dir)
 		return nil
 	}
@@ -102,7 +102,7 @@ func RunDoctor(dir, remote string, verbose bool) error {
 func printHeadState(dir string) {
 	headTags, _ := git.TagsPointingAtHEAD(dir)
 	if len(headTags) == 0 {
-		fmt.Println(style.Dim("HEAD has no tag yet — `gitagger` will fix that"))
+		fmt.Println(style.Dim("HEAD has no tag yet; `gitagger` will create one"))
 	} else {
 		fmt.Printf("HEAD tagged: %s\n", style.White(strings.Join(headTags, ", ")))
 	}
@@ -121,7 +121,7 @@ func printDistance(dir string, tags []string) {
 		return
 	}
 	if n == 0 {
-		fmt.Println(style.Dim("HEAD distance: 0 — HEAD is tagged, make a new commit or use -f"))
+		fmt.Println(style.Dim("HEAD distance: 0. HEAD is tagged; make a new commit or use -f"))
 	} else {
 		fmt.Println(style.Dim(fmt.Sprintf("HEAD distance: %d commit(s) since %s", n, prev)))
 	}

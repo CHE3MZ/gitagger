@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for the idea. Small, focused proposals get built fastest — one thing per issue.
+        Thanks for the idea. Small, focused proposals get built fastest, so keep it to one thing per issue.
   - type: textarea
     id: problem
     attributes:
@@ -19,7 +19,7 @@ body:
     id: proposal
     attributes:
       label: Proposal
-      description: What should happen instead? A CLI sketch helps (e.g. `gitagger view v1.2.3` prints ...).
+      description: What should happen instead? A CLI sketch helps, for example `gitagger view v1.2.3` printing the tag details.
       placeholder: |
         `gitagger view v1.2.3` should show the tag message, commit, and date.
     validations:

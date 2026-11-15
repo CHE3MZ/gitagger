@@ -29,7 +29,7 @@ You can make gitagger run basic hooks via the .gitagger.yml file! you can check 
 ### ➙ Integrations
 <img src="assets/features/integrations.png" alt="features-integrations" width="176" />
 
-Gitagger has native integrations for GitHub Actions, Docker and Jenkins!
+Gitagger has integrations for GitHub Actions, Docker, and Jenkins!
 
 ## Installation
 
@@ -47,7 +47,7 @@ go install github.com/CHE3MZ/gitagger/cmd/gitagger@latest
 
 <img src="assets/installation-methods/prebuilt.png" alt="install-prebuilt" width="176" />
 
-You can also grab a ready-made binary from the [releases page](https://github.com/CHE3MZ/gitagger/releases) (Linux, macOS, Windows).
+You can also download a binary from the [releases page](https://github.com/CHE3MZ/gitagger/releases) for Linux, macOS, or Windows.
 
 ### ➙ GitHub Actions
 
@@ -101,17 +101,16 @@ gitagger minor
 gitagger --help
 ```
 
-Want the same settings every time? Run `gitagger init` once, 
-tweak `.gitagger.yml`, then forget about flags.
-running `gitagger` without any arguments will use your new config file.
+Run `gitagger init` once to write `.gitagger.yml`, edit it, then run plain `gitagger` without flags.
 
 ### Full documentation [**here!**](https://che3mz.github.io/gitagger/)
 
 ## Contributing
-If you'd like to contribute to the project you can check out the contribution guide [**here!**](.github/CONTRIBUTING.md)
+
+See the **[contribution guide](.github/CONTRIBUTING.md).**
 
 ## License
 
-Gitagger is Licensed under the **[Apache 2.0 License](LICENSE).**
+Gitagger is licensed under the **[Apache 2.0 License](LICENSE).**
 
 <img src="assets/round-icon.png" alt="Gitagger End Section Logo" width="192" />

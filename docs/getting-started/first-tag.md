@@ -10,12 +10,12 @@ gitagger --dry-run
 Dry-run prints the plan and changes nothing:
 
 ```text
-dry run — nothing created
+dry run: nothing created
 next: v1.0.0  (triple, stable)
 would push to origin
 ```
 
-No tags yet? gitagger starts you at `v1.0.0`. Already have tags? It detects your format (`triple`, `double`, `single`, `date`, `sha`…) and the `v` prefix from history and follows them. Happy with the plan? Run it for real:
+No tags yet, so gitagger starts at `v1.0.0`. With existing tags, it detects the format (`triple`, `double`, `single`, `date`, `sha`, and others) and the `v` prefix from history, then follows them. When the plan looks right, run it for real:
 
 ```sh
 gitagger
@@ -25,7 +25,7 @@ That creates the tag and pushes it to `origin` when it can (no remote or offline
 
 ## Make it yours
 
-Run `gitagger init` once to write a `.gitagger.yml`, tweak it, then forget about flags: bare `gitagger` uses your config from then on. See [Configuration](../usage/configuration.md).
+Run `gitagger init` once to write a `.gitagger.yml`, edit it, then run plain `gitagger`: it uses your config from then on. See [Configuration](../usage/configuration.md).
 
 ## Useful next commands
 

@@ -2,28 +2,27 @@
 
 # Gitagger
 
-**Automate git tags without the headache.** Run `gitagger` and it figures out your tag format, creates the next tag, and pushes it, or creates `v1.0.0` for you if you have no tags yet.
+Run `gitagger` and it detects your tag format, creates the next tag, and pushes it. On a repo with no tags, it creates `v1.0.0`.
 
 ```sh
 gitagger                 # next patch tag, pushed if it can be
 gitagger minor           # v1.2.3 -> v1.3.0
 gitagger major --pre rc  # v1.2.3 -> v2.0.0-rc
-gitagger --dry-run       # peek first, change nothing
+gitagger --dry-run       # show the plan, change nothing
 ```
 
-## Why gitagger?
+## What it does
 
-- **Follows your convention.** Triple (`v1.2.3`), double (`v1.2`), single (`v7`), date (`v2026.10.04`), even `master-<sha>` styles, detected from your history by majority vote. No flags needed for the common case.
-- **Safe by default.** Refuses to double-tag HEAD, checks the remote for collisions before pushing (with `doctor`), stays graceful offline, never force-pushes unless you say `-f`.
-- **Hooks included.** Run shell commands on `start`, `success`, `failure`, and `finish`: releases, notifications, whatever your flow needs.
-- **One binary, everywhere.** Linux, macOS, Windows, Docker, and a GitHub Action. It's a single binary with no runtime or dependencies.
+Triple (`v1.2.3`), double (`v1.2`), single (`v7`), date (`v2026.10.04`), and `master-<sha>` formats are detected from history by majority vote, so most repos need no flags. Before writing, gitagger refuses to double-tag HEAD, can check the remote for collisions with `doctor`, keeps the tag local when offline, and only force-pushes with `-f`.
+
+Hooks run shell commands at `start`, `success`, `failure`, and `finish` for releases, notifications, or other steps. The binary has no runtime dependencies and runs on Linux, macOS, Windows, Docker, and GitHub Actions.
 
 ## Start here
 
-- New? [Install gitagger](getting-started/installation.md), then [cut your first tag](getting-started/first-tag.md).
-- In a hurry? [Commands](usage/commands.md) is the full CLI reference.
-- Automating? [GitHub Action](automation/github-action.md), [generated workflows](automation/workflows.md), or [Docker](automation/docker.md).
-- Something broken? [FAQ & troubleshooting](help/faq.md).
+- [Install gitagger](getting-started/installation.md), then [cut your first tag](getting-started/first-tag.md).
+- [Commands](usage/commands.md) is the full CLI reference.
+- Automation: [GitHub Action](automation/github-action.md), [generated workflows](automation/workflows.md), or [Docker](automation/docker.md).
+- Troubleshooting: [FAQ](help/faq.md).
 
 ![demo](assets/demo.gif)
 
