@@ -45,8 +45,6 @@ func runCLI(args []string) error {
 			return cmdWithRemote(args[1:], "doctor", icmd.RunDoctor)
 		case "remote":
 			return cmdRemote(args[1:])
-		case "workflow":
-			return cmdWorkflow(args[1:])
 		case "next":
 			return cmdNext(args[1:])
 		case "patch", "minor", "major":
@@ -181,68 +179,6 @@ func cmdRemote(args []string) error {
 		return err
 	}
 	return icmd.RunRemote(dir, name, f.Show, f.Verbose)
-}
-
-func cmdWorkflow(args []string) error {
-	if len(args) == 0 {
-		return icmd.RunWorkflowOverview()
-	}
-	switch args[0] {
-	case "-l", "--list":
-		if len(args) > 1 {
-			return icmd.BadArgs("don't know what %q means; try `gitagger workflow --help`%s", args[1], icmd.SuggestionText(icmd.Suggest(strings.TrimLeft(args[1], "-"), icmd.WorkflowSuggestCandidates())))
-		}
-		return icmd.RunWorkflowList()
-	case "-h", "--help":
-		icmd.CommandHelp("workflow")
-		return nil
-	case "init":
-		return cmdWorkflowInit(args[1:])
-	default:
-		return icmd.BadArgs("don't know what %q means; try `gitagger workflow --help`%s", args[0], icmd.SuggestionText(icmd.Suggest(strings.TrimLeft(args[0], "-"), icmd.WorkflowSuggestCandidates())))
-	}
-}
-
-func cmdWorkflowInit(args []string) error {
-	id := ""
-	force, verbose := false, false
-	flagPath := ""
-	for i := 0; i < len(args); i++ {
-		a := args[i]
-		switch {
-		case a == "-h" || a == "--help":
-			icmd.CommandHelp("workflow")
-			return nil
-		case a == "-f" || a == "--force":
-			force = true
-		case a == "-v" || a == "--verbose":
-			verbose = true
-		case a == "-p" && i+1 < len(args):
-			i++
-			flagPath = args[i]
-		case strings.HasPrefix(a, "--path="):
-			flagPath = strings.TrimPrefix(a, "--path=")
-		case a == "--path" && i+1 < len(args):
-			i++
-			flagPath = args[i]
-		case strings.HasPrefix(a, "-"):
-			return icmd.BadArgs("unknown flag %q; try `gitagger workflow --help`", a)
-		default:
-			if id != "" {
-				return icmd.BadArgs("pick one provider: `gitagger workflow init <gh|jenkins>`")
-			}
-			id = strings.ToLower(a)
-		}
-	}
-	if id == "" {
-		return icmd.BadArgs("give a provider: `gitagger workflow init <gh|jenkins>`")
-	}
-	cwd, _ := os.Getwd()
-	dir, err := icmd.ResolveDir(cwd, flagPath)
-	if err != nil {
-		return err
-	}
-	return icmd.RunWorkflowInit(dir, id, force, verbose)
 }
 
 func cmdVersion(args []string) error {

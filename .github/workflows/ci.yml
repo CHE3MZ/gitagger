@@ -72,7 +72,7 @@ jobs:
           path: logs/
 
   action-lint:
-    name: actionlint (repo + generated)
+    name: actionlint (repo)
     if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
@@ -86,11 +86,6 @@ jobs:
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
       - name: lint repo workflows
         run: actionlint .github/workflows/*.yml
-      - name: lint generated workflow
-        run: |
-          mkdir -p /tmp/gen-check
-          go run ./cmd/gitagger workflow init gh -p /tmp/gen-check
-          actionlint /tmp/gen-check/.github/workflows/gitagger.yml
 
   cross-build:
     name: build (${{ matrix.goos }}/${{ matrix.goarch }})
@@ -147,7 +142,7 @@ jobs:
         with:
           args: version
       # Dry-run needs an untagged HEAD: release commits carry tags
-      # (vX, vX.Y, vX.Y.Z), and gitagger correctly refuses those.
+      # (vX.Y.Z), and gitagger correctly refuses those.
       - name: fresh commit for dry run
         run: |
           git config user.email "ci@example.com"
@@ -320,10 +315,6 @@ jobs:
           ../gt$exe check -v
           ../gt$exe doctor
           ../gt$exe handbook > /dev/null
-          ../gt$exe workflow init gh
-          [ -f .github/workflows/gitagger.yml ] || exit 1
-          ../gt$exe workflow init jenkins
-          [ -f .jenkins/gitagger.jenkinsfile ] || exit 1
           if ../gt$exe remote --show; then echo "remote without remote should fail"; exit 1; fi
           if ../gt$exe hlp; then echo "typo should fail"; exit 1; fi
           if ../gt$exe view v9.9.9; then echo "missing tag should fail"; exit 1; fi

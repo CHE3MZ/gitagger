@@ -59,7 +59,6 @@ var commands = []commandRow{
 	{"handbook", "   [--flags]       Shows the .gitagger.yml handbook"},
 	{"doctor", "     [--flags]       Audits local and remote tag health"},
 	{"remote", "     [--flags]       Changes the remote that tags are pushed to"},
-	{"workflow", "   [--flags]       Generates CI workflow files"},
 	{"version", "    [--flags]       Shows the build version"},
 	{"next", "       [--flags]       Shows the tag the next real run would create"},
 	{"patch", "      [--flags]       Bumps the patch number (0.0.X)"},
@@ -248,18 +247,6 @@ var commandHelp = map[string]cmdHelp{
 			"-h --help      Print the help text for a command.",
 		},
 	},
-	"workflow": {
-		"Generates CI workflow files.",
-		"workflow init",
-		[]string{"gitagger workflow", "gitagger workflow init gh", "gitagger workflow init jenkins --force"},
-		[]string{
-			"-l --list        List workflows available for generation.",
-			"-f --force       Overwrite the workflow file if it exists.",
-			"-p --path <dir>  Operate in another directory.",
-			"-v --verbose     Also show the full path.",
-			"-h --help        Print the help text for a command.",
-		},
-	},
 	"version": {
 		"Shows the build version.",
 		"version",
@@ -286,7 +273,7 @@ var commandHelp = map[string]cmdHelp{
 }
 
 // KnownCommands lists every command for `gitagger help [command]`.
-var KnownCommands = []string{"init", "check", "list", "ls", "view", "remove", "rm", "test", "help", "handbook", "doctor", "remote", "workflow", "version", "next", "patch", "minor", "major"}
+var KnownCommands = []string{"init", "check", "list", "ls", "view", "remove", "rm", "test", "help", "handbook", "doctor", "remote", "version", "next", "patch", "minor", "major"}
 
 // IsCommand reports whether name is a known command.
 func IsCommand(name string) bool {

@@ -51,9 +51,6 @@ func distance(a, b string) int {
 	return d[la][lb]
 }
 
-// WorkflowSuggestCandidates are the workflow subcommand words did-you-mean searches.
-func WorkflowSuggestCandidates() []string { return []string{"init", "list", "help"} }
-
 // Suggest returns up to 3 candidates similar to input, best first.
 // Empty when nothing is close (scales with input length, capped at 3).
 func Suggest(input string, candidates []string) []string {

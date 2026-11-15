@@ -10,8 +10,6 @@ git init
 git add .
 git commit -m "init"
 ./gitagger init --force
-./gitagger workflow init gh --force
-./gitagger workflow init jenkins --force
 cat .gitagger.yml
 " > run.sh
 

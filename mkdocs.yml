@@ -15,8 +15,6 @@ nav:
     - Configuration: usage/configuration.md
     - Hooks: usage/hooks.md
   - Integrations:
-    - GitHub Actions: automation/github-action.md
-    - Generated workflows: automation/workflows.md
     - Docker: automation/docker.md
   - Help:
     - FAQ & troubleshooting: help/faq.md

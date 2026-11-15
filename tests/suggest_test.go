@@ -40,18 +40,6 @@ func TestSuggestNothingClose(t *testing.T) {
 	}
 }
 
-func TestSuggestProviders(t *testing.T) {
-	if got := cmd.Suggest("hg", []string{"gh", "jenkins"}); len(got) == 0 || got[0] != "gh" {
-		t.Errorf(`Suggest("hg") = %v, want [gh]`, got)
-	}
-	if got := cmd.Suggest("jenkin", []string{"gh", "jenkins"}); len(got) == 0 || got[0] != "jenkins" {
-		t.Errorf(`Suggest("jenkin") = %v, want [jenkins]`, got)
-	}
-	if got := cmd.Suggest("zzz", []string{"gh", "jenkins"}); len(got) != 0 {
-		t.Errorf(`Suggest("zzz") = %v, want none`, got)
-	}
-}
-
 func TestSuggestCandidatesCoverCommands(t *testing.T) {
 	cands := cmd.SuggestCandidates()
 	for _, c := range cmd.KnownCommands {
@@ -106,15 +94,5 @@ func TestParseScaleSuggests(t *testing.T) {
 	}
 	if strings.Contains(err.Error(), "similar") {
 		t.Errorf("bogus error = %q, want no suggestion", err.Error())
-	}
-}
-
-func TestWorkflowInitSuggestsProvider(t *testing.T) {
-	err := cmd.RunWorkflowInit(t.TempDir(), "hg", false, false)
-	if err == nil {
-		t.Fatalf("hg provider should fail")
-	}
-	if !strings.Contains(err.Error(), "gh") {
-		t.Errorf("hg error = %q, want suggestion of gh", err.Error())
 	}
 }

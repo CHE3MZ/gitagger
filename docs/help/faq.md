@@ -8,10 +8,6 @@ HEAD already has a tag. That's the double-tag guard. Make a new commit, or retag
 
 Someone (or a previous run) already pushed that tag. `gitagger doctor` shows local-only vs remote-only tags. Overwrite only if you mean it (`-f` force-pushes).
 
-## It refuses to move a float backwards
-
-The release workflow only moves `vX` / `vX.Y` forward. If it refuses, the new tag doesn't descend from the floats, usually a rewound or stale history. Don't force it blindly: verify the new tip contains everything (`git diff <float> <tip> --stat`), then move floats by hand with `git tag -f` + `git push --force`. Stop rewriting public history; merge forward instead.
-
 ## It kept the tag locally
 
 No remote (`no remote "origin"`) or unreachable remote (offline?): the tag is created but not pushed. Run the printed `git push <remote> <tag>` later.

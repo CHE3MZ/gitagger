@@ -29,7 +29,7 @@ You can make gitagger run basic hooks via the .gitagger.yml file! you can check 
 ### ➙ Integrations
 <img src="assets/features/integrations.png" alt="features-integrations" width="176" />
 
-Gitagger has integrations for GitHub Actions, Docker, and Jenkins!
+Gitagger has integrations for Docker and containers in general!
 
 ## Installation
 
@@ -48,19 +48,6 @@ go install github.com/CHE3MZ/gitagger/cmd/gitagger@latest
 <img src="assets/installation-methods/prebuilt.png" alt="install-prebuilt" width="176" />
 
 You can also download a binary from the [releases page](https://github.com/CHE3MZ/gitagger/releases) for Linux, macOS, or Windows.
-
-### ➙ GitHub Actions
-
-<img src="assets/installation-methods/actions.png" alt="install-actions" width="176" />
-
-```yaml
-- uses: CHE3MZ/gitagger@v1
-```
-
-[![Marketplace](https://img.shields.io/badge/Marketplace-181717?style=social&logo=github)](https://github.com/marketplace/actions/gitagger)
-
-> [!TIP]
-> Full default template [**here!**](docs/readme/templates/github-actions.yml)
 
 ### ➙ Docker
 
