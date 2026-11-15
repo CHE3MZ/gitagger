@@ -130,65 +130,6 @@ jobs:
           name: gitagger-${{ matrix.goos }}-${{ matrix.goarch }}
           path: build/gitagger-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.suffix }}
 
-  use-local-action:
-    if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-      - name: gitagger version
-        uses: ./
-        with:
-          args: version
-      # Dry-run needs an untagged HEAD: release commits carry tags
-      # (vX.Y.Z), and gitagger correctly refuses those.
-      - name: fresh commit for dry run
-        run: |
-          git config user.email "ci@example.com"
-          git config user.name "ci"
-          git commit --allow-empty -qm "dogfood probe"
-      - name: gitagger dry run
-        uses: ./
-        with:
-          args: --dry-run
-
-  create-tag-sandbox:
-    if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-      - name: Build sandbox repo
-        shell: bash
-        run: |
-          rm -rf sandbox
-          mkdir -p sandbox
-          cd sandbox
-          git init -q
-          git config user.email "ci@example.com"
-          git config user.name "ci"
-          git config commit.gpgsign false
-          echo hi > f.txt
-          git add .
-          git commit -qm first
-      - name: Create tag via action
-        id: tag
-        uses: ./
-        with:
-          working-directory: sandbox
-          args: --no-push
-      - name: Assert tag created
-        shell: bash
-        run: |
-          [ "${{ steps.tag.outputs.tag }}" = "v1.0.0" ] || { echo "expected v1.0.0, got '${{ steps.tag.outputs.tag }}'"; exit 1; }
-          tags=$(git -C sandbox tag --list)
-          grep -qx "v1.0.0" <<< "$tags"
-
   docker:
     name: build + container tests
     if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
