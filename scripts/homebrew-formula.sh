@@ -41,9 +41,14 @@ mkdir -p "$(dirname "$output")"
 
 cat > "$output" <<EOF
 class Gitagger < Formula
-  desc "create and push Git tags for your repository"
+  desc "Create and push Git tags for your repository"
   homepage "https://che3mz.github.io/gitagger/"
   license "Apache-2.0"
+
+  livecheck do
+    url :stable
+    strategy :github_latest
+  end
 
   on_macos do
     if Hardware::CPU.arm?
@@ -63,11 +68,6 @@ class Gitagger < Formula
       url "https://github.com/CHE3MZ/gitagger/releases/download/$tag/gitagger_Linux_x86_64.tar.gz"
       sha256 "$linux_x86_64"
     end
-  end
-
-  livecheck do
-    url :stable
-    strategy :github_latest
   end
 
   def install
