@@ -1,7 +1,12 @@
-mkdir -p test-proj
-cd test-proj
+#!/usr/bin/env sh
+# Writes helper scripts for a throwaway test project under test-proj/.
+set -eu
 
-echo "clear
+mkdir -p test-proj
+cd test-proj || exit 1
+
+cat > run.sh <<'EOF'
+clear
 sh scripts/build.sh
 cp "build/gitagger-windows-amd64.exe" "test-proj/gitagger.exe"
 cd test-proj
@@ -11,13 +16,16 @@ git add .
 git commit -m "init"
 ./gitagger init --force
 cat .gitagger.yml
-" > run.sh
+EOF
 
-echo "clear
+cat > delete.sh <<'EOF'
+clear
 cd test-proj
-rm -rf -- * .[!.]* ..?*" > delete.sh
+rm -rf -- * .[!.]* ..?*
+EOF
 
-echo "clear
+cat > test.sh <<'EOF'
+clear
 cd test-proj
 sh run.sh >> log.txt
-" > test.sh
+EOF

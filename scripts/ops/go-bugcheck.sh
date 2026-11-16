@@ -3,7 +3,7 @@
 set -o pipefail
 
 # Always run from the repo root regardless of where the script is invoked.
-cd "$(dirname "$0")/../.."
+cd "$(dirname "$0")/../.." || exit
 
 mkdir -p logs
 
@@ -27,11 +27,16 @@ run_check() {
 
 run_check golangci-lint golangci-lint run ./...
 
-# Pass Go files safely, including paths containing spaces.
-mapfile -d '' go_files < <(find . -name '*.go' -type f -print0)
+# Collect Go files without bash-only mapfile so this works under sh too.
+set --
+while IFS= read -r f; do
+    set -- "$@" "$f"
+done <<EOF
+$(find . -name '*.go' -type f)
+EOF
 
-if ((${#go_files[@]} > 0)); then
-    run_check gopls gopls check "${go_files[@]}"
+if [ "$#" -gt 0 ]; then
+    run_check gopls gopls check "$@"
 else
     echo "No Go files found; skipping gopls check."
 fi

@@ -53,7 +53,7 @@ jobs:
     name: publish Homebrew formula
     needs: release
     if: ${{ !cancelled() && (github.event_name == 'workflow_dispatch' || needs.release.result == 'success') && !contains(github.event.inputs.tag || github.ref_name, '-') }}
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     env:
       RELEASE_TAG: ${{ github.event.inputs.tag || github.ref_name }}
     steps:
@@ -76,7 +76,7 @@ jobs:
         run: gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern checksums.txt --output "$RUNNER_TEMP/checksums.txt" --clobber
       - name: Generate Homebrew formula
         run: bash scripts/homebrew-formula.sh "$RELEASE_TAG" "$RUNNER_TEMP/checksums.txt" homebrew-tools/Formula/gitagger.rb
-      - name: Commit and push Homebrew formula
+      - name: Stage Homebrew formula
         working-directory: homebrew-tools
         run: |
           git config user.name "github-actions[bot]"
@@ -87,4 +87,24 @@ jobs:
             exit 0
           fi
           git commit -m "gitagger $RELEASE_TAG"
-          git push
+      # Validate before publishing: Homebrew audits, installs, and tests the
+      # formula from a tap pointed at this local checkout.
+      - name: Validate Homebrew formula
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          HOMEBREW_NO_INSTALL_CLEANUP: 1
+          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          brew tap che3mz/tools "$GITHUB_WORKSPACE/homebrew-tools"
+          brew audit --strict --online che3mz/tools/gitagger
+          brew install --formula che3mz/tools/gitagger
+          brew test gitagger
+          brew uninstall --force gitagger
+      - name: Push Homebrew formula
+        working-directory: homebrew-tools
+        run: |
+          if git log --oneline origin/master..HEAD | grep -q .; then
+            git push
+          else
+            echo "Homebrew formula is already up to date."
+          fi

@@ -86,6 +86,7 @@ func runShellCommand(dir, bin string, prefix []string, command string, env map[s
 	// #nosec G204: binary is a fixed shell from the allowlist above,
 	// never user input; the command string goes to the shell as data,
 	// exactly like running it by hand.
+	// nosemgrep: go.lang.security.audit.dangerous-exec-command.dangerous-exec-command
 	cmd := exec.Command(bin, args...)
 	cmd.Dir = dir
 	cmd.Env = append(os.Environ(), mapEnv(env)...)

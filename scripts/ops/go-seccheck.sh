@@ -3,7 +3,7 @@
 set -o pipefail
 
 # Always run from the repo root regardless of where the script is invoked.
-cd "$(dirname "$0")/../.."
+cd "$(dirname "$0")/../.." || exit
 
 mkdir -p logs
 

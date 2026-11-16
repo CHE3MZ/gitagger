@@ -37,14 +37,12 @@ darwin_x86_64=$(sha_for gitagger_Darwin_x86_64.tar.gz)
 linux_arm64=$(sha_for gitagger_Linux_arm64.tar.gz)
 linux_x86_64=$(sha_for gitagger_Linux_x86_64.tar.gz)
 
-version=${tag#v}
 mkdir -p "$(dirname "$output")"
 
 cat > "$output" <<EOF
 class Gitagger < Formula
-  desc "Create and push Git tags for your repository"
+  desc "create and push Git tags for your repository"
   homepage "https://che3mz.github.io/gitagger/"
-  version "$version"
   license "Apache-2.0"
 
   on_macos do
