@@ -23,20 +23,6 @@ func RunTag(o run.Options) error {
 	if err != nil {
 		return mapPlanError(err)
 	}
-	if err := run.CheckHeadTagged(o, plan.Next); err != nil {
-		return runFailureHooks(o, plan, false, Exists("%s", err.Error()))
-	}
-
-	// Doctor gate: with doctor: true, fail early on remote collision
-	// instead of creating a tag that can't push.
-	if o.Doctor && o.Push && !o.DryRun && !o.Unsafe {
-		if err := run.DoctorGate(o, plan.Next); err != nil {
-			return runFailureHooks(o, plan, false, Exists("%s", err.Error()))
-		}
-		if o.Verbose {
-			fmt.Println(style.Dim("doctor: pre-push check passed"))
-		}
-	}
 
 	// Dirty-tree warning: warn but allow unless require_clean is set.
 	// ComputePlan already aborted when RequireClean is set.
@@ -44,9 +30,26 @@ func RunTag(o run.Options) error {
 		fmt.Println(style.Warn("working tree is dirty; tagging anyway"))
 	}
 
+	// Dry run is purely a preview: print the plan and stop before any
+	// safety gate or hook, so it works even on an already-tagged HEAD.
 	if o.DryRun {
 		printDryRun(o, plan)
 		return nil
+	}
+
+	if err := run.CheckHeadTagged(o, plan.Next); err != nil {
+		return runFailureHooks(o, plan, false, Exists("%s", err.Error()))
+	}
+
+	// Doctor gate: with doctor: true, fail early on remote collision
+	// instead of creating a tag that can't push.
+	if o.Doctor && o.Push && !o.Unsafe {
+		if err := run.DoctorGate(o, plan.Next); err != nil {
+			return runFailureHooks(o, plan, false, Exists("%s", err.Error()))
+		}
+		if o.Verbose {
+			fmt.Println(style.Dim("doctor: pre-push check passed"))
+		}
 	}
 
 	if o.Unsafe {

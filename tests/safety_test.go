@@ -125,3 +125,21 @@ func TestDoctorGateSkipsOffline(t *testing.T) {
 		t.Fatalf("offline + doctor must stay graceful: %v", err)
 	}
 }
+
+// Dry run on an already-tagged HEAD must preview the plan instead of
+// aborting on the retag check, and must never fire failure hooks.
+func TestDryRunOnTaggedHeadDoesNotRunHooks(t *testing.T) {
+	dir := initRepo(t)
+	if err := git.CreateTag(dir, "v0.0.1", "", false); err != nil {
+		t.Fatal(err)
+	}
+	marker := filepath.Join(dir, "hook-ran")
+	o := run.Options{Dir: dir, Scale: "patch", Pre: "stable", Format: detect.Triple, Remote: "origin", Push: false, DryRun: true}
+	o.Hooks = config.Hooks{Failure: config.HookList{{Run: config.StringList{"echo ran > hook-ran"}}}}
+	if err := cmd.RunTag(o); err != nil {
+		t.Fatalf("dry run on tagged HEAD must succeed, got %v", err)
+	}
+	if _, err := os.Stat(marker); err == nil {
+		t.Fatalf("dry run must not run failure hooks")
+	}
+}
