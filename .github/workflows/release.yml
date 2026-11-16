@@ -96,6 +96,7 @@ jobs:
           HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           brew tap che3mz/tools "$GITHUB_WORKSPACE/homebrew-tools"
+          brew trust che3mz/tools
           brew audit --strict --online che3mz/tools/gitagger
           brew install --formula che3mz/tools/gitagger
           brew test gitagger
